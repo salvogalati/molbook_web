@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+*.mo
+
+# Local settings
+local_settings.py
+
+# Media / uploaded files
+/media
+/media/*
+media/
+media/*
+
+# Static files
+/static
+/static/*
+staticfiles/
+static/
+static/*
+
+# Virtual environment
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.venv.bak/
+
+# VS Code, PyCharm and other IDEs
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pytest
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+
+# pyright
+.pyright/
+
+# Test database
+test.sqlite3
+
+# dotenv
+.env
+*.env

@@ -1,0 +1,12 @@
+<h1>Benvenuto {{ request.user.username }}!</h1>
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+
+<form method="post" action="{% url 'dashboard' %}">
+    {% csrf_token %}
+    <input type="hidden" name="azione" value="carica-dati">
+    <button type="submit">Apri Dashboard con dati</button>
+</form>
+  
