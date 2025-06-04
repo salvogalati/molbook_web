@@ -1,0 +1,68 @@
+#root {
+  margin: 0 auto;
+  padding-top: 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Sfondo giallo per le celle selezionate */
+.p-datatable .p-datatable-tbody > tr > td.p-highlight {
+    background-color: #fff59d !important; /* giallo chiaro */
+    color: #000; /* colore del testo, opzionale */
+}
+/* Hover azzurrino sulle celle non selezionate */
+.p-datatable .p-datatable-tbody > tr > td:hover {
+    background-color: #e3f2fd; /* azzurrino */
+    cursor: pointer;
+}
+
+/* Target: ogni <td> della DataTable che riceve focus */
+.p-datatable .p-datatable-tbody > tr > td:focus {
+  background-color: #e3f2fd;
+  outline: 2px solid #1976d2 !important; 
+  color: #212121 !important;             
+}
+
+.p-column-filter-menu-button {
+  padding: 0.1em 0.1em;
+  background-color: transparent;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+}
