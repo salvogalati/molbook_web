@@ -4,9 +4,18 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Checkbox } from 'primereact/checkbox';
+import { ContextMenu } from 'primereact/contextmenu';
+import { MultiSelect } from 'primereact/multiselect';
+
+export default function MoleculeTable({ onSelectMolecule }) {
+    const columns = [
+        { field: 'code', header: 'Code' },
+        { field: 'name', header: 'Name' },
+        { field: 'quantity', header: 'Quantity' },
+        { field: 'category', header: 'category' }
+    ]
 
 
-export default function MoleculeTable() {
     // Stato per i prodotti (righe)
     const [products, setProducts] = useState([]);
 
@@ -14,6 +23,14 @@ export default function MoleculeTable() {
     const [selectedCells, setSelectedCells] = useState([]);
 
     const [selectedRows, setSelectedRows] = useState([]);
+    const cm = useRef(null);
+    const menuModel = [
+        { label: 'View', icon: 'pi pi-fw pi-search', command: () => console.log(selectedProduct) },
+        { label: 'Delete', icon: 'pi pi-fw pi-times', command: () => deleteProduct(selectedProduct) }
+        
+    ];
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [visibleColumns, setVisibleColumns] = useState(columns);
 
     // Stato per i filtri: ogni chiave corrisponde a un campo (field)
     const [filters, setFilters] = useState({
@@ -26,12 +43,7 @@ export default function MoleculeTable() {
 
     // Riferimento per il campo di ricerca globale (se lo vogliamo)
     const dt = useRef(null);
-    const columns = [
-        { field: 'code', header: 'Code' },
-        { field: 'name', header: 'Name' },
-        { field: 'quantity', header: 'Quantity' },
-        { field: 'category', header: 'category' }
-    ]
+
     // Simulazione dati fittizi
     useEffect(() => {
         const mockData = [
@@ -55,23 +67,6 @@ export default function MoleculeTable() {
         setFilters(_filters);
     };
 
-    // Template per l’input di testo nel filtro globale
-    const renderHeader = () => {
-        return (
-            <div className="p-3 justify-content-between align-items-center">
-                <h4 className="m-0">Molecole</h4>
-
-                    <InputText
-                        type="search"
-                        onInput={onGlobalFilterChange}
-                        placeholder="Ricerca globale"
-                        size="30"
-                    />
-            </div>
-        );
-    };
-
-    const header = renderHeader();
 
 
     const isPositiveInteger = (val) => {
@@ -136,23 +131,63 @@ export default function MoleculeTable() {
     // Verifico se una certa riga è selezionata
     const isRowSelected = (rowData) => {
         if (selectedRows.length > 0) {
-            return selectedRows[0].includes(rowData.code);
+            return selectedRows.includes(rowData.code);
         }
     };
 
+    const deleteProduct = (product) => {
+    // filtro l'array corrente, rimuovendo il prodotto col code corrispondente
+    setProducts(prevProducts =>
+        prevProducts.filter(p => p.code !== product.code)
+    );
+    };
+
+    const onColumnToggle = (event) => {
+        let selectedColumns = event.value;
+        let orderedSelectedColumns = columns.filter((col) => selectedColumns.some((sCol) => sCol.field === col.field));
+
+        setVisibleColumns(orderedSelectedColumns);
+    };
 
     // Funzione di logging, se vuoi ancora vedere le celle selezionate
     const logSelection = () => {
         console.log('Celle selezionate:', selectedCells);
+        console.log('Righe selezionate:', selectedRows);
     };
+
+    // Template per l’input di testo nel filtro globale
+    const renderHeader = () => {
+
+        return (
+            <div className="p-3 justify-content-between align-items-center">
+                <h4 className="m-0">Molecole</h4>
+
+                    <InputText
+                        type="search"
+                        onInput={onGlobalFilterChange}
+                        placeholder="Ricerca globale"
+                        size="30"
+                    />
+            <div>
+            <MultiSelect value={visibleColumns.filter(col => col.field !== 'code')} options={visibleColumns.filter(col => col.field !== 'code')}
+            optionLabel="header" onChange={onColumnToggle} className="w-full sm:w-20rem" display="chip" />;
+            </div>
+            </div>
+
+        );
+    };
+
+    const header = renderHeader();
 
     return (
         <div className="card">
+            <ContextMenu model={menuModel} ref={cm} onHide={() => setSelectedProduct(null)} />
             <DataTable
                 ref={dt}
                 value={products}
                 dataKey="code"
-                
+                onContextMenu={(e) => cm.current.show(e.originalEvent)}
+                onContextMenuSelectionChange={(e) => setSelectedProduct(e.value)}
                 /*** Filtri ***/
                 filters={filters}
                 filterDisplay="menu"  // puoi usare "menu" (predefinito) o "row" 
@@ -163,27 +198,44 @@ export default function MoleculeTable() {
                 cellSelection
                 selectionMode="multiple"
                 selection={selectedCells}
-                onSelectionChange={(e) => setSelectedCells(e.value)}
+                onSelectionChange={(e) => {  setSelectedCells(e.value);
+                        // se esiste almeno una cella selezionata, notifica il genitore
+                        if (onSelectMolecule && e.value.length > 0) {
+                        // prende la molecola (rowData) della PRIMA cella selezionata
+                        const firstCell = e.value[0];
+                        onSelectMolecule(firstCell.rowData);
+                }
+            }}
                 metaKeySelection={true}
                 removableSort
                 editMode="cell"
                 dragSelection
                 rowSelectionKey={selectedRows.join(',')} 
+                key={selectedRows}
                 >
                 <Column
-                    headerStyle={{ width: '3rem', textAlign: 'center' }}
-                    bodyStyle={{ textAlign: 'center' }}
+                    headerStyle={{ width: '3rem', textAlign: 'center', padding: "0 0 0 30px"}}
+                    style={{ width: '1%' }} 
+                    //selectionMode="multiple"
                     body={(rowData) => {
                         return (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',      // verticale
+                            justifyContent: 'center',  // orizzontale
+                            height: '100%',             // occupa tutta l’altezza della cella
+                        }}>
                             <Checkbox
+                            //style={{ padding: "5px "}}
                             onClick={(e) => e.stopPropagation()}
                             checked={isRowSelected(rowData)}
                             onChange={(e) => onRowCheckboxChange(e, rowData)}
                             />
+                            </div>
                         );
                     }}
                 />
-                {columns.map(({ field, header }) => {
+                {visibleColumns.map(({ field, header }) => {
                     return <Column key={field} field={field} header={header} sortable filter filterPlaceholder="Search by name"
                     style={{ width: '25%' }} editor={(options) => cellEditor(options)} onCellEditComplete={onCellEditComplete} />;
                 })}
