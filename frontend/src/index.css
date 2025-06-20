@@ -1,7 +1,7 @@
 /* Reset margini/padding per tutta la pagina */
 * {
-  margin: 0;
-  padding: 0;
+  /* margin: 0;
+  padding: 0; */
   box-sizing: border-box;
 }
 
@@ -60,6 +60,7 @@ h1 {
   cursor: pointer;
   transition: border-color 0.25s;
 } */
+ 
 button:hover {
   border-color: #646cff;
 }
@@ -79,4 +80,12 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+.p-menubar{
+  padding: 20px; 
+  position: fixed;         
+  top: 0;                 
+  left: 0;
+  width: 100%;
+  z-index: 1000; 
 }

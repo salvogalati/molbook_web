@@ -1,55 +1,93 @@
 import React, { useState } from 'react';
 import MoleculeTable from '../components/MoleculeTable';
 
-const getPubChemImageUrl = (name) => {
-  const encoded = encodeURIComponent(name);
-  return `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encoded}/PNG?record_type=2d&image_size=300x300`;
-};
+const getPubChemImageUrl = name =>
+  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/PNG?record_type=2d&image_size=300x300`;
 
-const Molecules = () => {
+export default function Molecules() {
   const [selectedMolecule, setSelectedMolecule] = useState(null);
+  const [isHorizontal, setIsHorizontal] = useState(true);
+
+  const toggleLayout = () => setIsHorizontal(prev => !prev);
+
+  // base container
+  const containerStyle = {
+    position: 'relative',                // per posizionare il pulsante assoluto
+    height: 'calc(100vh - 60px)',        // meno navbar
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+    padding: '20px'
+  };
+
+  // pulsante in alto a destra
+  const buttonStyle = {
+    position: 'absolute',
+    top: '10px',
+    right: '20px',
+    zIndex: 1000
+  };
+
+  // stile principale layout
+  const pageStyle = {
+    display: 'flex',
+    flexDirection: isHorizontal ? 'row' : 'column',
+    gap: '1rem',
+    height: '100%',                       // riempie il container
+    marginTop: '40px'                     // per non coprire il pulsante
+  };
+
+  // pannello immagine
+  const imageStyle = isHorizontal
+    ? { flex: '0 0 40%' }
+    : { flex: '0 0 200px' };
+
+  const imageContainerStyle = {
+    ...imageStyle,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    background: '#fff',
+    border: '1px solid #ccc',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
+  const imgStyle = {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'contain'
+  };
+
+  // pannello tabella
+  const tableContainerStyle = {
+    flex: isHorizontal ? '1 1 60%' : 1,
+    overflowY: 'auto',
+    border: '1px solid #ccc',
+    borderRadius: '8px'
+  };
 
   return (
-    <div style={{ padding: '20px', width: '100%' }}>
+    <div style={containerStyle}>
+      <button style={buttonStyle} onClick={toggleLayout}>
+        {isHorizontal ? 'Verticale' : 'Orizzontale'}
+      </button>
 
-      {/* ─── Placeholder / Immagine ───────────────────────────── */}
-      <div
-        style={{
-          width: '200px',
-          height: '200px',
-          margin: '2rem auto 2rem',
-          background: '#fff',        // riquadro bianco
-          border: '1px solid #ccc',  // bordo sottile
-          borderRadius: '8px',
-          overflow: 'hidden',
-          position: 'relative',
-          textAlign: 'center'
-        }}
-      >
-        {selectedMolecule && (
-          <>
-
+      <div style={pageStyle}>
+        <div style={imageContainerStyle}>
+          {selectedMolecule && (
             <img
               src={getPubChemImageUrl(selectedMolecule.name)}
               alt={`Struttura di ${selectedMolecule.name}`}
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%) scale(1.4)',
-                transformOrigin: 'center center'
-              }}
-              onError={e => { e.currentTarget.src = '/images/default.png'; }}
+              style={imgStyle}
+              onError={e => (e.currentTarget.src = '/images/default.png')}
             />
-          </>
-        )}
+          )}
+        </div>
+
+        <div style={tableContainerStyle}>
+          <MoleculeTable onSelectMolecule={setSelectedMolecule} />
+        </div>
       </div>
-
-      {/* ─── Tabella ───────────────────────────────────────────── */}
-      <MoleculeTable onSelectMolecule={setSelectedMolecule} />
-
     </div>
   );
-};
-
-export default Molecules;
+}

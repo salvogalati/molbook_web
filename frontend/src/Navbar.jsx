@@ -1,6 +1,7 @@
-import './Navbar.css';
+// import './Navbar.css';
 import { Link } from 'react-router-dom';
-
+import { Menubar } from 'primereact/menubar';
+import { useNavigate } from 'react-router-dom';
 
 function Navbar() {
   return (
@@ -25,4 +26,36 @@ function Navbar() {
   );
 }
 
+
+function Navbar1() {
+
+  const navigate = useNavigate();
+  const start = <h2>MolBook Pro</h2>;
+  const items = [
+    {
+      label: 'Home',
+      icon: 'pi pi-home',
+      command: () => navigate('/')
+    },
+    {
+      label: 'Molecole',
+      icon: 'pi pi-sitemap',
+      command: () => navigate('/molecules')
+    },
+    {
+      label: 'Contatti',
+      icon: 'pi pi-envelope',
+      command: () => navigate('/contacts')
+    }
+  ];
+
+    return (
+      <div className="card">
+          <Menubar model={items} start={start} />
+      </div>
+    )
+}
+
 export default Navbar;
+export { Navbar1 };
+

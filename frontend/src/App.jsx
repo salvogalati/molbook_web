@@ -1,14 +1,16 @@
-import 'primereact/resources/themes/md-light-indigo/theme.css';
+// import 'primereact/resources/themes/md-light-indigo/theme.css';
+// import 'primereact/resources/themes/viva-light/theme.css';
 // 2. Lo stile base di PrimeReact
-import 'primereact/resources/primereact.min.css';
+// 
 // 3. PrimeIcons (necessario per tutte le icone, incluso il filtro)
-import 'primeicons/primeicons.css';
-// 4. PrimeFlex (utile per le utility CSS, ma non strettamente obbligatorio per le icone)
 import 'primeflex/primeflex.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
 
 
 import './App.css';
-import Navbar from './Navbar.jsx';
+import {Navbar1} from './Navbar.jsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Contacts from './pages/Contacts.jsx';
@@ -20,7 +22,8 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      <Navbar1 />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contacts" element={<Contacts />} />
