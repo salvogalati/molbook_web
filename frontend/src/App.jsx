@@ -15,19 +15,21 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import Contacts from './pages/Contacts.jsx';
 import MoleculeDashboard from './pages/Molecules.jsx';
-
-
+import Login from './pages/Login.jsx';
+import MainLayout from './layouts/MainLayout.jsx';
 
 function App() {
 
   return (
     <Router>
-      <Navbar1 />
-
       <Routes>
-        <Route path="/" element={<Home />} />
+      <Route path="/" element={<Login />} />
+
+      <Route element={<MainLayout />}>
+        <Route path="/home" element={<Home />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/molecules" element={<MoleculeDashboard />} /> 
+      </Route>
       </Routes>
 
     </Router>

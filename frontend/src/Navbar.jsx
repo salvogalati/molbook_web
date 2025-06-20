@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
+import { Button } from 'primereact/button';
 
 function Navbar() {
   return (
@@ -35,7 +36,7 @@ function Navbar1() {
     {
       label: 'Home',
       icon: 'pi pi-home',
-      command: () => navigate('/')
+      command: () => navigate('/home')
     },
     {
       label: 'Molecole',
@@ -49,9 +50,21 @@ function Navbar1() {
     }
   ];
 
+  const handleLogout = () => {
+    // qui la tua logica di logout (es. clear auth token)
+    navigate('/');
+  }
+
     return (
       <div className="card">
-          <Menubar model={items} start={start} />
+          <Menubar model={items} start={start}  end={
+        <Button
+          label="Logout"
+          icon="pi pi-sign-out"
+          className="p-button-text"
+          onClick={handleLogout}
+        /> }
+        />
       </div>
     )
 }
