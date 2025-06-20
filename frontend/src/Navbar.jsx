@@ -51,7 +51,8 @@ function Navbar1() {
   ];
 
   const handleLogout = () => {
-    // qui la tua logica di logout (es. clear auth token)
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     navigate('/');
   }
 

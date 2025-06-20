@@ -1,0 +1,61 @@
+.logo-login {
+  border-radius: 100px;
+  /* se l’immagine è all’interno di un contenitore, 
+     assicurati che non “strabordi”: */
+  display: block; /* o inline-block */
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-card {
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(6px);
+  transition: backdrop-filter 0.4s;
+  animation: slideUp 0.6s ease-out both;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.login-signup-prompt {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8); /* un grigio chiaro semitrasparente */
+}
+
+.login-signup-prompt .prompt-text {
+  margin-right: 0.5rem;
+  color: #555;
+  font-size: medium;
+}
+
+.login-signup-prompt .prompt-link {
+  font-weight: 800;
+  color: #007ad9; /* bianco pieno per contrastare */
+  text-decoration: none;
+  transition: color 0.2s, transform 0.2s;
+  font-size: 25px;
+}
+
+.login-signup-prompt .prompt-link:hover {
+  color: #db1016; /* cambia leggermente tinta */
+  transform: translateX(3px); /* piccola animazione */
+}
