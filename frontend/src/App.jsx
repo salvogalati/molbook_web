@@ -9,7 +9,6 @@ import "primeicons/primeicons.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
 
 import "./App.css";
-import { Navbar1 } from "./Navbar.jsx";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Contacts from "./pages/Contacts.jsx";
@@ -17,6 +16,7 @@ import MoleculeDashboard from "./pages/Molecules.jsx";
 import Login from "./pages/Login.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
+import SignupPage from "./pages/SignUp"
 import RequireAuth from "./components/RequireAuth";
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignupPage />} />
 
           <Route
             element={

@@ -1,0 +1,10 @@
+/* custom-steps.css */
+.custom-steps .p-steps-item .p-menuitem-link {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.custom-steps .p-steps .p-steps-item.p-highlight .p-steps-title {
+color: white
+
+}
