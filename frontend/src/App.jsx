@@ -7,6 +7,7 @@ import "primeflex/primeflex.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import "primereact/resources/themes/lara-light-indigo/theme.css";
+//import "primereact/resources/themes/mira/theme.css"
 
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";

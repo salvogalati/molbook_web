@@ -11,10 +11,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 export default function SignupPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [formData, setFormData] = useState({
-    fist_name: "",
+    first_name: "",
     last_name: "",
     birth_date: null,
-    gender: "",
+    gender: "Male",
+    email: "",
+    password: "",
+    consentPrivacy: false,
+  consentTerms: false
   });
 
   const items = [
@@ -23,8 +27,44 @@ export default function SignupPage() {
     { label: "Confirm" },
   ];
 
-    const handleChange = (field, value) => {
+  const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
+
+    const today = new Date();
+  today.setHours(0,0,0,0);
+  const eighteenYearsAgo = new Date(today);
+  eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
+    const isAdult = (() => {
+    if (!(formData.birth_date instanceof Date)) return false;
+    const bd = new Date(formData.birth_date);
+    bd.setHours(0,0,0,0);
+    return bd <= eighteenYearsAgo;
+  })();
+
+    const isStepValid = () => {
+    switch (activeIndex) {
+      case 0:
+        return (
+          formData.first_name.trim() !== "" &&
+          formData.last_name.trim()  !== "" &&
+          isAdult && formData.birth_date       !== null &&
+          formData.gender.trim()    !== ""
+        );
+      case 1:
+        return (
+          isValidEmail(formData.email) &&
+          formData.password.trim() !== ""
+      )
+      case 2:
+        return  (formData.consentPrivacy &&
+            formData.consentTerms)
+      default:
+        return false;
+    }
   };
 
   return (
@@ -50,51 +90,46 @@ export default function SignupPage() {
         <Steps model={items} activeIndex={activeIndex} readOnly />
 
       </div>
-      <div style={{ display: "flex", flex: 1, flexDirection: "row", width: "100%", alignItems: "center",
+      <div style={{
+        display: "flex", flex: 1, flexDirection: "row", width: "100%", alignItems: "center",
         justifyContent: "center",
-       }}>
-              <Button
-            label="Back"
-            icon="pi pi-angle-left"
-            iconPos="left"
-            style={{ width: "10%", marginRight: "1rem" }}
-            onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
-            disabled={activeIndex === 0}
-          />
-      <Card
-        className="login-card"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "30%",
-          justifyContent: "center",
-          boxShadow: "5px 5px 5px 2px lightblue",
-          backgroundColor: "rgba(255, 255, 255, 0.6)",
-        }}
-      >
-  <AnimatePresence exitBeforeEnter>
-    <motion.div
-      key={activeIndex}                        // fa re-mount del div ad ogni cambio
-      initial={{ opacity: 0, x: 50 }}           // stato iniziale: traslato a destra + trasparente
-      animate={{ opacity: 1, x: 0 }}            // stato “in vista”
-      exit={{ opacity: 0, x: -50 }}             // animazione di uscita
-      transition={{ duration: 0.3 }}            // durata in secondi
-      style={{ width: '100%' }}                 // assicurati che il div riempia la card
-    >
-      <SignUpSteps activeIndex={activeIndex} formData={formData} onChange={handleChange} />
-    </motion.div>
-  </AnimatePresence>
-      </Card>
-                <Button
-                icon="pi pi-angle-right"
-                iconPos="right"
-            label={activeIndex === items.length - 1 ? "Confirm" : "Next"} // cambia label all’ultimo step
-            style={{ width: "10%", marginLeft: "1rem"}}
-            onClick={() =>
-              setActiveIndex((prev) => Math.min(prev + 1, items.length - 1))
-            }
-          />
-          </div>
+      }}>
+        <Button
+
+          label="Back"
+          icon="pi pi-angle-left"
+          iconPos="left"
+          style={{ width: "10%", marginRight: "1rem", }}
+          onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
+          disabled={activeIndex === 0}
+        />
+        <Card
+          className="login-card"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "30%",
+            justifyContent: "center",
+            boxShadow: "5px 5px 5px 2px lightblue",
+            backgroundColor: "rgba(255, 255, 255, 0.6)",
+          }}
+        >
+
+          <SignUpSteps activeIndex={activeIndex} formData={formData} onChange={handleChange} />
+
+        </Card>
+        <Button
+          icon="pi pi-angle-right"
+          iconPos="right"
+          label={activeIndex === items.length - 1 ? "Confirm" : "Next"} 
+          //disabled={false} 
+          disabled={!isStepValid()}
+          style={{ width: "10%", marginLeft: "1rem", }}
+          onClick={() =>
+            setActiveIndex((prev) => Math.min(prev + 1, items.length - 1))
+          }
+        />
+      </div>
     </div>
   );
 }
