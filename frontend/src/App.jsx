@@ -19,6 +19,7 @@ import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
 import SignupPage from "./pages/SignUp"
 import RequireAuth from "./components/RequireAuth";
+import TempPage from "./pages/Temp"
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/temp" element={<TempPage />} />
 
           <Route
             element={

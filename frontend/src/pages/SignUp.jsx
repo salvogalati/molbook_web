@@ -5,11 +5,12 @@ import { Button } from "primereact/button";
 import "primeicons/primeicons.css";
 import "./styles/SignUp.css";
 import SignUpSteps from "../components/SignUpSteps"
-import { AnimatePresence, motion } from 'framer-motion';
+import { CSSTransition, TransitionGroup, SwitchTransition } from 'react-transition-group';
 
 
 export default function SignupPage() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState("forward");
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -24,6 +25,7 @@ export default function SignupPage() {
   const items = [
     { label: "Info" },
     { label: "Account" },
+    { label: "Terms" },
     { label: "Confirm" },
   ];
 
@@ -67,6 +69,15 @@ export default function SignupPage() {
     }
   };
 
+    const next  = () => { setDirection("forward");  setActiveIndex(i=>Math.min(i+1, items.length-1)); };
+  const back  = () => { setDirection("backward"); setActiveIndex(i=>Math.max(i-1, 0)); };
+
+  /* --->  il trucco: cloneElement su ogni child  <--- */
+  const childFactory = child =>
+    React.cloneElement(child, {
+      classNames: direction === "forward" ? "slide-right" : "slide-left"
+    });
+
   return (
     <div
       style={{
@@ -85,7 +96,7 @@ export default function SignupPage() {
 
       <div
         className="custom-steps"
-        style={{ paddingTop: "0.1rem", width: "100%" }}
+        style={{ paddingTop: "1rem", width: "100%" }}
       >
         <Steps model={items} activeIndex={activeIndex} readOnly />
 
@@ -94,41 +105,63 @@ export default function SignupPage() {
         display: "flex", flex: 1, flexDirection: "row", width: "100%", alignItems: "center",
         justifyContent: "center",
       }}>
+        {activeIndex < items.length - 1 && (
         <Button
 
           label="Back"
           icon="pi pi-angle-left"
           iconPos="left"
           style={{ width: "10%", marginRight: "1rem", }}
-          onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
-          disabled={activeIndex === 0}
+          onClick={back}
+          disabled={activeIndex===0}
         />
+        )}
+        <div
+  style={{
+    width: "50%",
+    display: "flex",
+    position: "relative",
+    overflow: "hidden", 
+    height: "400px", 
+    justifyContent: "center", 
+    alignItems: "center",
+  }}>
+    <TransitionGroup component={null} childFactory={childFactory}>
+    <CSSTransition
+      key={`${activeIndex}-${direction}`}
+      timeout={500}
+      classNames={direction === "forward" ? "slide-right" : "slide-left"}
+    >
         <Card
-          className="login-card"
+          className="cardSignUp"
           style={{
             display: "flex",
             flexDirection: "column",
-            width: "30%",
+            width: "100%",
             justifyContent: "center",
+            position: "absolute",
             boxShadow: "5px 5px 5px 2px lightblue",
-            backgroundColor: "rgba(255, 255, 255, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
           }}
         >
 
           <SignUpSteps activeIndex={activeIndex} formData={formData} onChange={handleChange} />
 
         </Card>
+            </CSSTransition>
+  </TransitionGroup>
+        </div>
+        {activeIndex < items.length - 1 && (
         <Button
           icon="pi pi-angle-right"
           iconPos="right"
           label={activeIndex === items.length - 1 ? "Confirm" : "Next"} 
-          //disabled={false} 
-          disabled={!isStepValid()}
+          disabled={false} 
+          //disabled={!isStepValid()}
           style={{ width: "10%", marginLeft: "1rem", }}
-          onClick={() =>
-            setActiveIndex((prev) => Math.min(prev + 1, items.length - 1))
-          }
+          onClick={next}
         />
+        )}
       </div>
     </div>
   );

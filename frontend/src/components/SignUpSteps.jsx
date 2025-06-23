@@ -127,7 +127,7 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
           display: "flex",
           flexDirection: "column",
           gap: "0.1rem",
-          justifyContent: "space-evenly", // distribuisce i due campi al centro
+          justifyContent: "space-evenly",
           alignItems: "center",
         }}
       >
@@ -278,7 +278,26 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
   <small className="p-error">You must accept the Privacy Polixy and Terms & Conditions.</small>
 )}
       </div>
-    </>)
+    </>),
+    (
+      <>
+           <div
+        className="flex flex-column align-items-center p-4"
+        style={{ gap: '1rem' }}
+      >
+        <i
+          className="pi pi-check-circle"
+          style={{ fontSize: '4rem', color: 'green' }}
+        />
+        <h3>Registration Successful!</h3>
+        <p>
+          Thank you for signing up. We’ve sent a confirmation email with a
+          validation link to <strong>{formData.email}</strong>. Please check
+          your inbox and click the link to activate your account.
+        </p>
+      </div> 
+      </>
+    )
   ];
 
   return STEP_CONTENTS[activeIndex] || null;
