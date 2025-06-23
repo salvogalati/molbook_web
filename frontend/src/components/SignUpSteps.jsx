@@ -5,7 +5,6 @@ import { Password } from 'primereact/password';
 import { useState } from "react";
 import { Checkbox } from 'primereact/checkbox';
 
-
 export function EmailField({ value, onChange }) {
   const [touched, setTouched] = useState(false);
   const isValid = /^\S+@\S+\.\S+$/.test(value);
@@ -17,7 +16,7 @@ export function EmailField({ value, onChange }) {
       </label>
       <InputText
         id="email"
-        type="email"                // abilita il controllo base HTML5
+        type="email"   
         value={value}
         onChange={e => onChange(e.target.value)}
         onBlur={() => setTouched(true)}
@@ -56,6 +55,7 @@ export function CalendarField({ value, onChange }) {
           value={value}
           onChange={e => onChange(e.target.value)}
           dateFormat="dd/mm/yy"
+          showIcon
         />
         {value && !isAdult && (
           <small className="p-error">

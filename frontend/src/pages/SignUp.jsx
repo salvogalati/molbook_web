@@ -6,7 +6,7 @@ import "primeicons/primeicons.css";
 import "./styles/SignUp.css";
 import SignUpSteps from "../components/SignUpSteps"
 import { CSSTransition, TransitionGroup, SwitchTransition } from 'react-transition-group';
-
+import { Link } from "react-router-dom";
 
 export default function SignupPage() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -141,7 +141,7 @@ export default function SignupPage() {
             justifyContent: "center",
             position: "absolute",
             boxShadow: "5px 5px 5px 2px lightblue",
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
           }}
         >
 
@@ -163,6 +163,12 @@ export default function SignupPage() {
         />
         )}
       </div>
+            <div className="signup-login-prompt" style={{paddingBottom: "1rem"}} >
+            <span className="prompt-text">Have you alread an account? </span>
+            <Link to="/login" className="prompt-link" style={{fontSize: "1.2rem"}}>
+              Sign-in
+            </Link>
+          </div>
     </div>
   );
 }

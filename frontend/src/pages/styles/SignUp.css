@@ -11,7 +11,7 @@ color: white
 
 /* Next: entra da destra → sinistra */
 .slide-left-enter {
-  transform: translateX(100%);
+  transform: translateX(-100%);
   opacity: 0;
 }
 .slide-left-enter-active {
@@ -24,14 +24,14 @@ color: white
   opacity: 1;
 }
 .slide-left-exit-active {
-  transform: translateX(-100%);
+  transform: translateX(100%);
   opacity: 0;
   transition: transform 500ms ease, opacity 500ms ease;
 }
 
 /* Back: entra da sinistra → destra */
 .slide-right-enter {
-  transform: translateX(-100%);
+  transform: translateX(100%);
   opacity: 0;
 }
 .slide-right-enter-active {
@@ -44,7 +44,7 @@ color: white
   opacity: 1;
 }
 .slide-right-exit-active {
-  transform: translateX(100%);
+  transform: translateX(-100%);
   opacity: 0;
   transition: transform 500ms ease, opacity 500ms ease;
 }
