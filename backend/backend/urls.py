@@ -16,14 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
 from django.http import JsonResponse
-from .views_api import HelloProtectedView 
+from .views_api import HelloProtectedView, HelloView
 
 def api_root(request):
     return JsonResponse({'message': 'MolBook API root. Benvenuto!'})
@@ -33,6 +33,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/hello/', HelloProtectedView.as_view(), name='hello_protetto')
+    path('api/hello-p/', HelloProtectedView.as_view(), name='hello_protetto'),
+    path('api/hello/', HelloView.as_view(), name='hello_non-protetto'),
+    path('accounts/', include('allauth.urls')), 
+    path('api/auth/', include('dj_rest_auth.urls')),                   # login/logout/password reset
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 
 ]

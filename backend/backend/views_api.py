@@ -9,3 +9,10 @@ class HelloProtectedView(APIView):
         return Response({
             "message": f"Ciao {request.user.username}, sei autenticato!"
         })
+
+class HelloView(APIView):
+
+    def get(self, request):
+        return Response({
+            "message": f"Hello world!"
+        })

@@ -38,6 +38,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',  
+    'rest_framework',
+    'rest_framework.authtoken',
+    'backend.accounts',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -128,7 +138,7 @@ REST_FRAMEWORK = {
     ),
 
 'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAuthenticated',
+#    'rest_framework.permissions.IsAuthenticated', #Enable if you want that all API are protected
 ]
 }
 
@@ -136,3 +146,19 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',              # default
+    'allauth.account.auth_backends.AuthenticationBackend',    # per allauth
+)
+
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*',]
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # 'optional' o 'none' per disattivare
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True       # link cliccabile senza POST
+LOGIN_REDIRECT_URL = "/"
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@molbook.local'
+
