@@ -8,15 +8,29 @@ import { useNavigate } from "react-router-dom";
 import { Image } from "primereact/image";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from "framer-motion";
+import { Message } from "primereact/message";
+
 import "./styles/Login.css";
 
 function Login() {
+  const [step, setStep] = useState("login");
+  const [sent, setSent] = useState(false);
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const msgs = useRef(null);
   const navigate = useNavigate();
   const isFormValid = username.trim() !== "" && password.trim() !== "";
+  const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
   const { login } = useAuth();
+
+  const variants = {
+    hidden: { opacity: 0, x: 40 },
+    enter: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -40 },
+  };
 
   const handleSubmit = async () => {
     try {
@@ -79,60 +93,126 @@ function Login() {
             backgroundColor: "rgba(255, 255, 255, 0.6)",
           }}
         >
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                width: "75%",
-                margin: "0 auto",
-              }}
-            >
-              <label>Username</label>
-              <InputText
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1rem",
-                width: "75%",
-                margin: "0 auto",
-              }}
-            >
-              <label>Password</label>
-              <Password
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                feedback={false}
-                toggleMask
-                style={{ width: "100%", display: "inline" }}
-                inputStyle={{ width: "100%" }}
-              />
-            </div>
-            <div style={{ "padding-top": "5%" }}>
-              <Button
-                label="Sign-in"
-                style={{ width: "30%", margin: "0 auto" }}
-                onClick={handleSubmit}
-                disabled={!isFormValid}
-              />
-            </div>
-          </div>
-          <Messages ref={msgs} />
-          <div className="login-signup-prompt">
-            <span className="prompt-text">Not a member? </span>
-            <Link to="/signup" className="prompt-link">
-              Sign-up
-            </Link>
-          </div>
+          <AnimatePresence mode="wait">
+            {step === "login" && (
+              <motion.div
+                key="login"
+                variants={variants}
+                initial="hidden"
+                animate="enter"
+                exit="exit"
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                      width: "75%",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <label>Username</label>
+                    <InputText
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                      width: "75%",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <label>Password</label>
+                    <Password
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      feedback={false}
+                      toggleMask
+                      style={{ width: "100%", display: "inline" }}
+                      inputStyle={{ width: "100%" }}
+                    />
+                  </div>
+                  <Button
+                    className="p-button-link"
+                    style={{ display: "inline-block" }}
+                    onClick={() => setStep("forgot")}
+                  >
+                    Forgot Password?
+                  </Button>
+                  <div style={{ "padding-top": "3%" }}>
+                    <Button
+                      label="Sign-in"
+                      style={{ width: "30%", margin: "0 auto" }}
+                      onClick={handleSubmit}
+                      disabled={!isFormValid}
+                    />
+                  </div>
+                </div>
+                <Messages ref={msgs} />
+                <div className="login-signup-prompt">
+                  <span className="prompt-text">Not a member? </span>
+                  <Link to="/signup" className="prompt-link">
+                    Sign-up
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+            {step === "forgot" && (
+              <motion.div
+                key="forgot"
+                variants={variants}
+                initial="hidden"
+                animate="enter"
+                exit="exit"
+              >
+                {sent ? (
+                  <Message
+                    severity="success"
+                    text="Se l’email esiste riceverai il link di reset."
+                  />
+                ) : (
+                  <>
+                    <div className="p-inputgroup flex-1">
+                      <Button
+                        disabled={!isValidEmail(email)}
+                        label="Send reset link"
+                        onClick={() => {
+                          setSent(true);
+                        }}
+                      />
+                      <InputText
+                        //value={email}
+                        placeholder="Email address"
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <Button
+                  className="p-button-link"
+                  onClick={() => {
+                    setStep("login");
+                    setSent(false);
+                  }}
+                >
+                  ← Back to login
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </Card>
       </div>
     </div>

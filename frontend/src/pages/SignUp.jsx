@@ -18,6 +18,7 @@ export default function SignupPage() {
     gender: "Male",
     email: "",
     password: "",
+    confirmPassword: "",
     consentPrivacy: false,
   consentTerms: false
   });
@@ -54,12 +55,13 @@ export default function SignupPage() {
           formData.first_name.trim() !== "" &&
           formData.last_name.trim()  !== "" &&
           isAdult && formData.birth_date       !== null &&
-          formData.gender.trim()    !== ""
+          formData.gender.trim()    !== "" 
         );
       case 1:
         return (
           isValidEmail(formData.email) &&
-          formData.password.trim() !== ""
+          formData.password.trim() !== "" &&
+          formData.password.trim() === formData.confirmPassword.trim()
       )
       case 2:
         return  (formData.consentPrivacy &&
@@ -70,7 +72,7 @@ export default function SignupPage() {
   };
 
     const next  = () => { setDirection("forward");  setActiveIndex(i=>Math.min(i+1, items.length-1)); };
-  const back  = () => { setDirection("backward"); setActiveIndex(i=>Math.max(i-1, 0)); };
+  const back  = () => { setDirection("backward"); setActiveIndex(i=>Math.max(i-1, 0)); handleChange("confirmPassword", "")};
 
   /* --->  il trucco: cloneElement su ogni child  <--- */
   const childFactory = child =>
@@ -156,8 +158,8 @@ export default function SignupPage() {
           icon="pi pi-angle-right"
           iconPos="right"
           label={activeIndex === items.length - 1 ? "Confirm" : "Next"} 
-          disabled={false} 
-          //disabled={!isStepValid()}
+          //disabled={false} 
+          disabled={!isStepValid()}
           style={{ width: "10%", marginLeft: "1rem", }}
           onClick={next}
         />

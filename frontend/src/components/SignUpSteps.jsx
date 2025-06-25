@@ -2,7 +2,7 @@ import { InputText } from "primereact/inputtext";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
 import { Password } from 'primereact/password';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Checkbox } from 'primereact/checkbox';
 
 export function EmailField({ value, onChange }) {
@@ -67,11 +67,13 @@ export function CalendarField({ value, onChange }) {
   )
 }
 
-export function PasswordSignUp({ value, onChange }) {
+export function PasswordSignUp({ value, onChange, confirmValue,  onConfirmChange  }) {
 
-  const [confirm, setConfirm] = useState('');
   const [touched, setTouched] = useState(false);
-  const passwordsMatch = value.length > 0 && value === confirm;
+  const passwordsMatch = value.length > 0 && value === confirmValue;
+  useEffect(() => {
+    console.log(value, confirmValue)
+}, [value, confirmValue]);
   const handleBlur = () => {
     // segna come “toccato” al primo blur di uno dei due
     if (!touched) {
@@ -99,15 +101,15 @@ export function PasswordSignUp({ value, onChange }) {
           Confirm Password
         </label>
         <Password
-          onChange={e => setConfirm(e.target.value)}
-          value={confirm}
+         //value={confirmValue}
+          onChange={e => onConfirmChange(e.target.value)}
           toggleMask
           onBlur={handleBlur}
           feedback={false}
           className={touched && !passwordsMatch ? "p-invalid" : ""}
           style={{ width: "100%", display: "inline" }}
           inputStyle={{ width: "100%" }} />
-        {touched && confirm !== "" && !passwordsMatch && (
+        {touched && confirmValue !== "" && !passwordsMatch && (
           <small className="p-error">
             Le password non corrispondono.
           </small>
@@ -118,7 +120,8 @@ export function PasswordSignUp({ value, onChange }) {
 }
 
 export default function SignUpSteps({ activeIndex, formData, onChange }) {
-  const { first_name, last_name, birth_date, gender, email, password, consentPrivacy, consentTerms } = formData;
+  // eslint-disable-next-line no-unused-vars
+  const { first_name, last_name, birth_date, gender, email, password, confirmed_password, consentPrivacy, consentTerms } = formData;
 
   const STEP_CONTENTS = [(
     <>
@@ -230,6 +233,8 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
         <PasswordSignUp
           value={formData.password}
           onChange={val => onChange('password', val)}
+                    confirmValue={formData.confirmPassword}
+          onConfirmChange={val => onChange("confirmPassword", val)}
         />
       </div>
     </>),
