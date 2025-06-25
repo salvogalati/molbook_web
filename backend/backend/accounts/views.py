@@ -1,6 +1,6 @@
-from rest_framework import generics, permissions
-from .serializers import RegisterSerializer
+from dj_rest_auth.registration.views import RegisterView
+from .serializers import CustomRegisterSerializer
 
-class RegisterAPIView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
+class CustomRegisterView(RegisterView):
+    # forziamo qui il serializer, ignorando la configurazione dinamica
+    serializer_class = CustomRegisterSerializer

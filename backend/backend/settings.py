@@ -77,6 +77,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = "backend.wsgi.application"
 
 
@@ -101,9 +102,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    # },
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
@@ -154,11 +155,19 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',    # per allauth
 )
 
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*',]
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'backend.accounts.serializers.CustomRegisterSerializer'
+}
+
+
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password*',]
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # 'optional' o 'none' per disattivare
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True       # link cliccabile senza POST
 LOGIN_REDIRECT_URL = "/"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@molbook.local'
-
+AUTH_USER_MODEL = "accounts.User"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_UNIQUE_EMAIL = True
+AUTH_USER_MODEL = "accounts.User"

@@ -1,18 +1,44 @@
-from rest_framework import serializers
+# backend/accounts/serializers.py
+from dj_rest_auth.registration.serializers import RegisterSerializer as DefaultRegisterSerializer
 from django.contrib.auth import get_user_model
+from rest_framework.validators import UniqueValidator
+from rest_framework import serializers
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+class CustomRegisterSerializer(DefaultRegisterSerializer):
+    # rimuovo i campi che non servono
+    username  = None
+    password1 = None
+    password2 = None
 
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password')
+    # un solo campo password
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all(),
+                                    message="Questa email è già registrata.")]
+    )
+    password = serializers.CharField(write_only=True, min_length=6)
 
-    def create(self, validated_data):
-        return User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
+    # campi extra
+    first_name    = serializers.CharField(required=False, max_length=150)
+    last_name     = serializers.CharField(required=False, max_length=150)
+    date_of_birth = serializers.DateField(required=False)
+    gender        = serializers.ChoiceField(
+        choices=User._meta.get_field('gender').choices,
+        required=False
+    )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        return attrs
+
+    def get_cleaned_data(self):
+        data = super().get_cleaned_data()
+        # allauth si aspetta password in 'password1'
+        data['password1']     = self.validated_data.get('password')
+        data['first_name']    = self.validated_data.get('first_name', '')
+        data['last_name']     = self.validated_data.get('last_name', '')
+        data['date_of_birth'] = self.validated_data.get('date_of_birth', None)
+        data['gender']        = self.validated_data.get('gender', '')
+        return data
