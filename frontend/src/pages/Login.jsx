@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Message } from "primereact/message";
+import { API_URL } from '../api';
 
 import "./styles/Login.css";
 
@@ -52,6 +53,40 @@ function Login() {
     }
   };
 
+ const handleForgotPassword = async (creds) => {
+        try {
+          const res = await fetch(`${API_URL}/api/auth/password/reset-pwd/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({email: creds.email})
+          });
+          console.log(res)
+          if (!res.ok) {
+            const errBody = await res.json().catch(() => null);
+            const msg = errBody?.detail || 'Email not valid';
+            throw new Error(msg);
+          }
+    
+          await res.json();
+          setSent(true);
+
+    
+    
+        } catch (error) {
+          console.error('Reset password failed', error);
+          if (msgs.current) {
+            msgs.current.clear();
+            msgs.current.show({
+              severity: "error",
+              summary: "Error",
+              detail: "Rest password failed",
+              sticky: true,
+              closable: false,
+            });
+        }
+      };
+    }
+
   return (
     <div
       style={{
@@ -90,7 +125,7 @@ function Login() {
             margin: "auto",
             marginLeft: "1%",
             boxShadow: "5px 5px 5px 2px lightblue",
-            backgroundColor: "rgba(255, 255, 255, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
           }}
         >
           <AnimatePresence mode="wait">
@@ -188,8 +223,8 @@ function Login() {
                       <Button
                         disabled={!isValidEmail(email)}
                         label="Send reset link"
-                        onClick={() => {
-                          setSent(true);
+                        onClick={() => {handleForgotPassword({email})
+                          
                         }}
                       />
                       <InputText

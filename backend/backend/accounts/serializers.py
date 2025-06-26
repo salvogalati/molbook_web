@@ -1,5 +1,7 @@
 # backend/accounts/serializers.py
 from dj_rest_auth.registration.serializers import RegisterSerializer as DefaultRegisterSerializer
+from dj_rest_auth.serializers import PasswordResetSerializer as _PasswordResetSerializer
+from .utils import custom_password_reset_url
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
@@ -30,7 +32,7 @@ class CustomRegisterSerializer(DefaultRegisterSerializer):
     )
 
     def validate(self, attrs):
-        attrs = super().validate(attrs)
+        #attrs = super().validate(attrs)
         return attrs
 
     def get_cleaned_data(self):
@@ -42,3 +44,13 @@ class CustomRegisterSerializer(DefaultRegisterSerializer):
         data['date_of_birth'] = self.validated_data.get('date_of_birth', None)
         data['gender']        = self.validated_data.get('gender', '')
         return data
+
+
+
+class CustomPasswordResetSerializer(_PasswordResetSerializer):
+    def get_email_options(self):
+        # prendi le options di default (template, subject, ecc.)
+        opts = super().get_email_options()
+        # sovrascrivi solo il generatore di URL
+        opts['url_generator'] = custom_password_reset_url
+        return opts

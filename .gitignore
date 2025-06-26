@@ -68,5 +68,5 @@ coverage.xml
 test.sqlite3
 
 # dotenv
-.env
-*.env
+#.env
+#*.env

@@ -25,6 +25,7 @@ from django.contrib.auth import views as auth_views
 
 from django.http import JsonResponse
 from .views_api import HelloProtectedView, HelloView
+from backend.accounts.views import CustomPasswordResetView
 
 def api_root(request):
     return JsonResponse({'message': 'MolBook API root. Benvenuto!'})
@@ -49,6 +50,11 @@ urlpatterns = [
         template_name='password_reset_confirm.html'
       ),
       name='password_reset_confirm'
-    )
+    ),
+        path(
+      'api/auth/password/reset-pwd/',
+      CustomPasswordResetView.as_view(),
+      name='rest_password_reset'
+    ),
 
 ]

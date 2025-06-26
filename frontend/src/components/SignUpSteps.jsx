@@ -1,9 +1,9 @@
 import { InputText } from "primereact/inputtext";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
-import { Password } from 'primereact/password';
-import { useState, useEffect } from "react";
-import { Checkbox } from 'primereact/checkbox';
+import { Password } from "primereact/password";
+import { useState } from "react";
+import { Checkbox } from "primereact/checkbox";
 
 export function EmailField({ value, onChange }) {
   const [touched, setTouched] = useState(false);
@@ -16,18 +16,16 @@ export function EmailField({ value, onChange }) {
       </label>
       <InputText
         id="email"
-        type="email"   
+        type="email"
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         onBlur={() => setTouched(true)}
         className={touched && value !== "" && !isValid ? "p-invalid" : ""}
         style={{ width: "100%" }}
         required
       />
       {touched && value !== "" && !isValid && (
-        <small className="p-error">
-          Please enter a valid email address.
-        </small>
+        <small className="p-error">Please enter a valid email address.</small>
       )}
     </div>
   );
@@ -38,6 +36,7 @@ export function CalendarField({ value, onChange }) {
   today.setHours(0, 0, 0, 0);
   const eighteenYearsAgo = new Date(today);
   eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
 
   const isAdult = (() => {
     if (!(value instanceof Date)) return false;
@@ -53,77 +52,72 @@ export function CalendarField({ value, onChange }) {
         </label>
         <Calendar
           value={value}
-          onChange={e => onChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           dateFormat="dd/mm/yy"
           showIcon
         />
         {value && !isAdult && (
-          <small className="p-error">
-            You must be at least 18 years old.
-          </small>
+          <small className="p-error">You must be at least 18 years old.</small>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export function PasswordSignUp({ value, onChange, confirmValue,  onConfirmChange  }) {
-
+export function PasswordSignUp({
+  value,
+  onChange,
+  confirmValue,
+  onConfirmChange,
+}) {
   const [touched, setTouched] = useState(false);
   const passwordsMatch = value.length > 0 && value === confirmValue;
-  useEffect(() => {
-    console.log(value, confirmValue)
-}, [value, confirmValue]);
+  //   useEffect(() => {
+  //     console.log(value, confirmValue)
+  // }, [value, confirmValue]);
   const handleBlur = () => {
-    // segna come “toccato” al primo blur di uno dei due
+
     if (!touched) {
       setTouched(true);
     }
   };
 
-
   return (
     <div className="py-1 w-12">
       <div className="flex flex-column gap-2">
-        <label style={{ fontWeight: "bold" }}>
-          Password
-        </label>
+        <label style={{ fontWeight: "bold" }}>Password</label>
         <Password
-          onChange={e => onChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           value={value}
           toggleMask
           onBlur={handleBlur}
           feedback={false}
           className={touched && !passwordsMatch ? "p-invalid" : ""}
           style={{ width: "100%", display: "inline" }}
-          inputStyle={{ width: "100%" }} />
-        <label style={{ fontWeight: "bold" }}>
-          Confirm Password
-        </label>
+          inputStyle={{ width: "100%" }}
+        />
+        <label style={{ fontWeight: "bold" }}>Confirm Password</label>
         <Password
-         //value={confirmValue}
-          onChange={e => onConfirmChange(e.target.value)}
+          //value={confirmValue}
+          onChange={(e) => onConfirmChange(e.target.value)}
           toggleMask
           onBlur={handleBlur}
           feedback={false}
           className={touched && !passwordsMatch ? "p-invalid" : ""}
           style={{ width: "100%", display: "inline" }}
-          inputStyle={{ width: "100%" }} />
+          inputStyle={{ width: "100%" }}
+        />
         {touched && confirmValue !== "" && !passwordsMatch && (
-          <small className="p-error">
-            Le password non corrispondono.
-          </small>
+          <small className="p-error">Le password non corrispondono.</small>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default function SignUpSteps({ activeIndex, formData, onChange }) {
-  // eslint-disable-next-line no-unused-vars
-  const { first_name, last_name, birth_date, gender, email, password, confirmed_password, consentPrivacy, consentTerms } = formData;
 
-  const STEP_CONTENTS = [(
+  const STEP_CONTENTS = [
     <>
       <div
         style={{
@@ -153,7 +147,12 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
             <label htmlFor="lastname" style={{ fontWeight: "bold" }}>
               Last Name
             </label>
-            <InputText id="lastname" value={formData.last_name} style={{ width: "100%" }} onChange={(e) => onChange("last_name", e.target.value)} />
+            <InputText
+              id="lastname"
+              value={formData.last_name}
+              style={{ width: "100%" }}
+              onChange={(e) => onChange("last_name", e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -185,8 +184,8 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
                 inputId="sexM"
                 name="Male"
                 value="Male"
-                onChange={e => onChange('gender', e.value)}
-                checked={formData.gender === 'Male'}
+                onChange={(e) => onChange("gender", e.value)}
+                checked={formData.gender === "Male"}
               />
               <label htmlFor="sex" className="ml-2">
                 Male
@@ -197,8 +196,8 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
                 inputId="sefF"
                 name="Female"
                 value="Female"
-                onChange={e => onChange('gender', e.value)}
-                checked={formData.gender === 'Female'}
+                onChange={(e) => onChange("gender", e.value)}
+                checked={formData.gender === "Female"}
               />
               <label htmlFor="sex" className="ml-2">
                 Female
@@ -207,13 +206,11 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
           </div>
         </div>
         <CalendarField
-          value={formData.birth_date}
-          onChange={val => onChange('birth_date', val)}
+          value={formData.date_of_birth}
+          onChange={(val) => onChange("date_of_birth", val)}
         />
-
       </div>
-    </>),
-  (
+    </>,
     <>
       <div
         style={{
@@ -226,19 +223,17 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
       >
         <EmailField
           value={formData.email}
-          onChange={val => onChange('email', val)}
+          onChange={(val) => onChange("email", val)}
         />
-
 
         <PasswordSignUp
           value={formData.password}
-          onChange={val => onChange('password', val)}
-                    confirmValue={formData.confirmPassword}
-          onConfirmChange={val => onChange("confirmPassword", val)}
+          onChange={(val) => onChange("password", val)}
+          confirmValue={formData.confirmPassword}
+          onConfirmChange={(val) => onChange("confirmPassword", val)}
         />
       </div>
-    </>),
-  (
+    </>,
     <>
       <div
         style={{
@@ -250,14 +245,20 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
         }}
       >
         <div className="flex align-items-center">
-          <Checkbox inputId="terms" checked={formData.consentPrivacy} onChange={val => onChange('consentPrivacy', val.checked)} aria-required="true"/>
+          <Checkbox
+            inputId="terms"
+            checked={formData.consentPrivacy}
+            onChange={(val) => onChange("consentPrivacy", val.checked)}
+            aria-required="true"
+          />
           <label htmlFor="privacy" className="ml-2">
-            I consent to the processing of my personal data in accordance with the{' '}
+            I consent to the processing of my personal data in accordance with
+            the{" "}
             <a
               href="https://www.tuosito.it/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ textDecoration: 'underline' }}
+              style={{ textDecoration: "underline" }}
             >
               Privacy Policy
             </a>
@@ -265,34 +266,40 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
           </label>
         </div>
         <div className="flex align-items-center">
-          <Checkbox inputId="terms" checked={formData.consentTerms} onChange={val => onChange('consentTerms', val.checked)} />
+          <Checkbox
+            inputId="terms"
+            checked={formData.consentTerms}
+            onChange={(val) => onChange("consentTerms", val.checked)}
+          />
           <label htmlFor="terms" className="ml-2">
-            I have read and agree to the{' '}
+            I have read and agree to the{" "}
             <a
               href="/terms-and-conditions"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ textDecoration: 'underline' }}
+              style={{ textDecoration: "underline" }}
             >
               Terms &amp; Conditions of Service
             </a>
             .*
           </label>
         </div>
-                  {formData.consentTerms || !formData.consentTerms && (
-  <small className="p-error">You must accept the Privacy Polixy and Terms & Conditions.</small>
-)}
+        {formData.consentTerms ||
+          (!formData.consentTerms && (
+            <small className="p-error">
+              You must accept the Privacy Polixy and Terms & Conditions.
+            </small>
+          ))}
       </div>
-    </>),
-    (
-      <>
-           <div
+    </>,
+    <>
+      <div
         className="flex flex-column align-items-center p-4"
-        style={{ gap: '1rem' }}
+        style={{ gap: "1rem" }}
       >
         <i
           className="pi pi-check-circle"
-          style={{ fontSize: '4rem', color: 'green' }}
+          style={{ fontSize: "4rem", color: "green" }}
         />
         <h3>Registration Successful!</h3>
         <p>
@@ -300,9 +307,8 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
           validation link to <strong>{formData.email}</strong>. Please check
           your inbox and click the link to activate your account.
         </p>
-      </div> 
-      </>
-    )
+      </div>
+    </>,
   ];
 
   return STEP_CONTENTS[activeIndex] || null;

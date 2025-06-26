@@ -28,7 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+# LANGUAGES = [
+#     ('en', 'English'),
+# ]
+LANGUAGE_CODE = 'en-us'
+USE_I18N = False
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,6 +51,7 @@ INSTALLED_APPS = [
     'backend.accounts',
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -58,9 +63,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "backend.urls"
+#USE_I18N = True
+
 
 TEMPLATES = [
     {
@@ -101,13 +109,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 6},
     },
     # {
     #     "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     # },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    # {
+    #     "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    # },
 ]
 
 
@@ -159,6 +168,11 @@ REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'backend.accounts.serializers.CustomRegisterSerializer'
 }
 
+REST_AUTH_SERIALIZERS = {
+    'PASSWORD_RESET_SERIALIZER': 'backend.accounts.serializers.CustomPasswordResetSerializer',
+}
+
+
 
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password*',]
 ACCOUNT_LOGIN_METHODS = {'email'}
@@ -171,3 +185,4 @@ AUTH_USER_MODEL = "accounts.User"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_UNIQUE_EMAIL = True
 AUTH_USER_MODEL = "accounts.User"
+CORS_ALLOW_ALL_ORIGINS = True

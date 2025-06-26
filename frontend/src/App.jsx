@@ -20,6 +20,7 @@ import { AuthProvider } from "./context/AuthContext";
 import SignupPage from "./pages/SignUp"
 import RequireAuth from "./components/RequireAuth";
 import TempPage from "./pages/Temp"
+import ResetPasswordPage from "./pages/ResetPassword" 
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
           <Route path="/temp" element={<TempPage />} />
 
           <Route
