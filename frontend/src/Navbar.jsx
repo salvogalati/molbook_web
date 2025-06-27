@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import { useAuth } from "./context/AuthContext";
 
 function Navbar() {
   return (
@@ -31,6 +32,7 @@ function Navbar() {
 function Navbar1() {
 
   const navigate = useNavigate();
+  const { logout } = useAuth(); 
   const start = <h2>MolBook Pro</h2>;
   const items = [
     {
@@ -50,10 +52,8 @@ function Navbar1() {
     }
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    navigate('/');
+  const handleLogout = async () => {
+    await logout();
   }
 
     return (

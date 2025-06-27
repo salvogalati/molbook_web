@@ -4,14 +4,14 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Messages } from "primereact/messages";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Image } from "primereact/image";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Message } from "primereact/message";
-import { API_URL } from '../api';
+import { API_URL } from "../api";
 
 import "./styles/Login.css";
 
@@ -25,7 +25,18 @@ function Login() {
   const navigate = useNavigate();
   const isFormValid = username.trim() !== "" && password.trim() !== "";
   const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+
+  // useEffect(() => {
+  //   console.log(user)
+  //   if (user) {
+  //     navigate("/home", { replace: true });
+  //   }
+  // }, [user, navigate]);
+
+  if (user) {
+    return <Navigate to="/home" replace />;
+  }
 
   const variants = {
     hidden: { opacity: 0, x: 40 },
@@ -53,39 +64,41 @@ function Login() {
     }
   };
 
- const handleForgotPassword = async (creds) => {
-        try {
-          const res = await fetch(`${API_URL}/api/auth/password/reset-pwd/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({email: creds.email})
-          });
-          console.log(res)
-          if (!res.ok) {
-            const errBody = await res.json().catch(() => null);
-            const msg = errBody?.detail || 'Email not valid';
-            throw new Error(msg);
-          }
-    
-          await res.json();
-          setSent(true);
+  const handleResend = async (creds) => {
+    try {
+      const url =
+        step === "resend-email"
+          ? `${API_URL}/api/auth/registration/resend-email/`
+          : `${API_URL}/api/auth/password/reset-pwd/`;
 
-    
-    
-        } catch (error) {
-          console.error('Reset password failed', error);
-          if (msgs.current) {
-            msgs.current.clear();
-            msgs.current.show({
-              severity: "error",
-              summary: "Error",
-              detail: "Rest password failed",
-              sticky: true,
-              closable: false,
-            });
-        }
-      };
+      console.log(url);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: creds.email }),
+      });
+      console.log(res);
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => null);
+        const msg = errBody?.detail || "Email not valid";
+        throw new Error(msg);
+      }
+      await res.json();
+      setSent(true);
+    } catch (error) {
+      console.error("Send link failed", error);
+      if (msgs.current) {
+        msgs.current.clear();
+        msgs.current.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Send link failed",
+          sticky: true,
+          closable: false,
+        });
+      }
     }
+  };
 
   return (
     <div
@@ -119,7 +132,13 @@ function Login() {
         </div>
         <Card
           className="login-card"
-          title="Login"
+          title={
+            step === "login"
+              ? "Login"
+              : step === "resend-password"
+              ? "Send reset password link"
+              : "Resend Verification email"
+          }
           style={{
             width: "50%",
             margin: "auto",
@@ -181,8 +200,15 @@ function Login() {
                   </div>
                   <Button
                     className="p-button-link"
-                    style={{ display: "inline-block" }}
-                    onClick={() => setStep("forgot")}
+                    style={{ display: "inline-block", padding: "0" }}
+                    onClick={() => setStep("resend-email")}
+                  >
+                    Resend verification email
+                  </Button>
+                  <Button
+                    className="p-button-link"
+                    style={{ display: "inline-block", padding: "0" }}
+                    onClick={() => setStep("resend-password")}
                   >
                     Forgot Password?
                   </Button>
@@ -204,9 +230,9 @@ function Login() {
                 </div>
               </motion.div>
             )}
-            {step === "forgot" && (
+            {(step === "resend-email" || step === "resend-password") && (
               <motion.div
-                key="forgot"
+                //key="forgot"
                 variants={variants}
                 initial="hidden"
                 animate="enter"
@@ -215,16 +241,20 @@ function Login() {
                 {sent ? (
                   <Message
                     severity="success"
-                    text="Se l’email esiste riceverai il link di reset."
+                    text="If the email was registered you will receive the new link."
                   />
                 ) : (
                   <>
                     <div className="p-inputgroup flex-1">
                       <Button
                         disabled={!isValidEmail(email)}
-                        label="Send reset link"
-                        onClick={() => {handleForgotPassword({email})
-                          
+                        label={
+                          step === "resend-password"
+                            ? "Send reset link"
+                            : "Resend Verifcation email"
+                        }
+                        onClick={() => {
+                          handleResend({ email });
                         }}
                       />
                       <InputText

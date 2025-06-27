@@ -16,3 +16,5 @@ class HelloView(APIView):
         return Response({
             "message": f"Hello world!"
         })
+
+

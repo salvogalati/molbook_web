@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',  
     'rest_framework',
-    'rest_framework.authtoken',
+    #'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
     'backend.accounts',
     'dj_rest_auth',
     'dj_rest_auth.registration',
@@ -164,6 +165,14 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',    # per allauth
 )
 
+REST_AUTH = {
+     # usa solo JWT (non il TokenModel classico)
+      'USE_JWT': True,
+      'TOKEN_MODEL': None,
+      'JWT_AUTH_HTTPONLY': False,
+      'JWT_AUTH_COOKIE': 'molbook-auth',
+}
+
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'backend.accounts.serializers.CustomRegisterSerializer'
 }
@@ -179,11 +188,24 @@ ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # 'optional' o 'none' per disattivare
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True       # link cliccabile senza POST
 LOGIN_REDIRECT_URL = "/"
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@molbook.local'
 AUTH_USER_MODEL = "accounts.User"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_UNIQUE_EMAIL = True
 AUTH_USER_MODEL = "accounts.User"
 CORS_ALLOW_ALL_ORIGINS = True
 ACCOUNT_ADAPTER = "backend.accounts.adapter.CustomAccountAdapter"
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+PASSWORD_RESET_TIMEOUT = 60
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# DEFAULT_FROM_EMAIL = 'noreply@molbook.local'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST          = "smtp.libero.it"
+EMAIL_PORT          = 465
+EMAIL_USE_SSL       = True              # con Libero usi SSL sulla 465
+EMAIL_USE_TLS       = False
+EMAIL_HOST_USER     = "aidenti-beast@libero.it"
+EMAIL_HOST_PASSWORD = ""
+DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER   # da qui partiranno le mail di allauth e dj-rest-auth

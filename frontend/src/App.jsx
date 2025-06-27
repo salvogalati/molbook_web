@@ -10,18 +10,23 @@ import "primereact/resources/themes/lara-light-indigo/theme.css";
 //import "primereact/resources/themes/mira/theme.css"
 
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Contacts from "./pages/Contacts.jsx";
 import MoleculeDashboard from "./pages/Molecules.jsx";
 import Login from "./pages/Login.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
-import SignupPage from "./pages/SignUp"
+import SignupPage from "./pages/SignUp";
 import RequireAuth from "./components/RequireAuth";
-import TempPage from "./pages/Temp"
-import ResetPasswordPage from "./pages/ResetPassword" 
-import VerifyEmail from "./pages/VerifyEmail" 
+import TempPage from "./pages/Temp";
+import ResetPasswordPage from "./pages/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -31,7 +36,10 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
+          <Route
+            path="/reset-password/:id/:token"
+            element={<ResetPasswordPage />}
+          />
           <Route path="/verify-email/:key" element={<VerifyEmail />} />
           <Route path="/temp" element={<TempPage />} />
 
