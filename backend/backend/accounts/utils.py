@@ -9,3 +9,4 @@ def custom_password_reset_url(request, user, token):
     uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
     # Esempio di URL lato front-end:
     return f"http://localhost:5173/reset-password/{user.pk}/{token}"
+

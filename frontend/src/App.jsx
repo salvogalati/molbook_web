@@ -21,6 +21,7 @@ import SignupPage from "./pages/SignUp"
 import RequireAuth from "./components/RequireAuth";
 import TempPage from "./pages/Temp"
 import ResetPasswordPage from "./pages/ResetPassword" 
+import VerifyEmail from "./pages/VerifyEmail" 
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/reset-password/:id/:token" element={<ResetPasswordPage />} />
+          <Route path="/verify-email/:key" element={<VerifyEmail />} />
           <Route path="/temp" element={<TempPage />} />
 
           <Route

@@ -28,11 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# LANGUAGES = [
-#     ('en', 'English'),
-# ]
 LANGUAGE_CODE = 'en-us'
 USE_I18N = False
+USE_L10N = False
+USE_TZ = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -186,3 +186,4 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_UNIQUE_EMAIL = True
 AUTH_USER_MODEL = "accounts.User"
 CORS_ALLOW_ALL_ORIGINS = True
+ACCOUNT_ADAPTER = "backend.accounts.adapter.CustomAccountAdapter"
