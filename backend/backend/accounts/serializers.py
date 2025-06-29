@@ -5,6 +5,8 @@ from .utils import custom_password_reset_url
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
+from django.conf import settings
+from allauth.account.utils import user_pk_to_url_str
 
 User = get_user_model()
 
@@ -45,12 +47,13 @@ class CustomRegisterSerializer(DefaultRegisterSerializer):
         data['gender']        = self.validated_data.get('gender', '')
         return data
 
-
-
 class CustomPasswordResetSerializer(_PasswordResetSerializer):
     def get_email_options(self):
-        # prendi le options di default (template, subject, ecc.)
         opts = super().get_email_options()
-        # sovrascrivi solo il generatore di URL
-        opts['url_generator'] = custom_password_reset_url
+        opts.update({
+            "from_email": settings.DEFAULT_FROM_EMAIL,
+            
+            "url_generator": custom_password_reset_url,
+        })
         return opts
+    

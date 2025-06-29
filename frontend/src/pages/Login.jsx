@@ -56,7 +56,7 @@ function Login() {
         msgs.current.show({
           severity: "error",
           summary: "Error",
-          detail: "Credenziali non corrette",
+          detail: err.message || "Credenziali non corrette",
           sticky: true,
           closable: false,
         });

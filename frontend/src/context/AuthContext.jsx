@@ -31,11 +31,19 @@ export function AuthProvider({ children }) {
         }),
       });
 
-      console.log(res);
-
       if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        const msg = errBody?.detail || "Credentials not valid";
+        let errBody = null;
+        try {
+          errBody = await res.json();
+        } catch {
+          errBody = null;
+        }
+
+        const msg =
+          errBody?.detail ||
+          (Array.isArray(errBody?.non_field_errors) &&
+            errBody.non_field_errors[0]) ||
+          "Credentials not valid";
         throw new Error(msg);
       }
 

@@ -1,0 +1,8 @@
+Hi {{ user.get_full_name|default:user.email }},
+
+Thank you for signing up on MolBook!
+Please click the link below to confirm your email address:
+
+{{ activate_url }}
+
+If you did not sign up, just ignore this email.

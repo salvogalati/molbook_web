@@ -12,10 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -74,7 +74,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates" ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -181,8 +181,6 @@ REST_AUTH_SERIALIZERS = {
     'PASSWORD_RESET_SERIALIZER': 'backend.accounts.serializers.CustomPasswordResetSerializer',
 }
 
-
-
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password*',]
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"  # 'optional' o 'none' per disattivare
@@ -207,5 +205,6 @@ EMAIL_PORT          = 465
 EMAIL_USE_SSL       = True              # con Libero usi SSL sulla 465
 EMAIL_USE_TLS       = False
 EMAIL_HOST_USER     = "aidenti-beast@libero.it"
-EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_PASSWORD = "SalvoNicola1!"
 DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER   # da qui partiranno le mail di allauth e dj-rest-auth
+#SITE_ID = "MolBook Pro"
