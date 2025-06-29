@@ -205,6 +205,6 @@ EMAIL_PORT          = 465
 EMAIL_USE_SSL       = True              # con Libero usi SSL sulla 465
 EMAIL_USE_TLS       = False
 EMAIL_HOST_USER     = "aidenti-beast@libero.it"
-EMAIL_HOST_PASSWORD = "SalvoNicola1!"
+EMAIL_HOST_PASSWORD = ""
 DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER   # da qui partiranno le mail di allauth e dj-rest-auth
 #SITE_ID = "MolBook Pro"
