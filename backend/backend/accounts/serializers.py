@@ -57,3 +57,7 @@ class CustomPasswordResetSerializer(_PasswordResetSerializer):
         })
         return opts
     
+class UserMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']

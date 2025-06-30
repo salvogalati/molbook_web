@@ -7,6 +7,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError
+from rest_framework.views import APIView
+from .serializers import UserMeSerializer
 
 class CustomRegisterView(RegisterView):
     # forziamo qui il serializer, ignorando la configurazione dinamica
@@ -52,3 +54,10 @@ class UserViewSet(
             # … eventuali altri related_name
             instance.delete()
             
+
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserMeSerializer(request.user)
+        return Response(serializer.data)

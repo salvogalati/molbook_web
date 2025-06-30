@@ -65,7 +65,6 @@ export function AuthProvider({ children }) {
     if (!authTokens) return;
     // Decodifica la scadenza (exp in secondi)
     const { exp } = jwtDecode(authTokens.access);
-    console.log(exp);
     const expiresMs = exp * 1000 - Date.now();
     // programma un refresh 1 minuto prima della scadenza
     const timeout = setTimeout(async () => {
