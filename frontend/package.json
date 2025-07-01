@@ -16,6 +16,7 @@
     "@mui/x-data-grid": "^8.5.0",
     "ag-grid-community": "^33.3.1",
     "ag-grid-react": "^33.3.1",
+    "chart.js": "^4.5.0",
     "framer-motion": "^12.18.1",
     "jwt-decode": "^4.0.0",
     "primeflex": "^4.0.0",

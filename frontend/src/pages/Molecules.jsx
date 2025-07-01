@@ -16,7 +16,7 @@ export default function Molecules() {
     height: 'calc(100vh - 60px)',        // meno navbar
     overflow: 'hidden',
     boxSizing: 'border-box',
-    padding: '20px'
+    padding: '20px',
   };
 
   // pulsante in alto a destra
@@ -24,7 +24,7 @@ export default function Molecules() {
     position: 'absolute',
     top: '10px',
     right: '20px',
-    zIndex: 1000
+    // zIndex: 1000
   };
 
   // stile principale layout
@@ -63,7 +63,8 @@ export default function Molecules() {
     flex: isHorizontal ? '1 1 60%' : 1,
     overflowY: 'auto',
     border: '1px solid #ccc',
-    borderRadius: '8px'
+    borderRadius: '8px',
+    
   };
 
   return (

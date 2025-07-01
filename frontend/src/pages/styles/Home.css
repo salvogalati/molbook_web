@@ -1,27 +1,26 @@
 .containerMain  {
-  position: relative;                
-  height: calc(100vh - 60px);       
+  /* position: relative;                 */
+  /* height: calc(100vh - 60px); */   
   overflow: hidden;
   box-sizing: border-box;
-  padding: 20px;
-  display: flex;
+  padding: 0px;
   flex-direction: column;
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-auto-rows: 1fr;        /* ogni riga prende la stessa altezza */
   gap: 10px;
-  background-color: dodgerblue;
+  background-color: #F0F8FF;
   padding: 10px;
-  height: 100%;               /* RIEMPI tutto il contenitore */
+  height: 70vh;
   flex: 1 1 0;
   min-height: 0;
 }
 
 .grid-container > div {
-  background-color: #f1f1f1;
+  background-color: white;
   text-align: center;
   padding: 10px;
   font-size: 30px;
@@ -33,4 +32,44 @@
 .item1 {
   grid-column-start: 1;
   grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 4;
+  flex-direction: column; /* se usi flex */
+  padding: 0 !important;
+}
+
+.item2 {
+  grid-row-start: 1;
+  grid-row-end: 4;
+}
+.item4 {
+  grid-row-start: 1;
+  grid-row-end: 4;
+}
+
+.item5 {
+  grid-column-start: 1;
+  grid-column-end: 5;
+  grid-row-start: 4;
+  grid-row-end: 6;
+  overflow: auto; 
+  display: flex;                /* Cambia da inline-block a flex! */
+  flex-direction: column;       /* Così News va sopra, Accordion sotto */
+  /* align-items: flex-start;   */
+  padding: 10px;      
+}
+
+#recent-projects-datascroller{
+  width: 100%;
+  height: 100%;
+}
+
+#recent-projects-datascroller .p-datascroller-content{
+  max-height: 85% !important;
+
+}
+
+#newAccordion .p-accordion-header .p-accordion-header-text{
+  text-align: left !important; 
+  color: black;
 }

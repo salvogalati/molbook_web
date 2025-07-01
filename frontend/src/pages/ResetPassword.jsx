@@ -31,7 +31,8 @@ function ResetPasswordPage() {
     };
 
     const reset_password = async (creds) => {
-      const body = JSON.stringify({uid: creds.id, token: creds.token,
+      const body = JSON.stringify({uid: creds.id, token: decodeURIComponent(creds.token.trim()),
+        //token: "cs9wk1-677e9fa04439d7b12edd896a025ff70d",
                new_password1: creds.newPassword, new_password2: creds.newPasswordconfirm})
 
           console.log('Request payload:', JSON.stringify(body));
@@ -41,9 +42,9 @@ function ResetPasswordPage() {
             headers: { 'Content-Type': 'application/json' },
             body: body
           });
-          console.log(res)
           if (!res.ok) {
-            const errBody = await res.json().catch(() => null);
+            const json = await res.json()
+            console.log(json)
             const msg = errBody?.detail || 'Credentials not valid';
             throw new Error(msg);
           }

@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
     // programma un refresh 1 minuto prima della scadenza
     const timeout = setTimeout(async () => {
       try {
-        const res = await fetch(`${API_URL}/api/jwt/refresh/`, {
+        const res = await fetch(`${API_URL}/api/token/refresh/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refresh: authTokens.refresh }),
