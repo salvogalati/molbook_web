@@ -33,7 +33,7 @@ export default function Molecules() {
     flexDirection: isHorizontal ? 'row' : 'column',
     gap: '1rem',
     height: '100%',                       // riempie il container
-    marginTop: '40px'                     // per non coprire il pulsante
+    marginTop: '10px'             
   };
 
   // pannello immagine
@@ -80,7 +80,7 @@ export default function Molecules() {
               src={getPubChemImageUrl(selectedMolecule.name)}
               alt={`Struttura di ${selectedMolecule.name}`}
               style={imgStyle}
-              onError={e => (e.currentTarget.src = '/images/default.png')}
+              onError={e => (e.currentTarget.src = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800')}
             />
           )}
         </div>

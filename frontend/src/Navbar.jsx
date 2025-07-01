@@ -41,7 +41,7 @@ function Navbar1() {
       command: () => navigate('/home')
     },
     {
-      label: 'Molecole',
+      label: 'Molecules',
       icon: 'pi pi-sitemap',
       command: () => navigate('/molecules')
     },

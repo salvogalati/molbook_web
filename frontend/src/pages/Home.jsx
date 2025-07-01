@@ -8,14 +8,14 @@ import "./styles/Home.css";
 
 function Home() {
 
-  // useEffect(() => {
-  //   // Cambia background quando si monta
-  //   document.body.style.background = "#F0F8FF";
-  //   // Reset quando si smonta
-  //   return () => {
-  //     document.body.style.background = ""; // Oppure il colore originale
-  //   };
-  // }, []);
+  useEffect(() => {
+    // Cambia background quando si monta
+    document.body.style.background = "#F0F8FF";
+    // Reset quando si smonta
+    return () => {
+      document.body.style.background = ""; // Oppure il colore originale
+    };
+  }, []);
 
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([
@@ -27,7 +27,7 @@ function Home() {
     { id: '1000', code: 'f230fh0g3', name: 'My project' },
   ]);
   const [pieChartData, setPieChartData] = useState({
-    labels: ['Available space',],
+    labels: ['Available space',"Used space"],
     datasets: [{ data: [70, 30,], }
     ]
   });
@@ -84,10 +84,9 @@ function Home() {
               style={{
                 minWidth: "170px",
                 textAlign: "right",
-                marginLeft: "2rem"
               }}
             >
-              Last open 18/98/1995 07:22
+              Last open 18/08/1995 07:22
             </div>
             <div>
               <Button label="Open" style={{ height: "1.5rem", marginLeft: "2rem" }} />
@@ -113,6 +112,19 @@ function Home() {
           <Chart type="doughnut" data={pieChartData} style={{ height: "100%" }} options={{
             maintainAspectRatio: false,
             aspectRatio: 0.8,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  // Qui personalizzi la label!
+                  label: function (context) {
+                    // Recupera il valore
+                    const label = context.label || '';
+                    const value = context.parsed || 0;
+                    return `${label}: ${value} GB`;
+                  }
+                }
+              }
+            }
           }} />
         </div>
         <div className="item4">
