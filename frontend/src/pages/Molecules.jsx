@@ -38,7 +38,7 @@ export default function Molecules() {
 
   // pannello immagine
   const imageStyle = isHorizontal
-    ? { flex: '0 0 40%' }
+    ? { flex: '0 0 40%', backgroundColor: "#F5F5F5"}
     : { flex: '0 0 200px' };
 
   const imageContainerStyle = {

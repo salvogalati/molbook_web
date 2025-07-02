@@ -1,7 +1,7 @@
 // src/layouts/MainLayout.jsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Navbar1 } from '../Navbar.jsx';
+import { Navbar1 } from '../components/Navbar.jsx';
 
 export default function MainLayout() {
   return (
@@ -10,7 +10,7 @@ export default function MainLayout() {
       <Navbar1 />
 
       {/* Qui verranno renderizzate le Route figlie */}
-      <div style={{marginTop: "60px", paddingBottom: "30px",}}><Outlet /></div>
+      <div style={{marginTop: "30px", paddingBottom: "30px",}}><Outlet /></div>
     </>
   );
 }

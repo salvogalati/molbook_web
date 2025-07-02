@@ -6,6 +6,7 @@ import { InputText } from "primereact/inputtext";
 import { Checkbox } from "primereact/checkbox";
 import { ContextMenu } from "primereact/contextmenu";
 import { MultiSelect } from "primereact/multiselect";
+import "./styles/MoleculeTable.css";
 
 export default function MoleculeTable({ onSelectMolecule }) {
   const columns = [
@@ -171,7 +172,8 @@ export default function MoleculeTable({ onSelectMolecule }) {
     let orderedSelectedColumns = columns.filter((col) =>
       selectedColumns.some((sCol) => sCol.field === col.field)
     );
-
+    const codeColumn = columns.find(col => col.field === "code");
+    orderedSelectedColumns = [codeColumn, ...orderedSelectedColumns];
     setVisibleColumns(orderedSelectedColumns);
   };
 
@@ -185,9 +187,7 @@ export default function MoleculeTable({ onSelectMolecule }) {
   const renderHeader = () => {
     return (
       <div className="p-3 justify-content-between align-items-center">
-        <h4 className="m-0">Molecole</h4>
-
-        <InputText
+         <InputText
           type="search"
           onInput={onGlobalFilterChange}
           placeholder="Ricerca globale"
@@ -196,13 +196,12 @@ export default function MoleculeTable({ onSelectMolecule }) {
         <div>
           <MultiSelect
             value={visibleColumns.filter((col) => col.field !== "code")}
-            options={visibleColumns.filter((col) => col.field !== "code")}
+            options={columns.filter((col) => col.field !== "code")}
             optionLabel="header"
             onChange={onColumnToggle}
             className="w-full sm:w-20rem"
             display="chip"
           />
-          ;
         </div>
       </div>
     );
@@ -211,13 +210,15 @@ export default function MoleculeTable({ onSelectMolecule }) {
   const header = renderHeader();
 
   return (
-    <div className="card">
+    <div id="card-table" className="card" style={{height: "100%"}}>
       <ContextMenu
         model={menuModel}
         ref={cm}
         onHide={() => setSelectedProduct(null)}
       />
+      {header}
       <DataTable
+        id="tableproject"
         ref={dt}
         value={products}
         dataKey="code"
@@ -227,7 +228,7 @@ export default function MoleculeTable({ onSelectMolecule }) {
         filters={filters}
         filterDisplay="menu" // puoi usare "menu" (predefinito) o "row"
         globalFilterFields={["code", "name", "category", "quantity"]}
-        header={header} // header con input globale
+        scrollable scrollHeight="flex" style={{ minWidth: '50rem' }}
         /*** Selezione Celle (opzionale) ***/
         cellSelection
         selectionMode="multiple"

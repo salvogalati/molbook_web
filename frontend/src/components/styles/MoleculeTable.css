@@ -1,0 +1,50 @@
+/* Sfondo giallo per le celle selezionate */
+#tableproject .p-datatable-tbody > tr > td.p-highlight {
+    background-color: #fff59d !important; /* giallo chiaro */
+    color: #000; /* colore del testo, opzionale */
+}
+
+#tableproject {
+    min-height: 0;
+}
+
+#tableproject .p-datatable-wrapper {
+      min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+/* Hover azzurrino sulle celle non selezionate */
+#tableproject .p-datatable-tbody > tr > td:hover {
+    background-color: #e3f2fd; /* azzurrino */
+    cursor: pointer;
+}
+
+/* Target: ogni <td> della DataTable che riceve focus */
+#tableproject .p-datatable-tbody > tr > td:focus {
+  background-color: #e3f2fd;
+  outline: 2px solid #1976d2 !important; 
+  color: #212121 !important;             
+}
+
+.p-column-filter-menu-button {
+  padding: 0.1em 0.1em;
+  background-color: transparent;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+#card-table {
+  position: relative;
+  width: 100%;
+  height: 100%;        /* oppure un'altezza fissa/max-height se serve */
+  overflow: auto;      /* così tutto scrolla dentro */
+  box-sizing: border-box;
+  padding: 1rem;       /* padding a piacere */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+}

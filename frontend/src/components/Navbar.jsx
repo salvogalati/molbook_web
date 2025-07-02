@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   return (
@@ -58,7 +58,7 @@ function Navbar1() {
 
     return (
       <div className="card">
-          <Menubar model={items} start={start}  end={
+          <Menubar style={{height: "3rem"}} model={items} start={start}  end={
         <Button
           label="Logout"
           icon="pi pi-sign-out"

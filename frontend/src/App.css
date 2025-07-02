@@ -41,28 +41,3 @@
   color: #888;
 }
 
-/* Sfondo giallo per le celle selezionate */
-.p-datatable .p-datatable-tbody > tr > td.p-highlight {
-    background-color: #fff59d !important; /* giallo chiaro */
-    color: #000; /* colore del testo, opzionale */
-}
-/* Hover azzurrino sulle celle non selezionate */
-.p-datatable .p-datatable-tbody > tr > td:hover {
-    background-color: #e3f2fd; /* azzurrino */
-    cursor: pointer;
-}
-
-/* Target: ogni <td> della DataTable che riceve focus */
-.p-datatable .p-datatable-tbody > tr > td:focus {
-  background-color: #e3f2fd;
-  outline: 2px solid #1976d2 !important; 
-  color: #212121 !important;             
-}
-
-.p-column-filter-menu-button {
-  padding: 0.1em 0.1em;
-  background-color: transparent;
-  border-radius: 50%;
-  width: 1.2em;
-  height: 1.2em;
-}
