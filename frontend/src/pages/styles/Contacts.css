@@ -1,0 +1,38 @@
+#GridContacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr; 
+  padding: 10px;
+}
+
+#GridContacts > div {
+  align-items: center; 
+  justify-content: center; 
+  padding: 10px;
+
+}
+
+#item1-contacts {
+  grid-row-start: 1;
+  grid-row-end: 3;
+
+}
+
+#ImageContacts {
+    background: #f6f7fb;
+    box-shadow: none !important;
+}
+
+#ImageContacts .p-card-body{
+    padding: 0px;
+}
+
+#ImageContacts .p-card-content{
+    padding: 0px;
+}
+
+#Contacts .p-card-content{
+display:flex;
+ flex-direction: row;
+  gap: 2rem;
+}
