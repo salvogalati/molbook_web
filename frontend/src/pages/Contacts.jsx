@@ -30,9 +30,9 @@ export default function Contacts() {
   };
 
   return (
-    <div id="GridContacts" style={{ height: "93vh", background: "#f6f7fb" }}>
+    <div id="GridContacts" style={{ background: "#f6f7fb" }}>
       <div id="item1-contacts">
-        <Card style={{ height: "100%", boxShadow: "0 4px 24px #9992" }}>
+        <Card style={{ boxShadow: "0 4px 24px #9992" }}>
           <div>
             <h5 style={{
               margin: 0,
@@ -62,19 +62,17 @@ export default function Contacts() {
             </p>
           </div>
           <Divider />
-          <div style={{ display: "flex", justifyContent: "center", gap: "2rem" }}>
-            <div className="card flex justify-content-center">
-              <FloatLabel>
-                <InputText />
+          <div className="contact-names-row">
+              <FloatLabel className="name-field">
+                <InputText  className="w-full"/>
                 <label >First Name</label>
               </FloatLabel>
-            </div>
-          <div className="card flex justify-content-center">
-              <FloatLabel>
-                <InputText />
+            
+
+              <FloatLabel className="name-field">
+                <InputText className="w-full"/>
                 <label >Last Name</label>
               </FloatLabel>
-            </div>
           </div>
           <div className="flex justify-content-center pb- w-full">
               <FloatLabel className="w-full">
@@ -83,7 +81,7 @@ export default function Contacts() {
               </FloatLabel>
             </div>
           <div className="field mb-4">
-            <label htmlFor="message" className="block mb-2 text-left">Message</label>
+            <label htmlFor="message" className="block mb-2 mt-5 text-left">Message</label>
             <InputTextarea
               id="message"
               name="message"
@@ -101,13 +99,13 @@ export default function Contacts() {
         </Card>
       </div>
       <div id="item2-contacts" >
-        <Card id="ImageContacts" style={{ height: "100%", padding: "0" }}>
+        <Card id="ImageContacts" style={{ padding: "0" }}>
           <img src="https://www.shutterstock.com/image-photo/using-laptop-show-icon-address-600nw-2521386695.jpg" 
           style={{borderRadius: "20px"}} alt="" />
         </Card>
       </div>
       <div>
-        <Card id="Contacts" style={{ height: "100%", boxShadow: "0 4px 24px #9992"}}>
+        <Card id="Contacts" style={{boxShadow: "0 4px 24px #9992"}}>
           <div style={{display:"flex" ,gap:"4rem", flexDirection: "column"}}>
             <div style={{display: "flex", alignItems: "center"}}>
               <Avatar icon="pi pi-envelope" size="large" shape="circle" />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MoleculeTable from '../components/MoleculeTable';
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -9,6 +9,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
 import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
 import ViewListIcon from '@mui/icons-material/ViewList';
+import useIsMobile from "../hooks/useIsMobile";
 import "./styles/Molecules.css";
 
 const getPubChemImageUrl = name =>
@@ -17,7 +18,26 @@ const getPubChemImageUrl = name =>
 export default function Molecules() {
   const [selectedMolecule, setSelectedMolecule] = useState(null);
   const [isHorizontal, setIsHorizontal] = useState(true);
-  const [showImage, setShowImage] = useState(true);
+  const [showImage, setShowImage] = useState(true); 
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    console.log(isMobile)
+  if (isMobile) {
+    setShowImage(false);
+    setIsHorizontal(false);
+    setVisibleColumns(prev => {
+      // Se non c'è già la colonna "Image" in prima posizione, aggiungila
+      if (prev.length === 0 || prev[0].field !== "Image") {
+        // Prendi tutte le colonne tranne "Image"
+        const otherCols = prev.filter(col => col.field !== "Image");
+        return [columns[0], ...otherCols];
+      }
+      return prev;
+    });
+  }
+}, [isMobile]);
+
 
   const columns = [
     { field: "Image", header: "Image" },
@@ -81,7 +101,7 @@ export default function Molecules() {
             />
           </IconField>
         </div>
-        <div>
+        <div style={{width: "100%"}}>
           <h5 style={{ margin: 0, textAlign: "left" }}> Visible columns</h5>
           <MultiSelect
             id="multiselect"
@@ -93,6 +113,7 @@ export default function Molecules() {
             display="chip"
           />
         </div>
+        {!isMobile && (
         <div style={{ display: "flex", flexDirection: "column", }}>
           <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
           <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
@@ -106,6 +127,7 @@ export default function Molecules() {
              tooltip="Image table layout" icon={(options) => <ViewListIcon {...options.iconProps} />} />
           </div>
         </div>
+        )}
       </div>
       </AccordionTab>
       </Accordion>

@@ -88,3 +88,16 @@
   height: 2rem;
 } 
 
+@media (max-width: 600px) {
+  .p-multiselect-panel {
+    min-width: 0 !important;
+    width: 92vw !important;      /* il pannello si adatta alla viewport */
+    max-width: 98vw !important;
+    left: 4vw !important;        /* centrato rispetto alla viewport */
+    right: unset !important;
+  }
+  .p-multiselect {
+    width: 100% !important;      /* la casella di input è sempre 100% della card */
+    min-width: 0 !important;
+  }
+}

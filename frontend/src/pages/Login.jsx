@@ -101,184 +101,131 @@ function Login() {
   };
 
   return (
-    <div
-      style={{
-        backgroundImage: `url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        alignItems: "center",
-        justifyContent: "center",
-        display: "flex",
-        width: "100%",
-        height: "100vh",
-      }}
-    >
-      <div className="card" style={{ display: "flex", width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            width: "40%",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Image
-            className="logo-login"
-            alt="Image"
-            width="400"
-            src="https://molbookpro.farm.unipi.it/wp-content/uploads/2024/09/MB02.png"
-          />
-        </div>
-        <Card
-          className="login-card"
-          title={
-            step === "login"
-              ? "Login"
-              : step === "resend-password"
-              ? "Send reset password link"
-              : "Resend Verification email"
-          }
-          style={{
-            width: "50%",
-            margin: "auto",
-            marginLeft: "1%",
-            boxShadow: "5px 5px 5px 2px lightblue",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-          }}
-        >
-          <AnimatePresence mode="wait">
-            {step === "login" && (
-              <motion.div
-                key="login"
-                variants={variants}
-                initial="hidden"
-                animate="enter"
-                exit="exit"
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                  }}
+    <div className="login-container">
+      <div className="login-wrapper">
+        
+          <div className="login-logo">
+            <Image
+              className="logo-login"
+              alt="Image"
+              width="400"
+              src="https://molbookpro.farm.unipi.it/wp-content/uploads/2024/09/MB02.png"
+            />
+          </div>
+
+          <Card
+            className="login-card"
+            title={
+              step === "login"
+                ? "Login"
+                : step === "resend-password"
+                  ? "Send reset password link"
+                  : "Resend Verification email"
+            }
+          >
+            <AnimatePresence mode="wait">
+              {step === "login" && (
+                <motion.div
+                  key="login"
+                  variants={variants}
+                  initial="hidden"
+                  animate="enter"
+                  exit="exit"
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "1rem",
-                      width: "75%",
-                      margin: "0 auto",
-                    }}
-                  >
-                    <label>Username</label>
-                    <InputText
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "1rem",
-                      width: "75%",
-                      margin: "0 auto",
-                    }}
-                  >
-                    <label>Password</label>
-                    <Password
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      feedback={false}
-                      toggleMask
-                      style={{ width: "100%", display: "inline" }}
-                      inputStyle={{ width: "100%" }}
-                    />
-                  </div>
-                  <Button
-                    className="p-button-link"
-                    style={{ display: "inline-block", padding: "0" }}
-                    onClick={() => setStep("resend-email")}
-                  >
-                    Resend verification email
-                  </Button>
-                  <Button
-                    className="p-button-link"
-                    style={{ display: "inline-block", padding: "0" }}
-                    onClick={() => setStep("resend-password")}
-                  >
-                    Forgot Password?
-                  </Button>
-                  <div style={{ "padding-top": "3%" }}>
-                    <Button
-                      label="Sign-in"
-                      style={{ width: "30%", margin: "0 auto" }}
-                      onClick={handleSubmit}
-                      disabled={!isFormValid}
-                    />
-                  </div>
-                </div>
-                <Messages ref={msgs} />
-                <div className="login-signup-prompt">
-                  <span className="prompt-text">Not a member? </span>
-                  <Link to="/signup" className="prompt-link">
-                    Sign-up
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-            {(step === "resend-email" || step === "resend-password") && (
-              <motion.div
-                //key="forgot"
-                variants={variants}
-                initial="hidden"
-                animate="enter"
-                exit="exit"
-              >
-                {sent ? (
-                  <Message
-                    severity="success"
-                    text="If the email was registered you will receive the new link."
-                  />
-                ) : (
-                  <>
-                    <div className="p-inputgroup flex-1">
-                      <Button
-                        disabled={!isValidEmail(email)}
-                        label={
-                          step === "resend-password"
-                            ? "Send reset link"
-                            : "Resend Verifcation email"
-                        }
-                        onClick={() => {
-                          handleResend({ email });
-                        }}
-                      />
+                  <div className="login-form-container">
+                    <div className="login-input-container">
+                      <label>Username</label>
                       <InputText
-                        //value={email}
-                        placeholder="Email address"
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                       />
                     </div>
-                  </>
-                )}
-
-                <Button
-                  className="p-button-link"
-                  onClick={() => {
-                    setStep("login");
-                    setSent(false);
-                  }}
+                    <div className="login-input-container">
+                      <label>Password</label>
+                      <Password
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        feedback={false}
+                        toggleMask
+                      />
+                    </div>
+                    <Button
+                      className="p-button-link"
+                      onClick={() => setStep("resend-email")}
+                    >
+                      Resend verification email
+                    </Button>
+                    <Button
+                      className="p-button-link"
+                      onClick={() => setStep("resend-password")}
+                    >
+                      Forgot Password?
+                    </Button>
+                      <Button
+                        label="Sign-in"
+                        onClick={handleSubmit}
+                        disabled={!isFormValid}
+                      />
+                  </div>
+                  <Messages ref={msgs} />
+                  <div className="login-signup-prompt">
+                    <span className="prompt-text">Not a member? </span>
+                    <Link to="/signup" className="prompt-link">
+                      Sign-up
+                    </Link>
+                  </div>
+                </motion.div>
+              )}
+              {(step === "resend-email" || step === "resend-password") && (
+                <motion.div
+                  //key="forgot"
+                  variants={variants}
+                  initial="hidden"
+                  animate="enter"
+                  exit="exit"
                 >
-                  ← Back to login
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Card>
+                  {sent ? (
+                    <Message
+                      severity="success"
+                      text="If the email was registered you will receive the new link."
+                    />
+                  ) : (
+                    <>
+                      <div className="p-inputgroup flex-1">
+                        <Button
+                          disabled={!isValidEmail(email)}
+                          label={
+                            step === "resend-password"
+                              ? "Send reset link"
+                              : "Resend Verifcation email"
+                          }
+                          onClick={() => {
+                            handleResend({ email });
+                          }}
+                        />
+                        <InputText
+                          //value={email}
+                          placeholder="Email address"
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <Button
+                    className="p-button-link"
+                    onClick={() => {
+                      setStep("login");
+                      setSent(false);
+                    }}
+                  >
+                    ← Back to login
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Card>
+        
       </div>
     </div>
   );

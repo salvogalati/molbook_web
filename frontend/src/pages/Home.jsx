@@ -109,7 +109,8 @@ function Home() {
           <DataScroller id="recent-projects-datascroller" value={products} itemTemplate={itemTemplate} rows={5} inline scrollHeight="100%" header="Recent project" />
         </div>
         <div className="item2">
-          <Chart type="doughnut" data={pieChartData} style={{ height: "100%" }} options={{
+          <h4 style={{margin: "0 0 1.5rem 0"}}> Your storage</h4>
+          <Chart type="doughnut" data={pieChartData} style={{ height: "70%" }} options={{
             maintainAspectRatio: false,
             aspectRatio: 0.8,
             plugins: {
@@ -128,6 +129,7 @@ function Home() {
           }} />
         </div>
         <div className="item4">
+          <h4 style={{margin: "0 0 1.5rem 0"}}> Project statistics</h4>
           <Chart type="bar" data={stackedChartData} style={{ height: "100%", width: "100%" }}
             options={{
               scales: { x: { stacked: true, }, y: { stacked: true, grid: { display: false } } }, maintainAspectRatio: false,

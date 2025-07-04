@@ -1,44 +1,109 @@
-.logo-login {
-  border-radius: 100px;
-  /* se l’immagine è all’interno di un contenitore, 
-     assicurati che non “strabordi”: */
-  display: block; /* o inline-block */
+/* ==== LAYOUT E BACKGROUND === */
+
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background-image: url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.login-wrapper {
+  display: flex;
+  width: 90%;
+  max-width: 900px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
+.login-logo {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.logo-login {
+  border-radius: 100px;
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ==== CARD E ANIMAZIONI === */
+
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .login-card {
+  flex: 1 1 60%;
+  padding: 2rem;
+  box-sizing: border-box;
   background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(6px);
-  transition: backdrop-filter 0.4s;
+  box-shadow: none !important;
   animation: slideUp 0.6s ease-out both;
+  transition: backdrop-filter 0.4s;
 }
 
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
+/* ==== FORM E INPUT === */
+
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.login-input-container {
+  width: 75%;
+  margin: 0 auto;
+}
+
+.login-card label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.login-card .p-button {
+  margin: 0 auto;
+}
+
+.p-button-link {
+  padding: 0;
+  margin: 0.25rem 0;
+  display: inline-block;
+}
+
+@media (max-width: 768px) {
+  .login-input-container {
+    width: 100%;
+    margin: 0;
   }
-  50% {
-    transform: translateY(-10px);
+  .login-card .p-button {
+    width: 100%;
+    margin: 1rem 0 0 0;
   }
 }
+
+/* ==== PROMPT SIGNUP E LINK === */
 
 .login-signup-prompt {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8); /* un grigio chiaro semitrasparente */
+  color: rgba(255, 255, 255, 0.8); /* grigio chiaro semitrasparente */
 }
 
 .login-signup-prompt .prompt-text {
@@ -49,17 +114,61 @@
 
 .login-signup-prompt .prompt-link {
   font-weight: 800;
-  color: #007ad9; /* bianco pieno per contrastare */
+  color: #007ad9;
   text-decoration: none;
   transition: color 0.2s, transform 0.2s;
   font-size: 25px;
 }
 
 .login-signup-prompt .prompt-link:hover {
-  color: #db1016; /* cambia leggermente tinta */
-  transform: translateX(3px); /* piccola animazione */
+  color: #db1016;
+  transform: translateX(3px);
 }
 
-button.p-button-link.p-button.p-component:hover  {
+/* Riduci il font del link su mobile piccoli */
+@media (max-width: 480px) {
+  .login-signup-prompt .prompt-link {
+    font-size: 1rem;
+  }
+}
+
+/* ==== BUTTON HOVER === */
+
+button.p-button-link.p-button.p-component:hover {
   text-decoration: underline;
+}
+
+/* ==== ANIMAZIONE (non obbligatoria, per "rimbalzo") === */
+@keyframes bounce {
+  0%,100% { transform: translateY(0);}
+  50%     { transform: translateY(-10px);}
+}
+
+/* ==== RESPONSIVITÀ LOGO E WRAPPER === */
+
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column;
+    width: 100%;
+  }
+  .login-logo {
+    flex: none;
+    width: 100%;
+    padding: 1rem 0;
+    background: none;
+  }
+  .login-card {
+    flex: none;
+    width: 100%;
+    padding: 1.5rem 1rem;
+    background-color: rgba(255,255,255,0.8) !important;
+    box-shadow: 5px 5px 5px 2px lightblue !important;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-logo {
+    display: none !important;
+  }
 }

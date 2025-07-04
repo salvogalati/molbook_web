@@ -1,38 +1,161 @@
+/* ======== DESKTOP/TABLET BASE ======== */
 #GridContacts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-auto-rows: 1fr; 
-  padding: 10px;
+  gap: 10px;
+  padding: 18px 18px 0 18px;
+  background: #f6f7fb;
 }
 
 #GridContacts > div {
   align-items: center; 
   justify-content: center; 
   padding: 10px;
-
 }
 
 #item1-contacts {
   grid-row-start: 1;
   grid-row-end: 3;
-
 }
 
 #ImageContacts {
-    background: #f6f7fb;
-    box-shadow: none !important;
+  background: #f6f7fb;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#ImageContacts .p-card-body,
+#ImageContacts .p-card-content {
+  padding: 0px;
+}
+#ImageContacts img {
+  border-radius: 20px;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 
-#ImageContacts .p-card-body{
-    padding: 0px;
-}
-
-#ImageContacts .p-card-content{
-    padding: 0px;
-}
-
-#Contacts .p-card-content{
-display:flex;
- flex-direction: row;
+#Contacts .p-card-content {
+  display: flex;
   gap: 2rem;
+  padding: 1rem 0;
+}
+
+@media (max-width: 1100px) {
+  #GridContacts {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ======== TABLET / PICCOLI DESKTOP ======== */
+@media (max-width: 800px) {
+  #GridContacts {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 14px;
+    padding: 10px 4px 0 4px;
+    min-height: unset;
+  }
+  #GridContacts > div {
+    padding: 7px 3px;
+  }
+  #item1-contacts,
+  #ImageContacts,
+  #Contacts {
+    grid-column: 1 / 2 !important;
+    grid-row: auto !important;
+  }
+  #Contacts .p-card-content {
+    gap: 1.3rem;
+    padding: 0.7rem 0;
+  }
+  #ImageContacts img {
+    max-height: 320px;
+    width: 100%;
+    object-fit: cover;
+    margin: 0 auto;
+  }
+}
+
+/* ======== MOBILE ======== */
+@media (max-width: 520px) {
+  #GridContacts {
+    padding: 2px 0 0 0;
+    gap: 10px;
+  }
+  #GridContacts > div {
+    padding: 3px 1px;
+  }
+  #item1-contacts,
+  #ImageContacts,
+  #Contacts {
+    padding: 2px 1px;
+    min-width: 0;
+  }
+  #ImageContacts img {
+    max-height: 160px;
+    border-radius: 12px;
+  }
+  .p-card {
+    border-radius: 12px !important;
+    box-shadow: 0 2px 12px #0001 !important;
+  }
+  #Contacts .p-card-content {
+    gap: 0.7rem;
+    padding: 0.4rem 0;
+  }
+}
+
+/* ==== Avatars e testo più compatti su mobile ==== */
+@media (max-width: 600px) {
+  #Contacts .p-card-content > div {
+    flex-direction: column !important;
+    gap: 0.2rem !important;
+  }
+  #Contacts .p-avatar {
+    margin-bottom: 6px;
+  }
+  #Contacts h3, #Contacts p {
+    margin-left: 0 !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* ==== Riduci font titoli su mobile ==== */
+@media (max-width: 600px) {
+  #item1-contacts h2 {
+    font-size: 1.35rem !important;
+  }
+  #item1-contacts h5 {
+    font-size: 0.95rem !important;
+  }
+}
+
+.contact-names-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;  /* sempre attivo */
+}
+
+@media (max-width: 600px) {
+  .contact-names-row {
+    flex-direction: column;
+    gap: 0;              /* nessun gap tra First Name e Last Name */
+    align-items: stretch;
+  }
+}
+/* riga nomi: due campi affiancati, gap centrale */
+.contact-names-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;          
+  padding-bottom: 2rem;
+}
+
+/* ogni FloatLabel ora si comporta come “colonna fluida” */
+.contact-names-row .name-field {
+  flex: 1 1 0;                  /* occupa tutto lo spazio disponibile */
+  min-width: 0;                 /* evita overflow */
 }
