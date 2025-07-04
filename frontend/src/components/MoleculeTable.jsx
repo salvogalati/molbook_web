@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Checkbox } from "primereact/checkbox";
 import { ContextMenu } from "primereact/contextmenu";
-import { MultiSelect } from "primereact/multiselect";
+import { Image } from 'primereact/image';
+        
+
 import "./styles/MoleculeTable.css";
 
-export default function MoleculeTable({ onSelectMolecule }) {
-  const columns = [
-    { field: "code", header: "Code" },
-    { field: "name", header: "Name" },
-    { field: "quantity", header: "Quantity" },
-    { field: "category", header: "category" },
-  ];
+export default function MoleculeTable({ onSelectMolecule, filters, visibleColumns }) {
+
 
   // Stato per i prodotti (righe)
   const [products, setProducts] = useState([]);
@@ -37,16 +33,7 @@ export default function MoleculeTable({ onSelectMolecule }) {
     },
   ];
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [visibleColumns, setVisibleColumns] = useState(columns);
 
-  // Stato per i filtri: ogni chiave corrisponde a un campo (field)
-  const [filters, setFilters] = useState({
-    global: { value: null, matchMode: "contains" },
-    code: { value: null, matchMode: "startsWith" },
-    name: { value: null, matchMode: "contains" },
-    category: { value: null, matchMode: "contains" },
-    quantity: { value: null, matchMode: "equals" },
-  });
 
   // Riferimento per il campo di ricerca globale (se lo vogliamo)
   const dt = useRef(null);
@@ -71,37 +58,12 @@ export default function MoleculeTable({ onSelectMolecule }) {
     setProducts(mockData);
   }, []);
 
-  // Funzione per il filtro globale (se vogliamo un solo input superiore)
-  const onGlobalFilterChange = (e) => {
-    const value = e.target.value;
-    const _filters = { ...filters };
-    _filters.global.value = value;
-    setFilters(_filters);
-  };
-
-  const isPositiveInteger = (val) => {
-    let str = String(val);
-
-    str = str.trim();
-
-    if (!str) {
-      return false;
-    }
-
-    str = str.replace(/^0+/, "") || "0";
-    let n = Math.floor(Number(str));
-
-    return n !== Infinity && String(n) === str && n >= 0;
-  };
 
   const onCellEditComplete = (e) => {
     let { rowData, newValue, field, originalEvent: event } = e;
     switch (field) {
       case "quantity":
-      case "price":
-        if (isPositiveInteger(newValue)) rowData[field] = newValue;
-        else event.preventDefault();
-        break;
+
 
       default:
         if (typeof newValue === "string" && newValue.trim().length > 0)
@@ -112,29 +74,16 @@ export default function MoleculeTable({ onSelectMolecule }) {
   };
 
   const cellEditor = (options) => {
-    if (options.field === "price") return priceEditor(options);
-    else return textEditor(options);
+    return textEditor(options);
   };
 
   const textEditor = (options) => {
     return (
       <InputText
         type="text"
+        className="p-inputtext-sm"
         value={options.value}
         onChange={(e) => options.editorCallback(e.target.value)}
-        onKeyDown={(e) => e.stopPropagation()}
-      />
-    );
-  };
-
-  const priceEditor = (options) => {
-    return (
-      <InputNumber
-        value={options.value}
-        onValueChange={(e) => options.editorCallback(e.value)}
-        mode="currency"
-        currency="USD"
-        locale="en-US"
         onKeyDown={(e) => e.stopPropagation()}
       />
     );
@@ -167,15 +116,6 @@ export default function MoleculeTable({ onSelectMolecule }) {
     );
   };
 
-  const onColumnToggle = (event) => {
-    let selectedColumns = event.value;
-    let orderedSelectedColumns = columns.filter((col) =>
-      selectedColumns.some((sCol) => sCol.field === col.field)
-    );
-    const codeColumn = columns.find(col => col.field === "code");
-    orderedSelectedColumns = [codeColumn, ...orderedSelectedColumns];
-    setVisibleColumns(orderedSelectedColumns);
-  };
 
   // Funzione di logging, se vuoi ancora vedere le celle selezionate
   const logSelection = () => {
@@ -183,40 +123,18 @@ export default function MoleculeTable({ onSelectMolecule }) {
     console.log("Righe selezionate:", selectedRows);
   };
 
-  // Template per l’input di testo nel filtro globale
-  const renderHeader = () => {
-    return (
-      <div className="p-3 justify-content-between align-items-center">
-         <InputText
-          type="search"
-          onInput={onGlobalFilterChange}
-          placeholder="Ricerca globale"
-          size="30"
-        />
-        <div>
-          <MultiSelect
-            value={visibleColumns.filter((col) => col.field !== "code")}
-            options={columns.filter((col) => col.field !== "code")}
-            optionLabel="header"
-            onChange={onColumnToggle}
-            className="w-full sm:w-20rem"
-            display="chip"
-          />
-        </div>
-      </div>
-    );
+  const imageBodyTemplate = (product) => {
+
+    return <Image src={`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(product.name)}/PNG?record_type=2d&image_size=300x300`}
+     alt={product.image} preview width="100px" downloadable className="w-6rem shadow-2 border-round" />;
   };
-
-  const header = renderHeader();
-
   return (
-    <div id="card-table" className="card" style={{height: "100%"}}>
+    <div id="card-table" className="card" style={{ height: "100%" }}>
       <ContextMenu
         model={menuModel}
         ref={cm}
         onHide={() => setSelectedProduct(null)}
       />
-      {header}
       <DataTable
         id="tableproject"
         ref={dt}
@@ -234,7 +152,9 @@ export default function MoleculeTable({ onSelectMolecule }) {
         selectionMode="multiple"
         selection={selectedCells}
         onSelectionChange={(e) => {
-          setSelectedCells(e.value);
+          if (e.value[e.value.length - 1].field !== "Image") {
+            setSelectedCells(e.value);
+          }
           // se esiste almeno una cella selezionata, notifica il genitore
           if (onSelectMolecule && e.value.length > 0) {
             // prende la molecola (rowData) della PRIMA cella selezionata
@@ -277,31 +197,36 @@ export default function MoleculeTable({ onSelectMolecule }) {
             );
           }}
         />
+        {visibleColumns.some(item => item.field === "Image") && (
+          <Column header="Image" field="Image" body={imageBodyTemplate}></Column>
+        )}
         {visibleColumns.map(({ field, header }) => {
-          return (
-            <Column
-              key={field}
-              field={field}
-              header={header}
-              sortable
-              filter
-              filterPlaceholder="Search by name"
-              style={{ width: "25%" }}
-              editor={(options) => cellEditor(options)}
-              onCellEditComplete={onCellEditComplete}
-            />
-          );
+          if (field !== "Image") {
+            return (
+              <Column
+                key={field}
+                field={field}
+                header={header}
+                sortable
+                filter
+                filterPlaceholder="Search by name"
+                style={{ width: "25%" }}
+                editor={(options) => cellEditor(options)}
+                onCellEditComplete={onCellEditComplete}
+              />
+            );
+          }
         })}
       </DataTable>
 
       {/*** Pulsante per loggare la selezione, se serve ***/}
-      <div style={{ marginTop: "1rem" }}>
+      {/* <div style={{ marginTop: "1rem" }}>
         <Button
           label="Log Selezione"
           icon="pi pi-list"
           onClick={logSelection}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

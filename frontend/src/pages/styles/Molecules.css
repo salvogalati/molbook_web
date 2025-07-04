@@ -1,0 +1,90 @@
+#containerLayout {
+    position: relative;             
+    height: calc(100vh - 60px);      
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 20px;
+  }
+
+#pageStyle {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    height: 100%;                      
+    margin-top: 10px;           
+  }
+
+#imageContainerStyle {
+    flex: 0 0 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+#imgStyle {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+
+#tableContainerStyle {
+    /* flex: isHorizontal ? '1 1 60%' : 1; */
+    flex: 1 1 60%;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+
+  }
+
+  #card_molecule_project {
+  position: relative;
+  width: 100%;
+  height: 86vh;      
+  overflow: auto;      /* così tutto scrolla dentro */
+  box-sizing: border-box;
+  padding: 1rem;       /* padding a piacere */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+}
+
+#header{
+    display: flex;
+   border: 1px solid #ccc;
+    border-radius: 8px;
+    align-items: center; 
+    /* height: 2rem; */
+}
+
+.p-inputtext.p-component{
+    height: 3rem;
+}
+
+#multiselect {
+    height: 3rem;
+}
+
+ #menutable_accordion_header_0{
+  padding: 0px;
+  height: 100%;
+}
+
+#menutable_accordion_content_0 .p-accordion-content {
+  padding: 0px;
+}
+
+#menutable_accordion .p-accordion-tab{
+  margin-bottom: 0px;
+  height: 100%;
+}
+
+#menutable_accordion .p-accordion-header{
+  height: 2rem;
+} 
+
