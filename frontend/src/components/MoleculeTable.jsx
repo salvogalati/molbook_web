@@ -146,7 +146,7 @@ export default function MoleculeTable({ onSelectMolecule, filters, visibleColumn
         filters={filters}
         filterDisplay="menu" // puoi usare "menu" (predefinito) o "row"
         globalFilterFields={["code", "name", "category", "quantity"]}
-        scrollable scrollHeight="flex" style={{ minWidth: '50rem' }}
+        scrollable scrollHeight="flex"
         /*** Selezione Celle (opzionale) ***/
         cellSelection
         selectionMode="multiple"
