@@ -236,9 +236,9 @@ return (
           icon="pi pi-angle-right"
           iconPos="right"
           label={activeIndex === items.length - 2 ? "Confirm" : "Next"}
-          //disabled={!isStepValid()}
-          //onClick={activeIndex === items.length - 2 ? handleSignUp : next}
-          onClick={next}
+          disabled={!isStepValid()}
+          onClick={activeIndex === items.length - 2 ? handleSignUp : next}
+          //onClick={next}
         />
       )}
     </div>
