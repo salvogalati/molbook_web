@@ -51,6 +51,8 @@ export function CalendarField({ value, onChange }) {
           Date of Birth
         </label>
         <Calendar
+        touchUI
+        placeholder="dd/mm/yyyy"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           dateFormat="dd/mm/yy"
@@ -178,7 +180,7 @@ export default function SignUpSteps({ activeIndex, formData, onChange }) {
           <label htmlFor="gender" style={{ fontWeight: "bold" }}>
             Gender
           </label>
-          <div className="flex flex-wrap gap-4 justify-content-evenly align-items-center pt-3">
+          <div className="flex gap-4 justify-content-evenly align-items-center pt-3">
             <div className="flex flex-row align-items-center justify-content-center">
               <RadioButton
                 inputId="sexM"

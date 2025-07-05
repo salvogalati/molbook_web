@@ -152,121 +152,107 @@ export default function SignupPage() {
   const [Dialogvisible, setDialogVisible] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
 
-  return (
+return (
+  <div
+    style={{
+      backgroundImage: `url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      height: "100vh",
+    }}
+  >
     <div
-      style={{
-        backgroundImage: `url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100vh",
-      }}
+      className="custom-steps"
+      style={{ paddingTop: "1rem", width: "100%" }}
     >
-      <div
-        className="custom-steps"
-        style={{ paddingTop: "1rem", width: "100%" }}
-      >
-        <Steps model={items} activeIndex={activeIndex} readOnly />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          flexDirection: "row",
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {activeIndex < items.length - 1 && (
-          <Button
-            label="Back"
-            icon="pi pi-angle-left"
-            iconPos="left"
-            style={{ width: "10%", marginRight: "1rem" }}
-            onClick={back}
-            disabled={activeIndex === 0}
-          />
-        )}
-        <div
-          style={{
-            width: "50%",
-            display: "flex",
-            position: "relative",
-            overflow: "hidden",
-            height: "400px",
-            justifyContent: "center",
-            alignItems: "center",
+      <Steps model={items} activeIndex={activeIndex} readOnly />
+    </div>
+
+    <div className="signup-content">
+      {activeIndex < items.length - 1 && (
+        <Button
+          className="back-button"
+          label="Back"
+          icon="pi pi-angle-left"
+          iconPos="left"
+          onClick={back}
+          disabled={activeIndex === 0}
+        />
+      )}
+
+      <div className="card-container">
+        <TransitionGroup component={null} childFactory={childFactory}>
+          <CSSTransition
+            key={`${activeIndex}-${direction}`}
+            timeout={500}
+            classNames={
+              direction === "forward" ? "slide-right" : "slide-left"
+            }
+          >
+            <Card
+              className="cardSignUp"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+                justifyContent: "center",
+                position: "absolute",
+                boxShadow: "5px 5px 5px 2px lightblue",
+                backgroundColor: "rgba(255, 255, 255, 0.85)",
+              }}
+            >
+              <SignUpSteps
+                activeIndex={activeIndex}
+                formData={formData}
+                onChange={handleChange}
+              />
+            </Card>
+          </CSSTransition>
+        </TransitionGroup>
+
+        <Dialog
+          visible={Dialogvisible}
+          modal
+          header="Registration failed"
+          style={{ width: "50rem" }}
+          onHide={() => {
+            if (!Dialogvisible) return;
+            setDialogVisible(false);
           }}
         >
-          <TransitionGroup component={null} childFactory={childFactory}>
-            <CSSTransition
-              key={`${activeIndex}-${direction}`}
-              timeout={500}
-              classNames={
-                direction === "forward" ? "slide-right" : "slide-left"
-              }
-            >
-              <Card
-                className="cardSignUp"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                  justifyContent: "center",
-                  position: "absolute",
-                  boxShadow: "5px 5px 5px 2px lightblue",
-                  backgroundColor: "rgba(255, 255, 255, 0.85)",
-                }}
-              >
-                <SignUpSteps
-                  activeIndex={activeIndex}
-                  formData={formData}
-                  onChange={handleChange}
-                />
-              </Card>
-            </CSSTransition>
-          </TransitionGroup>
-          <Dialog
-            visible={Dialogvisible}
-            modal
-            header="Registration failed"
-            style={{ width: "50rem" }}
-            onHide={() => {
-              if (!Dialogvisible) return;
-              setDialogVisible(false);
-            }}
-          >
-            <p className="m-0">{dialogMessage}</p>
-          </Dialog>
-        </div>
-        {activeIndex < items.length - 1 && (
-          <Button
-            icon="pi pi-angle-right"
-            iconPos="right"
-            label={activeIndex === items.length - 2 ? "Confirm" : "Next"}
-            //disabled={false}
-            disabled={!isStepValid()}
-            style={{ width: "10%", marginLeft: "1rem" }}
-            onClick={activeIndex === items.length - 2 ? handleSignUp : next}
-          />
-        )}
+          <p className="m-0">{dialogMessage}</p>
+        </Dialog>
       </div>
-      <div className="signup-login-prompt" style={{ paddingBottom: "1rem" }}>
-        <span className="prompt-text">Have you alread an account? </span>
-        <Link
-          to="/login"
-          className="prompt-link"
-          style={{ fontSize: "1.2rem" }}
-        >
-          Sign-in
-        </Link>
-      </div>
+
+      {activeIndex < items.length - 1 && (
+        <Button
+          className="next-button"
+          icon="pi pi-angle-right"
+          iconPos="right"
+          label={activeIndex === items.length - 2 ? "Confirm" : "Next"}
+          //disabled={!isStepValid()}
+          //onClick={activeIndex === items.length - 2 ? handleSignUp : next}
+          onClick={next}
+        />
+      )}
     </div>
-  );
+
+    <div className="signup-login-prompt" style={{ paddingBottom: "1rem" }}>
+      <span className="prompt-text">Have you already an account? </span>
+      <Link
+        to="/login"
+        className="prompt-link"
+        style={{ fontSize: "1.2rem" }}
+      >
+        Sign-in
+      </Link>
+    </div>
+  </div>
+);
 }

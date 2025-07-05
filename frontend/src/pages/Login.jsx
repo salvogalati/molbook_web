@@ -191,8 +191,13 @@ function Login() {
                     />
                   ) : (
                     <>
-                      <div className="p-inputgroup flex-1">
-                        <Button
+                    <div style={{display: "flex", flexDirection: "column", gap: "1rem"}}>
+                        <InputText
+                          //value={email}
+                          placeholder="Email address"
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                                                <Button
                           disabled={!isValidEmail(email)}
                           label={
                             step === "resend-password"
@@ -203,12 +208,7 @@ function Login() {
                             handleResend({ email });
                           }}
                         />
-                        <InputText
-                          //value={email}
-                          placeholder="Email address"
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                      </div>
+                    </div>
                     </>
                   )}
 

@@ -5,8 +5,7 @@
 }
 
 .custom-steps .p-steps .p-steps-item.p-highlight .p-steps-title {
-color: white
-
+  color: white;
 }
 
 /* Next: entra da destra → sinistra */
@@ -47,4 +46,65 @@ color: white
   transform: translateX(-100%);
   opacity: 0;
   transition: transform 500ms ease, opacity 500ms ease;
+}
+
+/* ---------------- Responsive Layout for Signup Page ---------------- */
+
+/* desktop & tablet larghi */
+.signup-content {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;              /* spazio fra form e bottoni */
+  padding: 2rem 0;
+}
+
+/* wrapper del form */
+.card-container {
+  width: 600px;           /* larghezza fissa per desktop */
+  max-width: 90%;         /* non superare il 90% dello schermo */
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  height: 400px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* pulsanti su desktop */
+.back-button,
+.next-button {
+  width: 140px !important;  /* larghezza fissa bottone */
+  margin: 0 !important;
+}
+
+/* ------- Mobile Styles -------- */
+@media screen and (max-width: 768px) {
+  .signup-content {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0
+  }
+
+  /* Form full-width sul mobile */
+  .card-container {
+    width: 100% !important;
+    max-width: 400px;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Pulsanti sotto il form, full-width */
+  .back-button,
+  .next-button {
+    width: 100% !important;
+    max-width: 300px;
+    margin: 0.5rem 0 !important;
+  }
+
+  /* Ordine: 1) card, 2) back, 3) next */
+  .card-container { order: 1; }
+  .back-button    { order: 3; }
+  .next-button    { order: 2; }
 }
