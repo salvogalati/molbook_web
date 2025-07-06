@@ -1,22 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Steps } from "primereact/steps";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import "primeicons/primeicons.css";
-import "./styles/SignUp.css";
-import SignUpSteps from "../components/SignUpSteps";
-import {
-  CSSTransition,
-  TransitionGroup,
-  SwitchTransition,
-} from "react-transition-group";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Link } from "react-router-dom";
 import { API_URL } from "../api";
 
+import "primeicons/primeicons.css";
+import "./styles/Signup.css"; // Dedicated stylesheet for this page
+import SignUpSteps from "../components/SignUpSteps";
+
+// Validation utilities
+const emailRegex = /^\S+@\S+\.\S+$/;
+const isValidEmail = (email) => emailRegex.test(email);
+
+// Determine if user is at least 18 years old
+const eighteenYearsAgo = (() => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setFullYear(date.getFullYear() - 18);
+  return date;
+})();
+
 export default function SignupPage() {
+  // Current step index and slide direction for animation
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState("forward");
+
+  // Form data collected across steps
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -29,230 +41,171 @@ export default function SignupPage() {
     consentTerms: false,
   });
 
-  const items = [
-    { label: "Info" },
-    { label: "Account" },
-    { label: "Terms" },
-    { label: "Confirm" },
-  ];
+  // Dialog state for server errors
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
 
-  const handleChange = (field, value) => {
-    console.log(field, value);
+  // Steps labels memoized to avoid re-creation
+  const stepsModel = useMemo(
+    () => [
+      { label: "Personal Info" },
+      { label: "Account Details" },
+      { label: "Agreements" },
+      { label: "Confirmation" },
+    ],
+    []
+  );
+
+  // Handle input changes by field name
+  const handleChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const eighteenYearsAgo = new Date(today);
-  eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
-
-  const isAdult = (() => {
-    if (!(formData.date_of_birth instanceof Date)) return false;
-    const bd = new Date(formData.date_of_birth);
-    bd.setHours(0, 0, 0, 0);
-    return bd <= eighteenYearsAgo;
-  })();
-
-  const isStepValid = () => {
+  // Validate current step
+  const isStepValid = useMemo(() => {
     switch (activeIndex) {
-      case 0:
-        return (
-          formData.first_name.trim() !== "" &&
-          formData.last_name.trim() !== "" &&
-          isAdult &&
-          formData.date_of_birth !== null &&
-          formData.gender.trim() !== ""
-        );
-      case 1:
+      case 0: // Personal info
+        if (!formData.first_name.trim() || !formData.last_name.trim()) return false;
+        if (!(formData.date_of_birth instanceof Date)) return false;
+        // Normalize time and compare
+        const dob = new Date(formData.date_of_birth);
+        dob.setHours(0, 0, 0, 0);
+        if (dob > eighteenYearsAgo) return false;
+        return Boolean(formData.gender);
+
+      case 1: // Account details
         return (
           isValidEmail(formData.email) &&
-          formData.password.trim() !== "" &&
-          formData.password.trim() === formData.confirmPassword.trim()
+          formData.password.trim() &&
+          formData.password === formData.confirmPassword
         );
-      case 2:
+
+      case 2: // Agreements
         return formData.consentPrivacy && formData.consentTerms;
+
       default:
         return false;
     }
-  };
+  }, [activeIndex, formData]);
 
-  const next = () => {
+  // Proceed to next step
+  const next = useCallback(() => {
     setDirection("forward");
-    setActiveIndex((i) => Math.min(i + 1, items.length - 1));
-    console.log(formData);
-  };
-  const back = () => {
+    setActiveIndex((i) => Math.min(i + 1, stepsModel.length - 1));
+  }, [stepsModel.length]);
+
+  // Go back a step
+  const back = useCallback(() => {
     setDirection("backward");
     setActiveIndex((i) => Math.max(i - 1, 0));
-    handleChange("confirmPassword", "");
-  };
+    // Clear sensitive data on going back
+    setFormData((prev) => ({ ...prev, confirmPassword: "" }));
+  }, []);
 
-  const childFactory = (child) =>
-    React.cloneElement(child, {
-      classNames: direction === "forward" ? "slide-right" : "slide-left",
-    });
+  // Factory to apply slide animation classes
+  const childFactory = useCallback(
+    (child) =>
+      React.cloneElement(child, {
+        classNames: direction === "forward" ? "slide-right" : "slide-left",
+      }),
+    [direction]
+  );
 
-  const handleSignUp = async () => {
-    const genderMap = {
-      Male: "M",
-      Female: "F",
+  // Submit registration to API
+  const handleSignUp = useCallback(async () => {
+    const genderMap = { Male: "M", Female: "F" };
+    const payload = {
+      ...formData,
+      date_of_birth: formData.date_of_birth.toISOString().slice(0, 10),
+      gender: genderMap[formData.gender],
     };
-    const filteredFormData = { ...formData };
-    filteredFormData.date_of_birth = filteredFormData.date_of_birth
-      .toISOString()
-      .slice(0, 10);
-    filteredFormData.gender = genderMap[filteredFormData.gender];
-    delete filteredFormData.consentPrivacy;
-    delete filteredFormData.consentTerms;
-    const body = JSON.stringify(filteredFormData);
+    delete payload.consentPrivacy;
+    delete payload.consentTerms;
 
-    console.log("Request payload:", JSON.stringify(body));
     try {
       const res = await fetch(`${API_URL}/api/auth/register/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: body,
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const text = await res.text();
-        console.log(text);
-        let errBody;
-        try {
-          errBody = JSON.parse(text);
-        } catch {
-          errBody = null;
-        }
-
-        // Se errBody è un oggetto con campi → liste di messaggi
         let msg;
-        if (errBody && typeof errBody === "object") {
-          // appiattisci tutti i messaggi in un’unica stringa
-          msg = Object.values(errBody) // prende [["msg1"], ["msg2", ...], ...]
-            .flat() // diventa ["msg1", "msg2", ...]
-            .join(" "); // "msg1 msg2 …"
-        } else {
-          // fallback al testo grezzo
+        try {
+          const errObj = JSON.parse(text);
+          msg = Object.values(errObj).flat().join(" ");
+        } catch {
           msg = text || "Registration failed";
         }
         setDialogMessage(msg);
         throw new Error(msg);
       }
 
-      //await res.json();
+      // Move to confirmation step on success
       next();
-    } catch (error) {
-      console.error("Registration failed", error);
+    } catch (err) {
+      console.error("Registration error:", err);
       setDialogVisible(true);
     }
-  };
+  }, [formData, next]);
 
-  const [Dialogvisible, setDialogVisible] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState("");
+  return (
+    <div className="signup-container">
+      <Steps model={stepsModel} activeIndex={activeIndex} readOnly className="signup-steps" />
 
-return (
-  <div
-    style={{
-      backgroundImage: `url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      display: "flex",
-      flexDirection: "column",
-      width: "100%",
-      height: "100vh",
-    }}
-  >
-    <div
-      className="custom-steps"
-      style={{ paddingTop: "1rem", width: "100%" }}
-    >
-      <Steps model={items} activeIndex={activeIndex} readOnly />
-    </div>
-
-    <div className="signup-content">
-      {activeIndex < items.length - 1 && (
-        <Button
-          className="back-button"
+      <div className="signup-content">
+        {activeIndex !== stepsModel.length - 1 && (
+          <Button
           label="Back"
-          icon="pi pi-angle-left"
-          iconPos="left"
-          onClick={back}
-          disabled={activeIndex === 0}
-        />
-      )}
+            icon="pi pi-angle-left"
+            className="signup-nav-btn back-btn"
+            onClick={back}
+            disabled={activeIndex === 0}
+          />
+        )}
+        <div className="card-wrapper">
+          <TransitionGroup component={null} childFactory={childFactory}>
+            <CSSTransition key={activeIndex} timeout={500} unmountOnExit>
+              <Card className="signup-card">
+                <SignUpSteps
+                  activeIndex={activeIndex}
+                  formData={formData}
+                  onChange={handleChange}
+                />
+              </Card>
+            </CSSTransition>
+          </TransitionGroup>
 
-      <div className="card-container">
-        <TransitionGroup component={null} childFactory={childFactory}>
-          <CSSTransition
-            key={`${activeIndex}-${direction}`}
-            timeout={500}
-            classNames={
-              direction === "forward" ? "slide-right" : "slide-left"
-            }
+          <Dialog
+            visible={dialogVisible}
+            header="Registration Error"
+            modal
+            onHide={() => setDialogVisible(false)}
+            className="error-dialog"
           >
-            <Card
-              className="cardSignUp"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                justifyContent: "center",
-                position: "absolute",
-                boxShadow: "5px 5px 5px 2px lightblue",
-                backgroundColor: "rgba(255, 255, 255, 0.85)",
-              }}
-            >
-              <SignUpSteps
-                activeIndex={activeIndex}
-                formData={formData}
-                onChange={handleChange}
-              />
-            </Card>
-          </CSSTransition>
-        </TransitionGroup>
+            <p>{dialogMessage}</p>
+          </Dialog>
+        </div>
 
-        <Dialog
-          visible={Dialogvisible}
-          modal
-          header="Registration failed"
-          style={{ width: "50rem" }}
-          onHide={() => {
-            if (!Dialogvisible) return;
-            setDialogVisible(false);
-          }}
-        >
-          <p className="m-0">{dialogMessage}</p>
-        </Dialog>
+        {activeIndex < stepsModel.length - 1 && (
+          <Button
+            icon="pi pi-angle-right"
+            className="signup-nav-btn next-btn"
+            label={activeIndex === stepsModel.length - 2 ? "Confirm" : "Next"}
+            //onClick={activeIndex === stepsModel.length - 2 ? handleSignUp : next}
+            onClick={next}
+            //disabled={!isStepValid}
+          />
+        )}
       </div>
 
-      {activeIndex < items.length - 1 && (
-        <Button
-          className="next-button"
-          icon="pi pi-angle-right"
-          iconPos="right"
-          label={activeIndex === items.length - 2 ? "Confirm" : "Next"}
-          disabled={!isStepValid()}
-          onClick={activeIndex === items.length - 2 ? handleSignUp : next}
-          //onClick={next}
-        />
-      )}
+      <div className="login-prompt">
+        <span>Already have an account? </span>
+        <Link to="/login" className="signin-link">
+          Sign in
+        </Link>
+      </div>
     </div>
-
-    <div className="signup-login-prompt" style={{ paddingBottom: "1rem" }}>
-      <span className="prompt-text">Have you already an account? </span>
-      <Link
-        to="/login"
-        className="prompt-link"
-        style={{ fontSize: "1.2rem" }}
-      >
-        Sign-in
-      </Link>
-    </div>
-  </div>
-);
+  );
 }

@@ -1,0 +1,90 @@
+.verify-container {
+  background: url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')
+              center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.verify-card-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.verify-logo-container {
+  display: flex;
+  width: 40%;
+  justify-content: center;
+  align-items: center;
+}
+
+.verify-card {
+  width: 50%;
+  margin: auto 0 auto 1%;
+  box-shadow: 5px 5px 5px 2px lightblue;
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.verify-message-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.verify-spinner {
+  width: 4rem !important;
+  height: 4rem !important;
+}
+
+.verify-icon {
+  font-size: 4rem;
+}
+
+.verify-icon.success {
+  color: green;
+}
+
+.verify-icon.failure {
+  color: red;
+}
+
+/* — Responsive — */
+
+/* Tablet e piccole larghezze */
+@media (max-width: 768px) {
+  .verify-card-wrapper {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .verify-logo-container {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .verify-card {
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+  }
+}
+
+/* Smartphone stretti */
+@media (max-width: 480px) {
+  .verify-message-wrapper h3 {
+    font-size: 1.2rem;
+  }
+
+  .verify-message-wrapper p {
+    font-size: 0.9rem;
+  }
+
+  .verify-spinner {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+}

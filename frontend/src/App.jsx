@@ -22,7 +22,7 @@ import MoleculeDashboard from "./pages/Molecules.jsx";
 import Login from "./pages/Login.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
-import SignupPage from "./pages/SignUp";
+import SignupPage from "./pages/SignUp.jsx";
 import RequireAuth from "./components/RequireAuth";
 import TempPage from "./pages/Temp";
 import ResetPasswordPage from "./pages/ResetPassword";

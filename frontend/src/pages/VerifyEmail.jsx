@@ -1,135 +1,127 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Card } from "primereact/card";
-import { useParams } from "react-router-dom";
 import { Image } from "primereact/image";
-import { Link } from "react-router-dom";
+import { ProgressSpinner } from "primereact/progressspinner";
 import { API_URL } from "../api";
 
-import "./styles/Login.css";
+import "./styles/VerifyEmail.css";
 
-function ResetPasswordPage() {
+// Possible states for the email verification process
+const STATUS = {
+  LOADING: "loading",
+  SUCCESS: "success",
+  FAILURE: "failure",
+};
+
+export default function VerifyEmail() {
+  // Extract the verification key from the URL parameters
   const { key } = useParams();
-  const [step, setStep] = useState("");
+  const [status, setStatus] = useState(STATUS.LOADING);
 
-  const verify_email = async (creds) => {
-    const body = JSON.stringify({
-      key: creds.key,
+  /**
+   * Sends a POST request to verify the provided key
+   * Updates the status based on the response outcome
+   */
+  const verifyEmail = useCallback(async () => {
+    if (!key) return;
+    setStatus(STATUS.LOADING);
 
-    });
-
-    console.log("Request payload:", JSON.stringify(body));
     try {
-      const res = await fetch(`${API_URL}/api/auth/registration/verify-email/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: body,
-      });
-      console.log(res);
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-        const msg = errBody?.detail || "Email not verified";
-        throw new Error(msg);
+      const response = await fetch(
+        `${API_URL}/api/auth/registration/verify-email/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key }),
+        }
+      );
+
+      if (!response.ok) {
+        // Attempt to parse error detail, fallback to generic message
+        const { detail } = (await response.json().catch(() => ({})));
+        throw new Error(detail || "Email verification failed");
       }
 
-      await res.json();
-      setStep("success");
-
+      setStatus(STATUS.SUCCESS);
     } catch (error) {
-      console.error("Email verification failed", error);
-      setStep("failure");
-      
+      console.error("Verification error:", error);
+      setStatus(STATUS.FAILURE);
     }
+  }, [key]);
+
+  // Trigger verification when component mounts or 'key' changes
+  useEffect(() => {
+    verifyEmail();
+  }, [verifyEmail]);
+
+  /**
+   * Renders appropriate feedback based on verification status:
+   * - Spinner during the API call
+   * - Error message on failure
+   * - Success message on success
+   */
+  const renderContent = () => {
+    if (status === STATUS.LOADING) {
+      return (
+        <div className="verify-message-wrapper">
+          <ProgressSpinner className="verify-spinner" />
+          <h3>Verifying email...</h3>
+        </div>
+      );
+    }
+
+    if (status === STATUS.FAILURE) {
+      return (
+        <div className="verify-message-wrapper">
+          <i className="pi pi-times-circle verify-icon failure" />
+          <h3>Verification failed</h3>
+          <p>
+            Please return to{' '}
+            <Link to="/login" className="p-link">
+              login
+            </Link>{' '}
+            and request a new verification link.
+          </p>
+        </div>
+      );
+    }
+
+    if (status === STATUS.SUCCESS) {
+      return (
+        <div className="verify-message-wrapper">
+          <i className="pi pi-check-circle verify-icon success" />
+          <h3>Email verified successfully!</h3>
+          <p>
+            You can now{' '}
+            <Link to="/login" className="p-link">
+              log in
+            </Link>{' '}
+            with your account.
+          </p>
+        </div>
+      );
+    }
+
+    return null;
   };
 
-    useEffect(() => {
-    if (key ) {
-      verify_email({ key });
-    }
-  }, []);
-
   return (
-    <div
-      style={{
-        backgroundImage: `url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        alignItems: "center",
-        justifyContent: "center",
-        display: "flex",
-        width: "100%",
-        height: "100vh",
-      }}
-    >
-      <div className="card" style={{ display: "flex", width: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            width: "40%",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+    <div className="verify-container">
+      <div className="verify-card-wrapper">
+        <div className="verify-logo-container">
           <Image
             className="logo-login"
-            alt="Image"
-            width="400"
+            alt="MolBook Logo"
+            width={400}
             src="https://molbookpro.farm.unipi.it/wp-content/uploads/2024/09/MB02.png"
           />
         </div>
-        <Card
-          //className="login-card"
-          title="Login"
-          style={{
-            width: "50%",
-            margin: "auto",
-            marginLeft: "1%",
-            boxShadow: "5px 5px 5px 2px lightblue",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-          }}
-        >
-{step === "failure" && (
-            <div
-              className="flex flex-column align-items-center p-4"
-              style={{ gap: "1rem" }}
-            >
-              <i
-                className="pi pi-times-circle"
-                style={{ fontSize: "4rem", color: "green" }}
-              />
-              <h3>Error during verification email!</h3>
-              <p>
-                Go back to{" "}
-                <Link to="/login" className="p-link">
-                  login
-                </Link>{" "}
-                and request a new verification email
-              </p>
-            </div>
-          )}
-          {step === "success" && (
-            <div
-              className="flex flex-column align-items-center p-4"
-              style={{ gap: "1rem" }}
-            >
-              <i
-                className="pi pi-check-circle"
-                style={{ fontSize: "4rem", color: "green" }}
-              />
-              <h3>Email correctly verified!</h3>
-              <p>
-                Go back to{" "}
-                <Link to="/login" className="p-link">
-                  login
-                </Link>{" "}
-                and access with the new password
-              </p>
-            </div>
-          )}
+
+        <Card title="Verify Email" className="verify-card">
+          {renderContent()}
         </Card>
       </div>
     </div>
   );
 }
-
-export default ResetPasswordPage;

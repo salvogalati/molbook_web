@@ -1,14 +1,35 @@
-/* custom-steps.css */
-.custom-steps .p-steps-item .p-menuitem-link {
+/* ---------------- Steps styling ---------------- */
+.signup-steps .p-steps-item .p-menuitem-link {
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-.custom-steps .p-steps .p-steps-item.p-highlight .p-steps-title {
-  color: white;
+
+
+.signup-steps .p-steps-item.p-highlight .p-steps-title {
+  color: white !important;
 }
 
+/* ------------- Slide animations ------------- */
 /* Next: entra da destra → sinistra */
+
+.login-prompt {
+  padding: 1.5rem 0;
+  font-size: 1rem;
+  
+}
+
+ .signup-card {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  box-shadow: 5px 5px 5px 2px lightblue;
+  background-color: rgba(255, 255, 255, 0.85);
+} 
+
 .slide-left-enter {
   transform: translateX(-100%);
   opacity: 0;
@@ -48,8 +69,7 @@
   transition: transform 500ms ease, opacity 500ms ease;
 }
 
-/* ---------------- Responsive Layout for Signup Page ---------------- */
-
+/* ------------- Layout & Responsiveness ------------- */
 /* desktop & tablet larghi */
 .signup-content {
   width: 100%;
@@ -62,9 +82,9 @@
 }
 
 /* wrapper del form */
-.card-container {
+.card-wrapper {
   width: 600px;           /* larghezza fissa per desktop */
-  max-width: 90%;         /* non superare il 90% dello schermo */
+  /* max-width: 90%; */
   display: flex;
   position: relative;
   overflow: hidden;
@@ -74,8 +94,8 @@
 }
 
 /* pulsanti su desktop */
-.back-button,
-.next-button {
+.back-btn,
+.next-btn {
   width: 140px !important;  /* larghezza fissa bottone */
   margin: 0 !important;
 }
@@ -84,27 +104,77 @@
 @media screen and (max-width: 768px) {
   .signup-content {
     flex-direction: column;
-    padding: 1rem;
-    gap: 0
+    padding: 1rem 1rem 0px 1rem;
+    gap: 0;
   }
 
   /* Form full-width sul mobile */
-  .card-container {
+  .card-wrapper {
     width: 100% !important;
     max-width: 400px;
-    margin-bottom: 1.5rem;
   }
 
+  .login-prompt {
+    padding: 0px;
+  }
   /* Pulsanti sotto il form, full-width */
-  .back-button,
-  .next-button {
+  .back-btn,
+  .next-btn {
     width: 100% !important;
     max-width: 300px;
     margin: 0.5rem 0 !important;
   }
 
-  /* Ordine: 1) card, 2) back, 3) next */
-  .card-container { order: 1; }
-  .back-button    { order: 3; }
-  .next-button    { order: 2; }
+  /* Ordine: 1) card, 2) next, 3) back */
+  .card-wrapper { order: 1; }
+  .next-btn     { order: 2; }
+  .back-btn     { order: 3; }
+
+    .signup-steps .p-steps-item:not(.p-highlight) .p-steps-title {
+    display: none !important;
+  }
+  
+  /* Mantieni visibile solo la title attiva */
+  .signup-steps .p-steps-item.p-highlight .p-steps-title {
+    display: inline-block !important;
+    font-size: 1rem;      /* regoli la dimensione se serve */
+    white-space: nowrap;   /* evita che vada a capo */
+  }
+}
+
+/* ------------- Container e prompt finale ------------- */
+.signup-container {
+  background: url('https://www.chemicals.co.uk/wp-content/uploads/2021/09/molecules-and-formula-graphic-scaled.jpg')
+              center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  justify-content: space-between;
+}
+
+.signup-steps {
+  width: 100%;
+  padding: 1rem 0;
+  /* background-color: rgba(255, 255, 255, 0.85); */
+  /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+}
+
+
+
+.signin-link {
+  font-weight: bold;
+  margin-left: 0.5rem;
+  color: #007ad9;
+}
+
+.error-dialog .p-dialog-header {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.error-dialog .p-dialog-content {
+  font-size: 1rem;
 }
