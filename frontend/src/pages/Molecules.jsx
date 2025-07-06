@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import MoleculeTable from '../components/MoleculeTable';
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -11,6 +11,9 @@ import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import useIsMobile from "../hooks/useIsMobile";
 import "./styles/Molecules.css";
+
+import Webcam from "react-webcam";
+import { Dialog } from "primereact/dialog";
 
 const getPubChemImageUrl = name =>
   `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/PNG?record_type=2d&image_size=300x300`;
@@ -82,6 +85,27 @@ export default function Molecules() {
     : { flex: '0 0 200px' };
 
 
+   const webcamRef = useRef(null);
+  const [webcamDialog, setWebcamDialog] = useState(false);
+  const [imgSrc, setImgSrc] = useState(null);
+
+  const openWebcam = () => {
+    setImgSrc(null);      // Resetta la foto se apri di nuovo la webcam
+    setWebcamDialog(true);
+  };
+
+  const capture = () => {
+    if (!webcamRef.current) {
+      alert("Webcam non pronta!");
+      return;
+    }
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) {
+      alert("Non riesco a catturare la foto. Riprova!");
+      return;
+    }
+    setImgSrc(imageSrc);
+  };
 
   const renderHeader = () => {
     return (
@@ -128,6 +152,12 @@ export default function Molecules() {
           </div>
         </div>
         )}
+        <div style={{ display: "flex", flexDirection: "column", }}>
+          <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
+          <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
+            <Button icon="pi pi-camera" style={{ width: "2rem", height: "2rem" }} onClick={openWebcam}/>
+          </div>
+        </div>
       </div>
       </AccordionTab>
       </Accordion>
@@ -138,6 +168,46 @@ export default function Molecules() {
   return (
     <div id="card_molecule_project">
       <div id="header"> {header} </div>
+
+    <div>
+
+      {/* Dialog: mostra webcam oppure foto */}
+      <Dialog
+        header="Scatta una foto"
+        visible={webcamDialog}
+        style={{ width: "350px" }}
+        onHide={() => setWebcamDialog(false)}
+      >
+        {!imgSrc ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Webcam
+              audio={false}
+              ref={webcamRef}
+              screenshotFormat="image/jpeg"
+              width={320}
+              videoConstraints={{ facingMode: "user" }}
+              //videoConstraints={{ facingMode: { exact: "environment" } }}
+            />
+            <Button
+              label="Scatta"
+              icon="pi pi-camera"
+              onClick={capture}
+              style={{ marginTop: 15 }}
+            />
+          </div>
+        ) : (
+          <div style={{ textAlign: "center" }}>
+            <img src={imgSrc} alt="foto scattata" style={{ width: "100%", borderRadius: 8 }} />
+            <Button
+              label="Chiudi"
+              icon="pi pi-times"
+              onClick={() => setWebcamDialog(false)}
+              style={{ marginTop: 15 }}
+            />
+          </div>
+        )}
+      </Dialog>
+    </div>
 
       <div id="containerLayout">
         <div id="pageStyle" style={{flexDirection: isHorizontal ? 'row' : 'column',}}>
