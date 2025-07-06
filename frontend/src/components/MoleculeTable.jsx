@@ -9,11 +9,7 @@ import { Image } from 'primereact/image';
 
 import "./styles/MoleculeTable.css";
 
-export default function MoleculeTable({ onSelectMolecule, filters, visibleColumns }) {
-
-
-  // Stato per i prodotti (righe)
-  const [products, setProducts] = useState([]);
+export default function MoleculeTable({ products, setProducts, onSelectMolecule, filters, visibleColumns }) {
 
   // Stato per le celle selezionate (opzionale, se ti serve sempre)
   const [selectedCells, setSelectedCells] = useState([]);
@@ -38,25 +34,30 @@ export default function MoleculeTable({ onSelectMolecule, filters, visibleColumn
   // Riferimento per il campo di ricerca globale (se lo vogliamo)
   const dt = useRef(null);
 
-  // Simulazione dati fittizi
-  useEffect(() => {
-    const mockData = [
-      { code: "M001", name: "Acetone", category: "Solvent", quantity: 100 },
-      { code: "M002", name: "Benzene", category: "Aromatic", quantity: 50 },
-      { code: "M003", name: "Ethanol", category: "Alcohol", quantity: 200 },
-      { code: "M004", name: "Toluene", category: "Aromatic", quantity: 75 },
-      { code: "M005", name: "Methanol", category: "Alcohol", quantity: 150 },
-      { code: "M006", name: "Hexane", category: "Alkane", quantity: 90 },
-      {
-        code: "M007",
-        name: "Chloroform",
-        category: "Halogenated",
-        quantity: 60,
-      },
-      { code: "M008", name: "Diethyl Ether", category: "Ether", quantity: 120 },
-    ];
-    setProducts(mockData);
-  }, []);
+
+useEffect(() => {
+  setTimeout(() => {
+    if (dt.current && typeof dt.current.getElement === "function") {
+      const tableElem = dt.current.getElement();
+      if (tableElem) {
+        const scroller = tableElem.querySelector('.p-datatable-wrapper');
+        if (scroller) {
+          scroller.scrollTop = scroller.scrollHeight;
+        } else {
+          console.log("Scroller NON trovato");
+        }
+      } else {
+        console.log("tableElem NON trovato");
+      }
+    } else {
+      console.log("dt.current NON trovato o getElement non è funzione");
+    }
+  }, 100);
+}, [products]);
+
+
+
+
 
 
   const onCellEditComplete = (e) => {
@@ -125,7 +126,8 @@ export default function MoleculeTable({ onSelectMolecule, filters, visibleColumn
 
   const imageBodyTemplate = (product) => {
 
-    return <Image src={`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(product.name)}/PNG?record_type=2d&image_size=300x300`}
+    return <Image src={`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(product.smiles)}/PNG?record_type=2d&image_size=300x300`}
+
      alt={product.image} preview width="100px" downloadable className="w-6rem shadow-2 border-round" />;
   };
   return (
@@ -146,7 +148,9 @@ export default function MoleculeTable({ onSelectMolecule, filters, visibleColumn
         filters={filters}
         filterDisplay="menu" // puoi usare "menu" (predefinito) o "row"
         globalFilterFields={["code", "name", "category", "quantity"]}
-        scrollable scrollHeight="flex"
+        scrollable 
+        // scrollHeight="flex"
+        scrollHeight="400px"
         /*** Selezione Celle (opzionale) ***/
         cellSelection
         selectionMode="multiple"

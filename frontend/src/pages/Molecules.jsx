@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MoleculeTable from '../components/MoleculeTable';
+import WebCamDialog from "../components/WebCamDialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
 import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
@@ -12,34 +14,34 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import useIsMobile from "../hooks/useIsMobile";
 import "./styles/Molecules.css";
 
-import Webcam from "react-webcam";
-import { Dialog } from "primereact/dialog";
 
-const getPubChemImageUrl = name =>
-  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/PNG?record_type=2d&image_size=300x300`;
+
+const getPubChemImageUrl = smiles =>
+  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(smiles)}/PNG?record_type=2d&image_size=300x300`;
 
 export default function Molecules() {
   const [selectedMolecule, setSelectedMolecule] = useState(null);
   const [isHorizontal, setIsHorizontal] = useState(true);
-  const [showImage, setShowImage] = useState(true); 
+  const [showImage, setShowImage] = useState(true);
   const isMobile = useIsMobile();
+  const [showWebcamDialog, setShowWebcamDialog] = useState(false);
 
   useEffect(() => {
     console.log(isMobile)
-  if (isMobile) {
-    setShowImage(false);
-    setIsHorizontal(false);
-    setVisibleColumns(prev => {
-      // Se non c'è già la colonna "Image" in prima posizione, aggiungila
-      if (prev.length === 0 || prev[0].field !== "Image") {
-        // Prendi tutte le colonne tranne "Image"
-        const otherCols = prev.filter(col => col.field !== "Image");
-        return [columns[0], ...otherCols];
-      }
-      return prev;
-    });
-  }
-}, [isMobile]);
+    if (isMobile) {
+      setShowImage(false);
+      setIsHorizontal(false);
+      setVisibleColumns(prev => {
+        // Se non c'è già la colonna "Image" in prima posizione, aggiungila
+        if (prev.length === 0 || prev[0].field !== "Image") {
+          // Prendi tutte le colonne tranne "Image"
+          const otherCols = prev.filter(col => col.field !== "Image");
+          return [columns[0], ...otherCols];
+        }
+        return prev;
+      });
+    }
+  }, [isMobile]);
 
 
   const columns = [
@@ -49,6 +51,35 @@ export default function Molecules() {
     { field: "quantity", header: "Quantity" },
     { field: "category", header: "category" },
   ];
+
+  const [products, setProducts] = useState([
+    { code: "M001", name: "Acetone", category: "Solvent", quantity: 100, smiles: "CC(=O)C" },
+    { code: "M002", name: "Benzene", category: "Aromatic", quantity: 50, smiles: "C1=CC=CC=C1" },
+    { code: "M003", name: "Ethanol", category: "Alcohol", quantity: 200, smiles: "CCO" },
+    { code: "M004", name: "Toluene", category: "Aromatic", quantity: 75, smiles: "CC1=CC=CC=C1" },
+    { code: "M005", name: "Methanol", category: "Alcohol", quantity: 150, smiles: "CO" },
+    { code: "M006", name: "Hexane", category: "Alkane", quantity: 90, smiles: "CCCCCC" },
+    { code: "M007", name: "Chloroform", category: "Halogenated", quantity: 60, smiles: "C(Cl)(Cl)Cl" },
+    { code: "M008", name: "Diethyl Ether", category: "Ether", quantity: 120, smiles: "CCOCC" },
+  ]);
+
+  const handleAddRow = ({ code, name, category, quantity, smiles }) => {
+    setProducts(prev => [
+      ...prev,
+      {
+        code: code || "M" + Math.floor(Math.random() * 1000),
+        name: name || "NuovaMolecola",
+        category: category || "Mock",
+        quantity: quantity ?? Math.floor(Math.random() * 200),
+        smiles: smiles || "CNO"
+      },
+    ]);
+  };
+
+    const openWebcam = () => { 
+    setShowWebcamDialog(true);
+  };
+
 
   const [visibleColumns, setVisibleColumns] = useState(columns.filter((element, index) => element.field !== "Image"));
 
@@ -85,81 +116,62 @@ export default function Molecules() {
     : { flex: '0 0 200px' };
 
 
-   const webcamRef = useRef(null);
-  const [webcamDialog, setWebcamDialog] = useState(false);
-  const [imgSrc, setImgSrc] = useState(null);
-
-  const openWebcam = () => {
-    setImgSrc(null);      // Resetta la foto se apri di nuovo la webcam
-    setWebcamDialog(true);
-  };
-
-  const capture = () => {
-    if (!webcamRef.current) {
-      alert("Webcam non pronta!");
-      return;
-    }
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (!imageSrc) {
-      alert("Non riesco a catturare la foto. Riprova!");
-      return;
-    }
-    setImgSrc(imageSrc);
-  };
 
   const renderHeader = () => {
     return (
       <Accordion id="menutable_accordion" style={{ width: "100%", height: "100%" }}>
         <AccordionTab header="Menu" style={{ textAlign: "left" }}>
 
-      <div className="p-2 align-items-center flex flex-row flex-wrap" style={{ gap: "1.2rem" }}>
-        <div> <h5 style={{ margin: 0, textAlign: "left", minHeight: "1.5em" }}> </h5>
-          <IconField iconPosition="left">
-            <InputIcon className="pi pi-search"> </InputIcon>
+          <div className="p-2 align-items-center flex flex-row flex-wrap" style={{ gap: "1.2rem" }}>
+            <div> <h5 style={{ margin: 0, textAlign: "left", minHeight: "1.5em" }}> </h5>
+              <IconField iconPosition="left">
+                <InputIcon className="pi pi-search"> </InputIcon>
 
-            <InputText
-              onInput={onGlobalFilterChange}
-              type="search"
-              placeholder="Search"
-              size="30"
-            />
-          </IconField>
-        </div>
-        <div style={{width: "100%"}}>
-          <h5 style={{ margin: 0, textAlign: "left" }}> Visible columns</h5>
-          <MultiSelect
-            id="multiselect"
-            value={visibleColumns.filter((col) => col.field !== "code")}
-            options={columns.filter((col) => col.field !== "code")}
-            onChange={onColumnToggle}
-            optionLabel="header"
-            className="w-full sm:w-20rem"
-            display="chip"
-          />
-        </div>
-        {!isMobile && (
-        <div style={{ display: "flex", flexDirection: "column", }}>
-          <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
-          <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
-            <Button style={{ width: "2rem", height: "2rem" }} 
-            onClick={() => {setIsHorizontal(false); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image"))}}
-              tooltip="Vertical layout" icon={(options) => <VerticalSplitIcon {...options.iconProps} />} />
-            <Button style={{ width: "2rem", height: "2rem" }}
-             onClick={() => {setIsHorizontal(true); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image"))}}
-            tooltip="Horizontal layout" icon={(options) => <HorizontalSplitIcon {...options.iconProps} />} />
-            <Button style={{ width: "2rem", height: "2rem" }} onClick={() => {setShowImage(false); setVisibleColumns(prev => [columns[0], ...prev]);}}
-             tooltip="Image table layout" icon={(options) => <ViewListIcon {...options.iconProps} />} />
+                <InputText
+                  onInput={onGlobalFilterChange}
+                  type="search"
+                  placeholder="Search"
+                  size="30"
+                />
+              </IconField>
+            </div>
+            <div style={{ maxWidth: "100%" }}>
+              <h5 style={{ margin: 0, textAlign: "left" }}> Visible columns</h5>
+              <MultiSelect
+                id="multiselect"
+                value={visibleColumns.filter((col) => col.field !== "code")}
+                options={columns.filter((col) => col.field !== "code")}
+                onChange={onColumnToggle}
+                optionLabel="header"
+                className="w-full sm:w-20rem"
+                display="chip"
+              />
+            </div>
+            {!isMobile && (
+              <div style={{ display: "flex", flexDirection: "column", }}>
+                <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
+                <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
+                  <Button style={{ width: "2rem", height: "2rem" }}
+                    onClick={() => { setIsHorizontal(false); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image")) }}
+                    tooltip="Vertical layout" icon={(options) => <VerticalSplitIcon {...options.iconProps} />} />
+                  <Button style={{ width: "2rem", height: "2rem" }}
+                    onClick={() => { setIsHorizontal(true); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image")) }}
+                    tooltip="Horizontal layout" icon={(options) => <HorizontalSplitIcon {...options.iconProps} />} />
+                  <Button style={{ width: "2rem", height: "2rem" }} onClick={() => { setShowImage(false); setVisibleColumns(prev => [columns[0], ...prev]); }}
+                    tooltip="Image table layout" icon={(options) => <ViewListIcon {...options.iconProps} />} />
+                </div>
+              </div>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", }}>
+              <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Depict Molecule</h5>
+              <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
+                <Button icon="pi pi-camera" style={{ width: "2rem", height: "2rem" }} onClick={openWebcam} />
+                <Button icon="pi pi-plus" style={{ width: "2rem", height: "2rem" }} 
+                onClick={() => handleAddRow({})} />
+              </div>
+            </div>
           </div>
-        </div>
-        )}
-        <div style={{ display: "flex", flexDirection: "column", }}>
-          <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
-          <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
-            <Button icon="pi pi-camera" style={{ width: "2rem", height: "2rem" }} onClick={openWebcam}/>
-          </div>
-        </div>
-      </div>
-      </AccordionTab>
+        </AccordionTab>
       </Accordion>
     );
   };
@@ -169,55 +181,26 @@ export default function Molecules() {
     <div id="card_molecule_project">
       <div id="header"> {header} </div>
 
-    <div>
+      <div>
 
-      {/* Dialog: mostra webcam oppure foto */}
-      <Dialog
-        header="Scatta una foto"
-        visible={webcamDialog}
-        style={{ width: "350px" }}
-        onHide={() => setWebcamDialog(false)}
-      >
-        {!imgSrc ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Webcam
-              audio={false}
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              width={320}
-              videoConstraints={{ facingMode: "user" }}
-              //videoConstraints={{ facingMode: { exact: "environment" } }}
-            />
-            <Button
-              label="Scatta"
-              icon="pi pi-camera"
-              onClick={capture}
-              style={{ marginTop: 15 }}
-            />
-          </div>
-        ) : (
-          <div style={{ textAlign: "center" }}>
-            <img src={imgSrc} alt="foto scattata" style={{ width: "100%", borderRadius: 8 }} />
-            <Button
-              label="Chiudi"
-              icon="pi pi-times"
-              onClick={() => setWebcamDialog(false)}
-              style={{ marginTop: 15 }}
-            />
-          </div>
-        )}
-      </Dialog>
-    </div>
+    <WebCamDialog
+      showWebcamDialog={showWebcamDialog}
+      setShowWebcamDialog={setShowWebcamDialog}
+      handleAddRow={handleAddRow}
+    />
+
+      </div>
 
       <div id="containerLayout">
-        <div id="pageStyle" style={{flexDirection: isHorizontal ? 'row' : 'column',}}>
+        <div id="pageStyle" style={{ flexDirection: isHorizontal ? 'row' : 'column', }}>
           <div id="imageContainerStyle" style={{
-    ...imageStyle,
-    display: showImage ? undefined : 'none'
-  }}>
+            ...imageStyle,
+            display: showImage ? undefined : 'none'
+          }}>
             {selectedMolecule && (
               <img
-                src={getPubChemImageUrl(selectedMolecule.name)}
+                src={getPubChemImageUrl(selectedMolecule.smiles)}
+
                 alt={`Struttura di ${selectedMolecule.name}`}
                 id="imgStyle"
                 onError={e => (e.currentTarget.src = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800')}
@@ -225,8 +208,11 @@ export default function Molecules() {
             )}
           </div>
 
-          <div id="tableContainerStyle" style={{flex: isHorizontal ? '1 1 60%' : 1}}>
-            <MoleculeTable onSelectMolecule={setSelectedMolecule} filters={filters} visibleColumns={visibleColumns} />
+          <div id="tableContainerStyle" style={{ flex: isHorizontal ? '1 1 60%' : 1 }}>
+            <MoleculeTable onSelectMolecule={setSelectedMolecule} filters={filters}
+              products={products}
+              setProducts={setProducts}
+              visibleColumns={visibleColumns} />
           </div>
         </div>
       </div>
