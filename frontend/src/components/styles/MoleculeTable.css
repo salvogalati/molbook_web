@@ -1,32 +1,49 @@
-/* Sfondo giallo per le celle selezionate */
-#tableproject .p-datatable-tbody > tr > td.p-highlight {
-    background-color: #fff59d !important; /* giallo chiaro */
-    color: #000; /* colore del testo, opzionale */
+.molecule-table-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
 }
 
-#tableproject {
-    min-height: 0;
+/* Table wrapper: ensures the table scrolls correctly */
+#molecule-table {
+  min-height: 0;
 }
 
-#tableproject .p-datatable-wrapper {
-      min-height: 0;
+/* Make the internal table scroller take full height */
+#molecule-table .p-datatable-wrapper {
+  min-height: 0;
   min-width: 0;
   height: 100%;
 }
 
-/* Hover azzurrino sulle celle non selezionate */
-#tableproject .p-datatable-tbody > tr > td:hover {
-    background-color: #e3f2fd; /* azzurrino */
-    cursor: pointer;
+/* Highlight selected cell */
+#molecule-table .p-datatable-tbody > tr > td.p-highlight {
+  background-color: #fff59d !important;
+  color: #000;
 }
 
-/* Target: ogni <td> della DataTable che riceve focus */
-#tableproject .p-datatable-tbody > tr > td:focus {
+/* Hover effect for cells */
+#molecule-table .p-datatable-tbody > tr > td:hover {
   background-color: #e3f2fd;
-  outline: 2px solid #1976d2 !important; 
-  color: #212121 !important;             
+  cursor: pointer;
 }
 
+/* Cell focus effect */
+#molecule-table .p-datatable-tbody > tr > td:focus {
+  background-color: #e3f2fd;
+  outline: 2px solid #1976d2 !important;
+  color: #212121 !important;
+}
+
+/* Filter menu button (rounded, no background) */
 .p-column-filter-menu-button {
   padding: 0.1em 0.1em;
   background-color: transparent;
@@ -35,16 +52,24 @@
   height: 1.2em;
 }
 
-#card-table {
-  position: relative;
-  width: 100%;
-  height: 100%;        /* oppure un'altezza fissa/max-height se serve */
-  overflow: auto;      /* così tutto scrolla dentro */
-  box-sizing: border-box;
-  padding: 1rem;       /* padding a piacere */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px #0001;
-  display: flex;
-  flex-direction: column;
+/* Molecule image style */
+.molecule-image {
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #0002;
+}
+
+/* Responsive tweaks (optional) */
+@media (max-width: 800px) {
+  .molecule-table-card {
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+  #molecule-table .p-datatable-wrapper {
+    /* height: 260px !important; */
+    padding-bottom: 0.1rem;
+  }
+
+  .molecules-layout{
+    padding-bottom: 1rem;
+  }
 }

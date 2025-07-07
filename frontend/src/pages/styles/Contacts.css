@@ -111,7 +111,7 @@
 @media (max-width: 600px) {
   #Contacts .p-card-content > div {
     flex-direction: column !important;
-    gap: 0.2rem !important;
+    gap: 0.8rem !important;
   }
   #Contacts .p-avatar {
     margin-bottom: 6px;
@@ -119,6 +119,13 @@
   #Contacts h3, #Contacts p {
     margin-left: 0 !important;
     font-size: 1rem !important;
+  }
+  #Contacts .p-card-content{
+    display: flex;
+    flex-direction: column;
+  }
+    #Contacts .social-contacts{
+      padding-left: 2rem;
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import MoleculeTable from '../components/MoleculeTable';
 import WebCamDialog from "../components/WebCamDialog";
 import { InputText } from "primereact/inputtext";
@@ -6,7 +6,6 @@ import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
-
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
 import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
@@ -14,44 +13,29 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import useIsMobile from "../hooks/useIsMobile";
 import "./styles/Molecules.css";
 
-
-
+// Helper for PubChem image
 const getPubChemImageUrl = smiles =>
   `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(smiles)}/PNG?record_type=2d&image_size=300x300`;
 
 export default function Molecules() {
+  // State for current selected molecule
   const [selectedMolecule, setSelectedMolecule] = useState(null);
+  // State for layout
   const [isHorizontal, setIsHorizontal] = useState(true);
   const [showImage, setShowImage] = useState(true);
   const isMobile = useIsMobile();
   const [showWebcamDialog, setShowWebcamDialog] = useState(false);
 
-  useEffect(() => {
-    console.log(isMobile)
-    if (isMobile) {
-      setShowImage(false);
-      setIsHorizontal(false);
-      setVisibleColumns(prev => {
-        // Se non c'è già la colonna "Image" in prima posizione, aggiungila
-        if (prev.length === 0 || prev[0].field !== "Image") {
-          // Prendi tutte le colonne tranne "Image"
-          const otherCols = prev.filter(col => col.field !== "Image");
-          return [columns[0], ...otherCols];
-        }
-        return prev;
-      });
-    }
-  }, [isMobile]);
-
-
+  // Define table columns (always include image, but can be hidden)
   const columns = [
     { field: "Image", header: "Image" },
     { field: "code", header: "Code" },
     { field: "name", header: "Name" },
     { field: "quantity", header: "Quantity" },
-    { field: "category", header: "category" },
+    { field: "category", header: "Category" },
   ];
 
+  // Table row data (mock)
   const [products, setProducts] = useState([
     { code: "M001", name: "Acetone", category: "Solvent", quantity: 100, smiles: "CC(=O)C" },
     { code: "M002", name: "Benzene", category: "Aromatic", quantity: 50, smiles: "C1=CC=CC=C1" },
@@ -63,12 +47,13 @@ export default function Molecules() {
     { code: "M008", name: "Diethyl Ether", category: "Ether", quantity: 120, smiles: "CCOCC" },
   ]);
 
+  // Handle row addition
   const handleAddRow = ({ code, name, category, quantity, smiles }) => {
     setProducts(prev => [
       ...prev,
       {
         code: code || "M" + Math.floor(Math.random() * 1000),
-        name: name || "NuovaMolecola",
+        name: name || "NewMolecule",
         category: category || "Mock",
         quantity: quantity ?? Math.floor(Math.random() * 200),
         smiles: smiles || "CNO"
@@ -76,14 +61,24 @@ export default function Molecules() {
     ]);
   };
 
-    const openWebcam = () => { 
-    setShowWebcamDialog(true);
-  };
+  // Responsive layout: on mobile, hide image and force vertical layout
+  useEffect(() => {
+    if (isMobile) {
+      setShowImage(false);
+      setIsHorizontal(false);
+      setVisibleColumns(prev => {
+        const others = prev.filter(col => col.field !== "Image");
+        return [columns[0], ...others];
+      });
+    }
+  }, [isMobile]);
 
+  // Columns visibility for MultiSelect (code always shown)
+  const [visibleColumns, setVisibleColumns] = useState(
+    columns.filter(col => col.field !== "Image")
+  );
 
-  const [visibleColumns, setVisibleColumns] = useState(columns.filter((element, index) => element.field !== "Image"));
-
-  // Stato per i filtri: ogni chiave corrisponde a un campo (field)
+  // Filters for the MoleculeTable
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: "contains" },
     code: { value: null, matchMode: "startsWith" },
@@ -92,127 +87,135 @@ export default function Molecules() {
     quantity: { value: null, matchMode: "equals" },
   });
 
+  // Toggle which columns are visible
   const onColumnToggle = (event) => {
-    let selectedColumns = event.value;
-    let orderedSelectedColumns = columns.filter((col) =>
-      selectedColumns.some((sCol) => sCol.field === col.field)
+    let selected = event.value;
+    let ordered = columns.filter(col =>
+      selected.some(sCol => sCol.field === col.field)
     );
-    const codeColumn = columns.find(col => col.field === "code");
-    orderedSelectedColumns = [codeColumn, ...orderedSelectedColumns];
-    setVisibleColumns(orderedSelectedColumns);
+    const codeCol = columns.find(col => col.field === "code");
+    ordered = [codeCol, ...ordered];
+    setVisibleColumns(ordered);
   };
 
-  // Funzione per il filtro globale (se vogliamo un solo input superiore)
+  // Global filter handler
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
-    const _filters = { ...filters };
-    _filters.global.value = value;
-    setFilters(_filters);
+    setFilters(filters => ({
+      ...filters,
+      global: { ...filters.global, value }
+    }));
   };
 
-  // pannello immagine questo parametrova in imageContainerStyle
-  const imageStyle = isHorizontal
-    ? { flex: '0 0 40%', backgroundColor: "#F5F5F5" }
+  // Layout for the molecule image panel
+  const imagePanelStyle = isHorizontal
+    ? { flex: '0 0 40%', background: "#F5F5F5" }
     : { flex: '0 0 200px' };
 
-
-
-  const renderHeader = () => {
-    return (
-      <Accordion id="menutable_accordion" style={{ width: "100%", height: "100%" }}>
-        <AccordionTab header="Menu" style={{ textAlign: "left" }}>
-
-          <div className="p-2 align-items-center flex flex-row flex-wrap" style={{ gap: "1.2rem" }}>
-            <div> <h5 style={{ margin: 0, textAlign: "left", minHeight: "1.5em" }}> </h5>
-              <IconField iconPosition="left">
-                <InputIcon className="pi pi-search"> </InputIcon>
-
-                <InputText
-                  onInput={onGlobalFilterChange}
-                  type="search"
-                  placeholder="Search"
-                  size="30"
-                />
-              </IconField>
-            </div>
-            <div style={{ maxWidth: "100%" }}>
-              <h5 style={{ margin: 0, textAlign: "left" }}> Visible columns</h5>
-              <MultiSelect
-                id="multiselect"
-                value={visibleColumns.filter((col) => col.field !== "code")}
-                options={columns.filter((col) => col.field !== "code")}
-                onChange={onColumnToggle}
-                optionLabel="header"
-                className="w-full sm:w-20rem"
-                display="chip"
+  // Header panel with filters and actions
+  const renderHeader = () => (
+    <Accordion className="molecules-menu" id="menu-accordion">
+      <AccordionTab header="Menu">
+        <div className="menu-toolbar">
+          {/* Global search */}
+          <div className="menu-block">
+            <label htmlFor="molecule-search" className="menu-label">Search</label>
+            <IconField iconPosition="left">
+              <InputIcon className="pi pi-search" />
+              <InputText
+                id="molecule-search"
+                onInput={onGlobalFilterChange}
+                type="search"
+                placeholder="Search"
+                size="30"
               />
+            </IconField>
+          </div>
+          {/* Visible columns */}
+          <div className="menu-block">
+            <label className="menu-label">Visible columns</label>
+            <MultiSelect
+              value={visibleColumns.filter(col => col.field !== "code")}
+              options={columns.filter(col => col.field !== "code")}
+              onChange={onColumnToggle}
+              optionLabel="header"
+              className="molecules-multiselect"
+              display="chip"
+            />
+          </div>
+          {/* Layout switch (desktop only) */}
+          {!isMobile && (
+            <div className="menu-block">
+              <label className="menu-label">Layout</label>
+              <div className="layout-switch">
+                <Button
+                  className="layout-btn"
+                  onClick={() => { setIsHorizontal(false); setShowImage(true); setVisibleColumns(prev => prev.filter(col => col.field !== "Image")); }}
+                  tooltip="Vertical layout"
+                  icon={(opts) => <VerticalSplitIcon {...opts.iconProps} />}
+                />
+                <Button
+                  className="layout-btn"
+                  onClick={() => { setIsHorizontal(true); setShowImage(true); setVisibleColumns(prev => prev.filter(col => col.field !== "Image")); }}
+                  tooltip="Horizontal layout"
+                  icon={(opts) => <HorizontalSplitIcon {...opts.iconProps} />}
+                />
+                <Button
+                  className="layout-btn"
+                  onClick={() => { setShowImage(false); setVisibleColumns(prev => [columns[0], ...prev]); }}
+                  tooltip="Image table layout"
+                  icon={(opts) => <ViewListIcon {...opts.iconProps} />}
+                />
+              </div>
             </div>
-            {!isMobile && (
-              <div style={{ display: "flex", flexDirection: "column", }}>
-                <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Layout</h5>
-                <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
-                  <Button style={{ width: "2rem", height: "2rem" }}
-                    onClick={() => { setIsHorizontal(false); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image")) }}
-                    tooltip="Vertical layout" icon={(options) => <VerticalSplitIcon {...options.iconProps} />} />
-                  <Button style={{ width: "2rem", height: "2rem" }}
-                    onClick={() => { setIsHorizontal(true); setShowImage(true); setVisibleColumns(prev => prev.filter((element, index) => element.field !== "Image")) }}
-                    tooltip="Horizontal layout" icon={(options) => <HorizontalSplitIcon {...options.iconProps} />} />
-                  <Button style={{ width: "2rem", height: "2rem" }} onClick={() => { setShowImage(false); setVisibleColumns(prev => [columns[0], ...prev]); }}
-                    tooltip="Image table layout" icon={(options) => <ViewListIcon {...options.iconProps} />} />
-                </div>
-              </div>
-            )}
-            <div style={{ display: "flex", flexDirection: "column", }}>
-              <h5 style={{ margin: 0, textAlign: "left", alignItems: "center" }}> Depict Molecule</h5>
-              <div style={{ display: "flex", gap: "1rem", border: "1px solid rgb(204, 204, 204)", borderRadius: "8px", padding: "0.5rem" }}>
-                <Button icon="pi pi-camera" style={{ width: "2rem", height: "2rem" }} onClick={openWebcam} />
-                <Button icon="pi pi-plus" style={{ width: "2rem", height: "2rem" }} 
-                onClick={() => handleAddRow({})} />
-              </div>
+          )}
+          {/* Molecule actions */}
+          <div className="menu-block">
+            <label className="menu-label">Depict Molecule</label>
+            <div className="molecule-actions">
+              <Button icon="pi pi-camera" className="action-btn" onClick={() => setShowWebcamDialog(true)} />
+              <Button icon="pi pi-plus" className="action-btn" onClick={() => handleAddRow({})} />
             </div>
           </div>
-        </AccordionTab>
-      </Accordion>
-    );
-  };
+        </div>
+      </AccordionTab>
+    </Accordion>
+  );
 
-  const header = renderHeader();
+  // --- Render ---
   return (
-    <div id="card_molecule_project">
-      <div id="header"> {header} </div>
-
-      <div>
-
-    <WebCamDialog
-      showWebcamDialog={showWebcamDialog}
-      setShowWebcamDialog={setShowWebcamDialog}
-      handleAddRow={handleAddRow}
-    />
-
-      </div>
-
-      <div id="containerLayout">
-        <div id="pageStyle" style={{ flexDirection: isHorizontal ? 'row' : 'column', }}>
-          <div id="imageContainerStyle" style={{
-            ...imageStyle,
-            display: showImage ? undefined : 'none'
-          }}>
+    <div className="molecules-card">
+      <div className="molecules-header">{renderHeader()}</div>
+      <WebCamDialog
+        showWebcamDialog={showWebcamDialog}
+        setShowWebcamDialog={setShowWebcamDialog}
+        handleAddRow={handleAddRow}
+      />
+      <div className="molecules-layout-container">
+        <div
+          className="molecules-layout"
+          style={{ flexDirection: isHorizontal ? 'row' : 'column' }}
+        >
+          {/* Molecule image panel */}
+          <div className="molecules-image-panel" style={{ ...imagePanelStyle, display: showImage ? undefined : 'none' }}>
             {selectedMolecule && (
               <img
                 src={getPubChemImageUrl(selectedMolecule.smiles)}
-
-                alt={`Struttura di ${selectedMolecule.name}`}
-                id="imgStyle"
+                alt={`Structure of ${selectedMolecule.name}`}
+                className="molecules-image"
                 onError={e => (e.currentTarget.src = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800')}
               />
             )}
           </div>
-
-          <div id="tableContainerStyle" style={{ flex: isHorizontal ? '1 1 60%' : 1 }}>
-            <MoleculeTable onSelectMolecule={setSelectedMolecule} filters={filters}
+          {/* Molecule table */}
+          <div className="molecules-table-panel" style={{ flex: isHorizontal ? '1 1 60%' : 1 }}>
+            <MoleculeTable
+              onSelectMolecule={setSelectedMolecule}
+              filters={filters}
               products={products}
               setProducts={setProducts}
-              visibleColumns={visibleColumns} />
+              visibleColumns={visibleColumns}
+            />
           </div>
         </div>
       </div>

@@ -6,52 +6,59 @@ import { Chart } from 'primereact/chart';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import "./styles/Home.css";
 
+/**
+ * Home page for the MolBook Pro Web application.
+ * Displays a user dashboard with recent projects, storage stats, project analytics, and news.
+ */
 function Home() {
-
+  // Set a pleasant background when the component is mounted
   useEffect(() => {
-    // Cambia background quando si monta
     document.body.style.background = "#F0F8FF";
-    // Reset quando si smonta
     return () => {
-      document.body.style.background = ""; // Oppure il colore originale
+      document.body.style.background = "";
     };
   }, []);
 
   const [user, setUser] = useState(null);
-  const [products, setProducts] = useState([
+  // Example: mock data for recent projects
+  const [projects] = useState([
     { id: '1000', code: 'f230fh0g3', name: 'My project' },
-    { id: '1000', code: 'f230fh0g3', name: 'My project' },
-    { id: '1000', code: 'f230fh0g3', name: 'My project' },
-    { id: '1000', code: 'f230fh0g3', name: 'My project' },
-    { id: '1000', code: 'f230fh0g3', name: 'My project' },
-    { id: '1000', code: 'f230fh0g3', name: 'My project' },
+    { id: '1001', code: 'a230dh0d1', name: 'My project 2' },
+    { id: '1002', code: 'b330gh0d2', name: 'My project 3' },
+    { id: '1003', code: 'c440hh0d3', name: 'My project 4' },
+    { id: '1004', code: 'd550ih0d4', name: 'My project 5' },
+    { id: '1005', code: 'e660jh0d5', name: 'My project 6' },
+    { id: '1005', code: 'e660jh0d5', name: 'My project 6' },
+
   ]);
-  const [pieChartData, setPieChartData] = useState({
-    labels: ['Available space',"Used space"],
-    datasets: [{ data: [70, 30,], }
-    ]
+  // Pie chart data: storage usage
+  const [pieChartData] = useState({
+    labels: ['Available space', 'Used space'],
+    datasets: [{ data: [70, 30] }]
   });
-  const [stackedChartData, setStackedChartData] = useState({
-    labels: ['In stock', 'Toxicity',],
-    datasets: [{ type: 'bar', label: 'Available', data: [157, 0] },
-    { type: 'bar', label: 'Not available', data: [23, 0] },
-    { type: 'bar', label: 'Toxic', data: [0, 10] },
-    { type: 'bar', label: 'Safety', data: [0, 160] }
+  // Bar chart data: project statistics
+  const [barChartData] = useState({
+    labels: ['In stock', 'Toxicity'],
+    datasets: [
+      { type: 'bar', label: 'Available', data: [157, 0] },
+      { type: 'bar', label: 'Not available', data: [23, 0] },
+      { type: 'bar', label: 'Toxic', data: [0, 10] },
+      { type: 'bar', label: 'Safety', data: [0, 160] }
     ]
   });
 
+  // Fetch the current user on mount
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) return;
     getCurrentUser(accessToken)
-      .then(userData => {
-        setUser(userData);
-      })
+      .then(setUser)
       .catch(console.error);
   }, []);
 
   const dataScrollerRef = useRef(null);
 
+  // Render loading state until user is loaded
   if (!user) {
     return (
       <main style={{ padding: '20px' }}>
@@ -60,119 +67,106 @@ function Home() {
     );
   }
 
-  const itemTemplate = (data) => {
-    return (
-      <div className="col-12">
-        <div className="flex flex-column xl:flex-row xl:align-items-start p-1 gap-2">
-          <div
-            className="flex flex-row justify-content-between align-items-center w-full"
-            style={{ width: "100%" }}
-          >
-            <div
-              className="text-900"
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                flex: "1 1 0"
-              }}
-            >
-              {data.name}
-            </div>
-            <div
-              className="text-700"
-              style={{
-                minWidth: "170px",
-                textAlign: "right",
-              }}
-            >
-              Last open 18/08/1995 07:22
-            </div>
-            <div>
-              <Button label="Open" style={{ height: "1.5rem", marginLeft: "2rem" }} />
-            </div>
-          </div>
+  // Render a single project item in the DataScroller
+  const renderProjectItem = (data) => (
+    <div className="dashboard-list-row">
+      <div className="dashboard-list-info">
+        <div className="dashboard-list-title" title={data.name}>
+          {data.name}
+        </div>
+        <div className="dashboard-list-date">
+          Last opened 18/08/1995 07:22
+        </div>
+        <div>
+          <Button label="Open" style={{ height: "1.5rem", marginBottom: "0.2rem" }} />
         </div>
       </div>
-    );
-  };
-
+    </div>
+  );
 
   return (
-
-    <div className="containerMain">
-      <h3 style={{ marginBottom: 0, marginTop: 0 }}>Welcome {user.first_name} to MolBook Pro Web</h3>
-      <div
-        className="grid-container"
-      >
-        <div className="item1">
-          <DataScroller id="recent-projects-datascroller" value={products} itemTemplate={itemTemplate} rows={5} inline scrollHeight="100%" header="Recent project" />
+    <div className="dashboard-root">
+      <h3 className="dashboard-title">
+        Welcome {user.first_name} to MolBook Pro Web
+      </h3>
+      <div className="dashboard-grid">
+        {/* Recent Projects */}
+        <div className="dashboard-section dashboard-projects">
+          <DataScroller
+            id="recent-projects-datascroller"
+            value={projects}
+            itemTemplate={renderProjectItem}
+            rows={5}
+            inline
+            scrollHeight="80%"
+            header="Recent projects"
+          />
         </div>
-        <div className="item2">
-          <h4 style={{margin: "0 0 1.5rem 0"}}> Your storage</h4>
-          <Chart type="doughnut" data={pieChartData} style={{ height: "70%" }} options={{
-            maintainAspectRatio: false,
-            aspectRatio: 0.8,
-            plugins: {
-              tooltip: {
-                callbacks: {
-                  // Qui personalizzi la label!
-                  label: function (context) {
-                    // Recupera il valore
-                    const label = context.label || '';
-                    const value = context.parsed || 0;
-                    return `${label}: ${value} GB`;
+        {/* Storage Usage */}
+        <div className="dashboard-section dashboard-storage">
+          <h4 className="dashboard-section-title">Your storage</h4>
+          <Chart
+            type="doughnut"
+            data={pieChartData}
+            style={{ height: "70%" }}
+            options={{
+              maintainAspectRatio: false,
+              aspectRatio: 0.8,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: (context) => {
+                      const label = context.label || '';
+                      const value = context.parsed || 0;
+                      return `${label}: ${value} GB`;
+                    }
                   }
                 }
               }
-            }
-          }} />
+            }}
+          />
         </div>
-        <div className="item4">
-          <h4 style={{margin: "0 0 1.5rem 0"}}> Project statistics</h4>
-          <Chart type="bar" data={stackedChartData} style={{ height: "100%", width: "100%" }}
+        {/* Project Statistics */}
+        <div className="dashboard-section dashboard-stats">
+          <h4 className="dashboard-section-title">Project statistics</h4>
+          <Chart
+            type="bar"
+            data={barChartData}
+            style={{ height: "100%", width: "100%" }}
             options={{
-              scales: { x: { stacked: true, }, y: { stacked: true, grid: { display: false } } }, maintainAspectRatio: false,
-              aspectRatio: 0.8, plugins: { legend: { display: false } }
-            }} />
+              scales: { x: { stacked: true }, y: { stacked: true, grid: { display: false } } },
+              maintainAspectRatio: false,
+              aspectRatio: 0.8,
+              plugins: { legend: { display: false } }
+            }}
+          />
         </div>
-        <div className="item5">
-          <div style={{ paddingLeft: "10px", paddingTop: "5px", paddingBottom: "5px", width: "100%" }}>
-            <h5 style={{
-              margin: 0,
-              fontWeight: "bold",
-              color: "#193858",
-              letterSpacing: "1px",
-              textAlign: "left",
-              fontSize: "1.15rem"
-            }}>
+        {/* News & Updates */}
+        <div className="dashboard-section dashboard-news">
+          <div className="dashboard-news-header">
+            <h5>
               News
             </h5>
           </div>
-          <Accordion id="newAccordion" style={{ width: "100%", height: "80%" }}>
-            <AccordionTab header="MolBook Pro is now availble.">
+          <Accordion id="newsAccordion" style={{ width: "100%", height: "80%" }}>
+            <AccordionTab header="MolBook Pro is now available.">
               <p className="m-0" style={{ textAlign: "left" }}>
-                We are excited to announce that <strong>MolBook Pro</strong> is officially available to all our users!<br />
-                Our brand-new platform was designed to help research labs and chemistry professionals easily manage their molecular inventories, optimize workflows, and collaborate with their teams more efficiently.<br />
-                Discover the advanced features, intuitive interface, and flexible data management tools built for the scientific community.<br />
+                We are excited to announce that <strong>MolBook Pro</strong> is officially available!<br />
+                Our new platform helps research labs and chemistry professionals manage molecular inventories, optimize workflows, and collaborate more efficiently.<br />
+                Discover advanced features, an intuitive interface, and flexible data management built for the scientific community.<br />
                 Start exploring MolBook Pro today and take your lab management to the next level!
-
               </p>
             </AccordionTab>
             <AccordionTab header="Our team is growing">
-              <p className="m-0">
+              <p className="m-0" style={{ textAlign: "left" }}>
                 The <strong>MolBook Pro</strong> team is growing!<br /><br />
-                We are searching for passionate individuals who want to make an impact in the world of science and technology.<br /><br />
-                If you have experience in chemistry, software development, or scientific data management—and are excited to join an innovative and dynamic environment—please send your CV and a short introduction to <a href="mailto:jobs@molbook.com">jobs@molbook.com</a>.<br /><br />
+                We are searching for passionate individuals interested in science and technology.<br /><br />
+                If you have experience in chemistry, software development, or scientific data management, and want to join an innovative and dynamic environment—send your CV and a short introduction to <a href="mailto:jobs@molbook.com">jobs@molbook.com</a>.<br /><br />
                 Help us build the future of digital chemistry!
               </p>
             </AccordionTab>
           </Accordion>
         </div>
-
-
-
-
       </div>
     </div>
   );

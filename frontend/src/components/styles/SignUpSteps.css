@@ -1,0 +1,84 @@
+/* Container for each field (label + input) */
+.field-container {
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.field-container .p-icon-field.p-icon-field-right {
+  width: 100%
+}
+
+.field-container .p-password-input.p-inputtext.p-component{
+    width: 100%;
+
+}
+
+/* Bold label above inputs */
+.field-label {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+/* Two-column row layout for personal info fields */
+.step-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Single-column stack for steps like account details & agreements */
+.step-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Compact variant for side-by-side name/gender fields */
+.field-container.small {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Radio button group spacing */
+.gender-options {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+/* Label beside each radio */
+.option-label {
+  margin-left: 0.5rem;
+}
+
+/* Checkbox agreements layout */
+.agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.agreement-label {
+  font-size: 0.9rem;
+}
+
+/* Success icon styling on final step */
+.success-icon {
+  font-size: 4rem;
+  color: green;
+  margin-bottom: 1rem;
+}
+
+/* Container for final confirmation message */
+.step-success {
+  text-align: center;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

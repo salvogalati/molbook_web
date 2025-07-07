@@ -1,0 +1,21 @@
+.webcam-dialog-content,
+.webcam-dialog-loading,
+.webcam-dialog-result,
+.webcam-dialog-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-capture-btn,
+.webcam-submit-btn,
+.webcam-ok-btn {
+  margin-top: 15px;
+  width: 120px; /* puoi cambiare la larghezza come vuoi */
+}
+
+.webcam-dialog-preview img {
+  width: 100%;
+  border-radius: 8px;
+}

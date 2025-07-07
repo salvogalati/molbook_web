@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 function Navbar() {
 
   const navigate = useNavigate();
-  const { logout } = useAuth(); 
+  const { logout } = useAuth();
   const start = <h2>MolBook Pro</h2>;
   const items = [
     {
@@ -31,18 +31,18 @@ function Navbar() {
     await logout();
   }
 
-    return (
-      <div className="card">
-          <Menubar style={{height: "3rem"}} model={items} start={start}  end={
+  return (
+    <div className="card">
+      <Menubar style={{ height: "3rem" }} model={items} start={start} end={
         <Button
           label="Logout"
           icon="pi pi-sign-out"
           className="p-button-text"
           onClick={handleLogout}
-        /> }
-        />
-      </div>
-    )
+        />}
+      />
+    </div>
+  )
 }
 
 export default Navbar;

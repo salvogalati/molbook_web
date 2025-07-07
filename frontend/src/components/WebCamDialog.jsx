@@ -4,17 +4,23 @@ import { Button } from "primereact/button";
 import { Dialog } from 'primereact/dialog';
 import Webcam from "react-webcam";
 import useIsMobile from "../hooks/useIsMobile";
+import { mockPredictFromImage } from "../utils/mockPredictFromImage";
+import './styles/WebCamDialog.css';
+import './styles/Loader.css'; 
 
+/**
+ * A dialog for capturing a photo via webcam and sending it to a prediction service.
+ * Displays a spinner while analyzing, and a message (success or error) after prediction.
+ */
 export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, handleAddRow }) {
-
   const webcamRef = useRef(null);
   const [imgSrc, setImgSrc] = useState(null);
   const [loading, setLoading] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
   const [requestType, setRequestType] = useState("");
-  const isMobile = useIsMobile();
-
-
+  //const isMobile = useIsMobile();
+  const isMobile = false;
+  // Reset state every time the dialog opens
   useEffect(() => {
     if (showWebcamDialog) {
       setImgSrc(null);
@@ -24,60 +30,67 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
     }
   }, [showWebcamDialog]);
 
+  // Capture a snapshot from the webcam
   const capture = async () => {
     if (!webcamRef.current) {
-      alert("Webcam non pronta!");
+      alert("Webcam not ready!");
       return;
     }
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) {
-      alert("Non riesco a catturare la foto. Riprova!");
+      alert("Failed to capture photo. Try again!");
       return;
     }
     setImgSrc(imageSrc);
   };
 
-  const handleDialogHide = async () => {
-    if (!imgSrc) return; // non inviare se non hai la foto
+  // Submit the image for prediction
+  const handleDialogSubmit = async () => {
+    if (!imgSrc) return;
 
     setLoading(true);
-    setRequestMessage(""); // reset messaggio
+    setRequestMessage("");
     setRequestType("");
 
     try {
+      // Convert data URL to blob
       const res = await fetch(imgSrc);
       const blob = await res.blob();
       const formData = new FormData();
       formData.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
 
-      const response = await fetch("https://heavy-chicken-sit.loca.lt/predict", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      // Send to prediction endpoint
+      // const response = await fetch("https://heavy-chicken-sit.loca.lt/predict", {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      // const data = await response.json();
+
+      const data = await mockPredictFromImage(imgSrc);
+      const response = {ok: true}
 
       if (response.ok && data.smiles) {
         handleAddRow({ smiles: data.smiles });
         setRequestType("success");
-        setRequestMessage("Molecola aggiunta con successo!");
+        setRequestMessage("Molecule added successfully!");
       } else {
         setRequestType("error");
-        setRequestMessage(data.error || "Errore nella predizione.");
+        setRequestMessage(data.error || "Prediction error.");
       }
     } catch (err) {
       setRequestType("error");
-      setRequestMessage("Errore di rete: " + err.message);
+      setRequestMessage("Network error: " + err.message);
     } finally {
       setLoading(false);
       setImgSrc(null);
     }
   };
 
+  // --- Render ---
   return (
     <Dialog
       header="Depict from photo"
       visible={showWebcamDialog}
-
       style={{ width: "350px" }}
       onHide={() => {
         setShowWebcamDialog(false);
@@ -85,34 +98,40 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
         setRequestType("");
       }}
     >
+      {/* Show webcam and capture button */}
       {!imgSrc && !loading && !requestMessage ? (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div className="webcam-dialog-content">
           <Webcam
             audio={false}
             ref={webcamRef}
             screenshotFormat="image/jpeg"
             width={320}
-            //videoConstraints={{ facingMode: "user" }}
-            videoConstraints={isMobile ? { facingMode: { exact: "environment" } }: { facingMode: "user" }}
+            videoConstraints={isMobile
+              ? { facingMode: { exact: "environment" } }
+              : { facingMode: "user" }}
           />
           <Button
-            label="Scatta"
+            label="Capture"
             icon="pi pi-camera"
             onClick={capture}
-            style={{ marginTop: 15 }}
+            className="webcam-capture-btn"
           />
         </div>
       ) : loading ? (
-        <div style={{ textAlign: "center", padding: 20 }}>
-          <ProgressSpinner />
-          <p>Analisi in corso…</p>
+        // Show loading spinner during prediction
+        <div className="webcam-dialog-loading">
+          <div className="loader" />
+          <p>Analyzing…</p>
         </div>
       ) : requestMessage ? (
-        <div style={{ textAlign: "center" }}>
-          <p style={{
-            color: requestType === "success" ? "green" : "red",
-            fontWeight: "bold"
-          }}>
+        // Show prediction result (success or error)
+        <div className="webcam-dialog-result">
+          <p
+            style={{
+              color: requestType === "success" ? "green" : "red",
+              fontWeight: "bold"
+            }}
+          >
             {requestMessage}
           </p>
           <Button
@@ -122,21 +141,21 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
               setRequestMessage("");
               setRequestType("");
             }}
-            style={{ marginTop: 15 }}
+            className="webcam-ok-btn"
           />
         </div>
       ) : (
-        <div style={{ textAlign: "center" }}>
-          <img src={imgSrc} alt="foto scattata" style={{ width: "100%", borderRadius: 8 }} />
+        // Show preview of captured image, and submit button
+        <div className="webcam-dialog-preview">
+          <img src={imgSrc} alt="Captured" style={{ width: "100%", borderRadius: 8 }} />
           <Button
-            label="Chiudi"
-            icon="pi pi-times"
-            onClick={handleDialogHide}
-            style={{ marginTop: 15 }}
+            label="Submit"
+            icon="pi pi-check"
+            onClick={handleDialogSubmit}
+            className="webcam-submit-btn"
           />
         </div>
       )}
     </Dialog>
-
-  )
+  );
 }

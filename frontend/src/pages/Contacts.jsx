@@ -6,12 +6,14 @@ import { Button } from "primereact/button";
 import { Divider } from 'primereact/divider';
 import { FloatLabel } from 'primereact/floatlabel';
 import { Avatar } from 'primereact/avatar';
+import { Dialog } from 'primereact/dialog';
 import "./styles/Contacts.css"
 
 export default function Contacts() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
 
   // Gestione form fields
   const handleChange = (e) => {
@@ -26,6 +28,7 @@ export default function Contacts() {
       setSent(true);
       setLoading(false);
       setForm({ name: "", email: "", message: "" });
+      setDialogVisible(true)
     }, 1000);
   };
 
@@ -91,10 +94,11 @@ export default function Contacts() {
           </div>
           <Button
             type="submit"
-            label={loading ? "Invio..." : "Invia"}
+            label={loading ? "Sending..." : "Submit"}
             icon="pi pi-send"
             loading={loading}
             disabled={loading}
+            onClick={handleSubmit}
           />
         </Card>
       </div>
@@ -109,7 +113,7 @@ export default function Contacts() {
           <div style={{display:"flex" ,gap:"4rem", flexDirection: "column"}}>
             <div style={{display: "flex", alignItems: "center"}}>
               <Avatar icon="pi pi-envelope" size="large" shape="circle" />
-              <div>
+              <div class="social-contacts" >
                 <h3 style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>Email</h3>
                 <p style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>molbook@farm.unipi.it</p>
               </div>
@@ -117,7 +121,7 @@ export default function Contacts() {
             </div>
             <div style={{display: "flex", alignItems: "center",}}>
               <Avatar icon="pi pi-phone" size="large" shape="circle" />
-              <div>
+              <div class="social-contacts">
                 <h3 style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>Phone</h3>
                 <p style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>800 900 313</p>
               </div>
@@ -127,7 +131,7 @@ export default function Contacts() {
                     <div style={{display:"flex" ,gap:"4rem", flexDirection: "column"}}>
             <div style={{display: "flex", alignItems: "center",}}>
               <Avatar icon="pi pi-facebook" size="large" shape="circle" />
-              <div>
+              <div class="social-contacts">
                 <h3 style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>Facebook</h3>
                 <p style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>MolBook Pro</p>
               </div>
@@ -135,7 +139,7 @@ export default function Contacts() {
             </div>
             <div style={{display: "flex", alignItems: "center",}}>
               <Avatar icon="pi pi-linkedin" size="large" shape="circle" />
-              <div>
+              <div class="social-contacts">
                 <h3 style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>Linkedin</h3>
                 <p style={{textAlign: "left", margin:"0px 0px 0px 2rem"}}>MolBook Pro s.r.l</p>
               </div>
@@ -144,6 +148,32 @@ export default function Contacts() {
           </div>
         </Card>
       </div>
+            {/* Confirmation Dialog */}
+      <Dialog
+        header={`Thank you, ${form.firstName || "there"}!`}
+        visible={dialogVisible}
+        style={{ width: "400px", textAlign: "center" }}
+        onHide={() => setDialogVisible(false)}
+        breakpoints={{ "640px": "90vw" }}
+      >
+        {/* Success icon */}
+        <Avatar
+          icon="pi pi-check-circle"
+          size="xlarge"
+          style={{ color: "#4caf50",backgroundColor: "transparent", marginBottom: ".5rem" }}
+        />
+
+        {/* Fancy message */}
+        <p style={{ margin: ".5rem 0", lineHeight: "1.5" }}>
+          Your message has been <strong>successfully</strong> sent!  
+          We’ve received it and will get back to you within{" "}
+          <strong>24 hours</strong>.
+        </p>
+        <p style={{ fontSize: ".9rem", color: "#666" }}>
+          In the meantime, feel free to explore our <a href="/faq">FAQ</a> page
+          or follow us on social media.
+        </p>
+      </Dialog>
     </div>
   );
 }
