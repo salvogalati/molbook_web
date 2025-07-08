@@ -6,10 +6,10 @@ import fs from 'fs';
 export default defineConfig({
   plugins: [react()],
     server: {
-    allowedHosts: ['some-years-obey.loca.lt'],
-        https: {
-      key: fs.readFileSync('./cert/key.pem'),
-      cert: fs.readFileSync('./cert/cert.pem'),
-    },
+    allowedHosts: true,
+    //     https: {
+    //   key: fs.readFileSync('./cert/key.pem'),
+    //   cert: fs.readFileSync('./cert/cert.pem'),
+    // },
   },
 })

@@ -6,6 +6,18 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
 
+import os
+from dotenv import load_dotenv
+
+# Path assoluto al file .env (un livello sopra)
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+env_path = BASE_DIR / ".env"  # O "backend/.env" se sta in backend
+
+load_dotenv(dotenv_path=env_path)
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173/verify-email")
+
 class CustomAccountAdapter(DefaultAccountAdapter):
     def get_email_confirmation_url(self, request, emailconfirmation):
         key = emailconfirmation.key
@@ -18,8 +30,6 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         # refresh = RefreshToken.for_user(user)
         # token   = str(refresh.access_token)
 
-        frontend_url = "http://localhost:5173/verify-email"
-        # costruisci l’URL con entrambe le parti
         return f"{frontend_url}/{key}"
     
 def send_mail(self, template_prefix, email, context):

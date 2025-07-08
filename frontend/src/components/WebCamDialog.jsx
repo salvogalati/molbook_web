@@ -7,6 +7,7 @@ import useIsMobile from "../hooks/useIsMobile";
 import { mockPredictFromImage } from "../utils/mockPredictFromImage";
 import './styles/WebCamDialog.css';
 import './styles/Loader.css'; 
+import { DECIMER_API_URL } from "../api";
 
 /**
  * A dialog for capturing a photo via webcam and sending it to a prediction service.
@@ -18,8 +19,8 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
   const [loading, setLoading] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
   const [requestType, setRequestType] = useState("");
-  //const isMobile = useIsMobile();
-  const isMobile = false;
+  const isMobile = useIsMobile();
+  //const isMobile = false;
   // Reset state every time the dialog opens
   useEffect(() => {
     if (showWebcamDialog) {
@@ -60,14 +61,15 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
       formData.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
 
       // Send to prediction endpoint
-      // const response = await fetch("https://heavy-chicken-sit.loca.lt/predict", {
-      //   method: "POST",
-      //   body: formData,
-      // });
-      // const data = await response.json();
+      const response = await fetch(`${DECIMER_API_URL}/predict`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
 
-      const data = await mockPredictFromImage(imgSrc);
-      const response = {ok: true}
+      // Mocked daya
+      // const data = await mockPredictFromImage(imgSrc);
+      // const response = {ok: true}
 
       if (response.ok && data.smiles) {
         handleAddRow({ smiles: data.smiles });
