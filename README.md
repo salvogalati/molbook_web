@@ -2,7 +2,12 @@
 
 # MolBook Web
 
-![Demo MolBook Web](docs/Record1.gif)
+<div align="center" style="display: flex; justify-content: center; gap: 1rem;">
+
+  <img src="docs/Record1.gif" alt="Demo MolBook Web 1" />
+  <img src="docs/Record2.gif" alt="Demo MolBook Web 2" width="400" />
+
+</div>
 
 
 [![License](https://img.shields.io/badge/License-MIT%202.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
