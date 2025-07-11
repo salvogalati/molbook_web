@@ -1,30 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import MoleculeTable from '../components/MoleculeTable';
+import React, { useState, useEffect } from "react";
+import MoleculeTable from "../components/MoleculeTable";
 import WebCamDialog from "../components/WebCamDialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
-import { Accordion, AccordionTab } from 'primereact/accordion';
-import VerticalSplitIcon from '@mui/icons-material/VerticalSplit';
-import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { Accordion, AccordionTab } from "primereact/accordion";
+import VerticalSplitIcon from "@mui/icons-material/VerticalSplit";
+import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import useIsMobile from "../hooks/useIsMobile";
+import { SpeedDial } from "primereact/speeddial";
+import { Tooltip } from 'primereact/tooltip';
 import "./styles/Molecules.css";
 
 // Helper for PubChem image
-const getPubChemImageUrl = smiles =>
-  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(smiles)}/PNG?record_type=2d&image_size=300x300`;
+const getPubChemImageUrl = (smiles) =>
+  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(
+    smiles
+  )}/PNG?record_type=2d&image_size=300x300`;
 
 export default function Molecules() {
   // State for current selected molecule
   const [selectedMolecule, setSelectedMolecule] = useState(null);
+  const [selectedRows, setSelectedRows] = useState(null);
   // State for layout
   const [isHorizontal, setIsHorizontal] = useState(true);
   const [showImage, setShowImage] = useState(true);
   const isMobile = useIsMobile();
   const [showWebcamDialog, setShowWebcamDialog] = useState(false);
+
+const handleDelete = () => {
+  if (!selectedRows || selectedRows.length === 0) return;
+
+  setProducts((prev) =>
+    prev.filter((mol) => !selectedRows.includes(mol.code))
+  );
+
+  setSelectedRows([]); // reset selezione
+};
+
+
+  const actions = [
+    {
+      label: "Add",
+      icon: "pi pi-plus",
+    },
+    {
+      label: "Delete",
+      icon: "pi pi-trash",
+      command: handleDelete,
+    },
+    {
+      label: "Import",
+      icon: "pi pi-upload",
+    },
+    {
+      label: "Export",
+      icon: "pi pi-download",
+    },
+  ];
+
+
 
   // Define table columns (always include image, but can be hidden)
   const columns = [
@@ -37,26 +75,74 @@ export default function Molecules() {
 
   // Table row data (mock)
   const [products, setProducts] = useState([
-    { code: "M001", name: "Acetone", category: "Solvent", quantity: 100, smiles: "CC(=O)C" },
-    { code: "M002", name: "Benzene", category: "Aromatic", quantity: 50, smiles: "C1=CC=CC=C1" },
-    { code: "M003", name: "Ethanol", category: "Alcohol", quantity: 200, smiles: "CCO" },
-    { code: "M004", name: "Toluene", category: "Aromatic", quantity: 75, smiles: "CC1=CC=CC=C1" },
-    { code: "M005", name: "Methanol", category: "Alcohol", quantity: 150, smiles: "CO" },
-    { code: "M006", name: "Hexane", category: "Alkane", quantity: 90, smiles: "CCCCCC" },
-    { code: "M007", name: "Chloroform", category: "Halogenated", quantity: 60, smiles: "C(Cl)(Cl)Cl" },
-    { code: "M008", name: "Diethyl Ether", category: "Ether", quantity: 120, smiles: "CCOCC" },
+    {
+      code: "M001",
+      name: "Acetone",
+      category: "Solvent",
+      quantity: 100,
+      smiles: "CC(=O)C",
+    },
+    {
+      code: "M002",
+      name: "Benzene",
+      category: "Aromatic",
+      quantity: 50,
+      smiles: "C1=CC=CC=C1",
+    },
+    {
+      code: "M003",
+      name: "Ethanol",
+      category: "Alcohol",
+      quantity: 200,
+      smiles: "CCO",
+    },
+    {
+      code: "M004",
+      name: "Toluene",
+      category: "Aromatic",
+      quantity: 75,
+      smiles: "CC1=CC=CC=C1",
+    },
+    {
+      code: "M005",
+      name: "Methanol",
+      category: "Alcohol",
+      quantity: 150,
+      smiles: "CO",
+    },
+    {
+      code: "M006",
+      name: "Hexane",
+      category: "Alkane",
+      quantity: 90,
+      smiles: "CCCCCC",
+    },
+    {
+      code: "M007",
+      name: "Chloroform",
+      category: "Halogenated",
+      quantity: 60,
+      smiles: "C(Cl)(Cl)Cl",
+    },
+    {
+      code: "M008",
+      name: "Diethyl Ether",
+      category: "Ether",
+      quantity: 120,
+      smiles: "CCOCC",
+    },
   ]);
 
   // Handle row addition
   const handleAddRow = ({ code, name, category, quantity, smiles }) => {
-    setProducts(prev => [
+    setProducts((prev) => [
       ...prev,
       {
         code: code || "M" + Math.floor(Math.random() * 1000),
         name: name || "NewMolecule",
         category: category || "Mock",
         quantity: quantity ?? Math.floor(Math.random() * 200),
-        smiles: smiles || "CNO"
+        smiles: smiles || "CNO",
       },
     ]);
   };
@@ -66,8 +152,8 @@ export default function Molecules() {
     if (isMobile) {
       setShowImage(false);
       setIsHorizontal(false);
-      setVisibleColumns(prev => {
-        const others = prev.filter(col => col.field !== "Image");
+      setVisibleColumns((prev) => {
+        const others = prev.filter((col) => col.field !== "Image");
         return [columns[0], ...others];
       });
     }
@@ -75,7 +161,7 @@ export default function Molecules() {
 
   // Columns visibility for MultiSelect (code always shown)
   const [visibleColumns, setVisibleColumns] = useState(
-    columns.filter(col => col.field !== "Image")
+    columns.filter((col) => col.field !== "Image")
   );
 
   // Filters for the MoleculeTable
@@ -90,10 +176,10 @@ export default function Molecules() {
   // Toggle which columns are visible
   const onColumnToggle = (event) => {
     let selected = event.value;
-    let ordered = columns.filter(col =>
-      selected.some(sCol => sCol.field === col.field)
+    let ordered = columns.filter((col) =>
+      selected.some((sCol) => sCol.field === col.field)
     );
-    const codeCol = columns.find(col => col.field === "code");
+    const codeCol = columns.find((col) => col.field === "code");
     ordered = [codeCol, ...ordered];
     setVisibleColumns(ordered);
   };
@@ -101,16 +187,16 @@ export default function Molecules() {
   // Global filter handler
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
-    setFilters(filters => ({
+    setFilters((filters) => ({
       ...filters,
-      global: { ...filters.global, value }
+      global: { ...filters.global, value },
     }));
   };
 
   // Layout for the molecule image panel
   const imagePanelStyle = isHorizontal
-    ? { flex: '0 0 40%', background: "#F5F5F5" }
-    : { flex: '0 0 200px' };
+    ? { flex: "0 0 40%", background: "#F5F5F5" }
+    : { flex: "0 0 200px" };
 
   // Header panel with filters and actions
   const renderHeader = () => (
@@ -119,7 +205,9 @@ export default function Molecules() {
         <div className="menu-toolbar">
           {/* Global search */}
           <div className="menu-block">
-            <label htmlFor="molecule-search" className="menu-label">Search</label>
+            <label htmlFor="molecule-search" className="menu-label">
+              Search
+            </label>
             <IconField iconPosition="left">
               <InputIcon className="pi pi-search" />
               <InputText
@@ -135,8 +223,8 @@ export default function Molecules() {
           <div className="menu-block">
             <label className="menu-label">Visible columns</label>
             <MultiSelect
-              value={visibleColumns.filter(col => col.field !== "code")}
-              options={columns.filter(col => col.field !== "code")}
+              value={visibleColumns.filter((col) => col.field !== "code")}
+              options={columns.filter((col) => col.field !== "code")}
               onChange={onColumnToggle}
               optionLabel="header"
               className="molecules-multiselect"
@@ -150,19 +238,34 @@ export default function Molecules() {
               <div className="layout-switch">
                 <Button
                   className="layout-btn"
-                  onClick={() => { setIsHorizontal(false); setShowImage(true); setVisibleColumns(prev => prev.filter(col => col.field !== "Image")); }}
+                  onClick={() => {
+                    setIsHorizontal(false);
+                    setShowImage(true);
+                    setVisibleColumns((prev) =>
+                      prev.filter((col) => col.field !== "Image")
+                    );
+                  }}
                   tooltip="Vertical layout"
                   icon={(opts) => <VerticalSplitIcon {...opts.iconProps} />}
                 />
                 <Button
                   className="layout-btn"
-                  onClick={() => { setIsHorizontal(true); setShowImage(true); setVisibleColumns(prev => prev.filter(col => col.field !== "Image")); }}
+                  onClick={() => {
+                    setIsHorizontal(true);
+                    setShowImage(true);
+                    setVisibleColumns((prev) =>
+                      prev.filter((col) => col.field !== "Image")
+                    );
+                  }}
                   tooltip="Horizontal layout"
                   icon={(opts) => <HorizontalSplitIcon {...opts.iconProps} />}
                 />
                 <Button
                   className="layout-btn"
-                  onClick={() => { setShowImage(false); setVisibleColumns(prev => [columns[0], ...prev]); }}
+                  onClick={() => {
+                    setShowImage(false);
+                    setVisibleColumns((prev) => [columns[0], ...prev]);
+                  }}
                   tooltip="Image table layout"
                   icon={(opts) => <ViewListIcon {...opts.iconProps} />}
                 />
@@ -173,14 +276,23 @@ export default function Molecules() {
           <div className="menu-block">
             <label className="menu-label">Depict Molecule</label>
             <div className="molecule-actions">
-              <Button icon="pi pi-camera" className="action-btn" onClick={() => setShowWebcamDialog(true)} />
-              <Button icon="pi pi-plus" className="action-btn" onClick={() => handleAddRow({})} />
+              <Button
+                icon="pi pi-camera"
+                className="action-btn"
+                onClick={() => setShowWebcamDialog(true)}
+              />
+              <Button
+                icon="pi pi-plus"
+                className="action-btn"
+                onClick={() => handleAddRow({})}
+              />
             </div>
           </div>
         </div>
       </AccordionTab>
     </Accordion>
   );
+
 
   // --- Render ---
   return (
@@ -194,23 +306,36 @@ export default function Molecules() {
       <div className="molecules-layout-container">
         <div
           className="molecules-layout"
-          style={{ flexDirection: isHorizontal ? 'row' : 'column' }}
+          style={{ flexDirection: isHorizontal ? "row" : "column" }}
         >
           {/* Molecule image panel */}
-          <div className="molecules-image-panel" style={{ ...imagePanelStyle, display: showImage ? undefined : 'none' }}>
+          <div
+            className="molecules-image-panel"
+            style={{
+              ...imagePanelStyle,
+              display: showImage ? undefined : "none",
+            }}
+          >
             {selectedMolecule && (
               <img
                 src={getPubChemImageUrl(selectedMolecule.smiles)}
                 alt={`Structure of ${selectedMolecule.name}`}
                 className="molecules-image"
-                onError={e => (e.currentTarget.src = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800')}
+                onError={(e) =>
+                  (e.currentTarget.src =
+                    "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
+                }
               />
             )}
           </div>
           {/* Molecule table */}
-          <div className="molecules-table-panel" style={{ flex: isHorizontal ? '1 1 60%' : 1 }}>
+          <div
+            className="molecules-table-panel"
+            style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
+          >
             <MoleculeTable
-              onSelectMolecule={setSelectedMolecule}
+              onSelectCell={setSelectedMolecule}
+              onSelectRow={setSelectedRows}
               filters={filters}
               products={products}
               setProducts={setProducts}
@@ -219,6 +344,21 @@ export default function Molecules() {
           </div>
         </div>
       </div>
+<Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
+<SpeedDial
+  model={actions}
+  className="speeddial-bottom-right"
+  direction="up"
+  showIcon="pi pi-plus"
+  hideIcon="pi pi-times"
+  style={{
+    position: "fixed",
+    bottom: "2rem",
+    right: "2rem",
+    zIndex: 1000,
+  }}
+/>
+
     </div>
   );
 }

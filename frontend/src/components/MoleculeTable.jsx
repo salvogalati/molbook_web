@@ -18,7 +18,8 @@ import "./styles/MoleculeTable.css";
 export default function MoleculeTable({
   products,
   setProducts,
-  onSelectMolecule,
+  onSelectCell,
+  onSelectRow,
   filters,
   visibleColumns
 }) {
@@ -81,15 +82,18 @@ export default function MoleculeTable({
 
   const cellEditor = (options) => textEditor(options);
 
-  // Row selection via checkbox
-  const onRowCheckboxChange = (e, rowData) => {
-    const key = rowData.code;
-    setSelectedRows(prev =>
-      e.checked
-        ? [...prev, key]
-        : prev.filter(k => k !== key)
-    );
-  };
+const onRowCheckboxChange = (e, rowData) => {
+  const key = rowData.code;
+
+  const newSelectedRows = e.checked
+    ? [...selectedRows, key]
+    : selectedRows.filter(k => k !== key);
+
+  setSelectedRows(newSelectedRows);
+  // console.log(newSelectedRows);
+  onSelectRow(newSelectedRows);
+};
+
 
   // Check if row is selected
   const isRowSelected = (rowData) => selectedRows.includes(rowData.code);
@@ -140,9 +144,9 @@ export default function MoleculeTable({
             setSelectedCells(e.value);
           }
           // Notify parent of molecule selection
-          if (onSelectMolecule && e.value.length > 0) {
+          if (onSelectCell && e.value.length > 0) {
             const firstCell = e.value[0];
-            onSelectMolecule(firstCell.rowData);
+            onSelectCell(firstCell.rowData);
           }
         }}
         metaKeySelection
