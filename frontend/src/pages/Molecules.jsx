@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MoleculeTable from "../components/MoleculeTable";
 import WebCamDialog from "../components/WebCamDialog";
+import AddMoleculeDialog from "../components/AddMoleculeDialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
@@ -30,6 +31,7 @@ export default function Molecules() {
   const [showImage, setShowImage] = useState(true);
   const isMobile = useIsMobile();
   const [showWebcamDialog, setShowWebcamDialog] = useState(false);
+  const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
 
 const handleDelete = () => {
   if (!selectedRows || selectedRows.length === 0) return;
@@ -46,6 +48,7 @@ const handleDelete = () => {
     {
       label: "Add",
       icon: "pi pi-plus",
+      command: () => setVisibleAddMolecule(true)
     },
     {
       label: "Delete",
@@ -303,6 +306,11 @@ const handleDelete = () => {
         setShowWebcamDialog={setShowWebcamDialog}
         handleAddRow={handleAddRow}
       />
+      <AddMoleculeDialog
+        showDialog={visibleAddMolecule}
+        setShowDialog={setVisibleAddMolecule}
+        columns={columns}
+      />
       <div className="molecules-layout-container">
         <div
           className="molecules-layout"
@@ -345,19 +353,9 @@ const handleDelete = () => {
         </div>
       </div>
 <Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
-<SpeedDial
-  model={actions}
-  className="speeddial-bottom-right"
-  direction="up"
-  showIcon="pi pi-plus"
-  hideIcon="pi pi-times"
-  style={{
-    position: "fixed",
-    bottom: "2rem",
-    right: "2rem",
-    zIndex: 1000,
-  }}
-/>
+<SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
+  showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
+    position: "fixed", bottom: "2rem", right: "2rem",  zIndex: 1000}}/>
 
     </div>
   );
