@@ -1,19 +1,23 @@
-import { ProgressSpinner } from 'primereact/progressspinner';
-import React, { useState, useEffect, useRef } from 'react';
+import { ProgressSpinner } from "primereact/progressspinner";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
-import { Dialog } from 'primereact/dialog';
+import { Dialog } from "primereact/dialog";
 import Webcam from "react-webcam";
 import useIsMobile from "../hooks/useIsMobile";
 import { mockPredictFromImage } from "../utils/mockPredictFromImage";
-import './styles/WebCamDialog.css';
-import './styles/Loader.css'; 
+import "./styles/WebCamDialog.css";
+import "./styles/Loader.css";
 import { DECIMER_API_URL } from "../api";
 
 /**
  * A dialog for capturing a photo via webcam and sending it to a prediction service.
  * Displays a spinner while analyzing, and a message (success or error) after prediction.
  */
-export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, handleAddRow }) {
+export default function WebCamDialog({
+  showWebcamDialog,
+  setShowWebcamDialog,
+  handleAddRow,
+}) {
   const webcamRef = useRef(null);
   const [imgSrc, setImgSrc] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +62,10 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
       const res = await fetch(imgSrc);
       const blob = await res.blob();
       const formData = new FormData();
-      formData.append("file", new File([blob], "photo.jpg", { type: "image/jpeg" }));
+      formData.append(
+        "file",
+        new File([blob], "photo.jpg", { type: "image/jpeg" })
+      );
 
       // Send to prediction endpoint
       const response = await fetch(`${DECIMER_API_URL}/predict`, {
@@ -72,7 +79,7 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
       // const response = {ok: true}
 
       if (response.ok && data.smiles) {
-        handleAddRow({ smiles: data.smiles });
+        handleAddRow([{ id: "Image", value: data.smiles }]);
         setRequestType("success");
         setRequestMessage("Molecule added successfully!");
       } else {
@@ -108,9 +115,11 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
             ref={webcamRef}
             screenshotFormat="image/jpeg"
             width={320}
-            videoConstraints={isMobile
-              ? { facingMode: { exact: "environment" } }
-              : { facingMode: "user" }}
+            videoConstraints={
+              isMobile
+                ? { facingMode: { exact: "environment" } }
+                : { facingMode: "user" }
+            }
           />
           <Button
             label="Capture"
@@ -131,7 +140,7 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
           <p
             style={{
               color: requestType === "success" ? "green" : "red",
-              fontWeight: "bold"
+              fontWeight: "bold",
             }}
           >
             {requestMessage}
@@ -149,7 +158,11 @@ export default function WebCamDialog({ showWebcamDialog, setShowWebcamDialog, ha
       ) : (
         // Show preview of captured image, and submit button
         <div className="webcam-dialog-preview">
-          <img src={imgSrc} alt="Captured" style={{ width: "100%", borderRadius: 8 }} />
+          <img
+            src={imgSrc}
+            alt="Captured"
+            style={{ width: "100%", borderRadius: 8 }}
+          />
           <Button
             label="Submit"
             icon="pi pi-check"

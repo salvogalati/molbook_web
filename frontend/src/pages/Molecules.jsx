@@ -137,18 +137,30 @@ const handleDelete = () => {
   ]);
 
   // Handle row addition
-  const handleAddRow = ({ code, name, category, quantity, smiles }) => {
-    setProducts((prev) => [
-      ...prev,
-      {
-        code: code || "M" + Math.floor(Math.random() * 1000),
-        name: name || "NewMolecule",
-        category: category || "Mock",
-        quantity: quantity ?? Math.floor(Math.random() * 200),
-        smiles: smiles || "CNO",
-      },
-    ]);
-  };
+
+const handleAddRow = (newFields) => {
+  // 1. Riduci fields in un singolo oggetto entry
+  const entry = newFields.reduce((obj, { id, value }) => {
+    if (id === "Image") {
+      obj.smiles = value;
+    } else {
+      obj[id] = value;
+    }
+    return obj;
+  }, {});
+
+  // 2. Applica su setProducts esattamente come facevi prima
+  setProducts(prev => [
+    ...prev,
+    {
+      code:     entry.code     || "M" + Math.floor(Math.random() * 1000),
+      name:     entry.name     || "NewMolecule",
+      category: entry.category || "Mock",
+      quantity: entry.quantity ?? Math.floor(Math.random() * 200),
+      smiles:   entry.smiles   || "CNO",
+    }
+  ]);
+};
 
   // Responsive layout: on mobile, hide image and force vertical layout
   useEffect(() => {
@@ -287,7 +299,7 @@ const handleDelete = () => {
               <Button
                 icon="pi pi-plus"
                 className="action-btn"
-                onClick={() => handleAddRow({})}
+                onClick={() => handleAddRow([])}
               />
             </div>
           </div>
@@ -310,6 +322,7 @@ const handleDelete = () => {
         showDialog={visibleAddMolecule}
         setShowDialog={setVisibleAddMolecule}
         columns={columns}
+        onSave={handleAddRow}
       />
       <div className="molecules-layout-container">
         <div
