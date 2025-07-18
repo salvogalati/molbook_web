@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Chart } from 'primereact/chart';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import "./styles/Home.css";
+import "../components/styles/Loader.css";
 
 /**
  * Home page for the MolBook Pro Web application.
@@ -62,6 +63,7 @@ function Home() {
   if (!user) {
     return (
       <main style={{ padding: '20px' }}>
+        <div className="loader" />
         <h1>Loading...</h1>
       </main>
     );

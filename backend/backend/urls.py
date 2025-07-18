@@ -24,7 +24,7 @@ from rest_framework_simplejwt.views import (
 from django.contrib.auth import views as auth_views
 
 from django.http import JsonResponse
-from .views_api import HelloProtectedView, HelloView
+from .views_api import HelloProtectedView, HelloView, MoleculeImageView
 from backend.accounts.views import CustomPasswordResetView, UserViewSet
 
 def api_root(request):
@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/hello-p/', HelloProtectedView.as_view(), name='hello_protetto'),
+    path('api/molecule-image/', MoleculeImageView.as_view(), name='molecule-image'),
     path('api/hello/', HelloView.as_view(), name='hello_non-protetto'),
     path('api/auth/', include('backend.accounts.urls')),
     path('accounts/', include('allauth.urls')), 

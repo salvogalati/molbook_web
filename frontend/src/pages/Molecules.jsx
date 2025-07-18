@@ -14,6 +14,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import useIsMobile from "../hooks/useIsMobile";
 import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from 'primereact/tooltip';
+import { API_URL, FAILED_IMAGE_URL } from "../api";
 import "./styles/Molecules.css";
 
 // Helper for PubChem image
@@ -32,17 +33,59 @@ export default function Molecules() {
   const isMobile = useIsMobile();
   const [showWebcamDialog, setShowWebcamDialog] = useState(false);
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
+  const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
 
-const handleDelete = () => {
-  if (!selectedRows || selectedRows.length === 0) return;
+  const handleDelete = () => {
+    if (!selectedRows || selectedRows.length === 0) return;
 
-  setProducts((prev) =>
-    prev.filter((mol) => !selectedRows.includes(mol.code))
-  );
+    setProducts((prev) =>
+      prev.filter((mol) => !selectedRows.includes(mol.code))
+    );
 
-  setSelectedRows([]); // reset selezione
-};
+    setSelectedRows([]); // reset selezione
+  };
 
+  const fetchMoleculeImage = async (smiles) => {
+    try {
+      const res = await fetch(
+        `${API_URL}/api/molecule-image/?smiles=${encodeURIComponent(smiles)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Fetch failed");
+
+      const blob = await res.blob();
+      return URL.createObjectURL(blob);
+    } catch (error) {
+      console.error("Image loading error", error);
+      return FAILED_IMAGE_URL
+    }
+  };
+
+  useEffect(() => {
+    let objectUrl;
+
+    const loadImage = async () => {
+      try {
+        objectUrl = await fetchMoleculeImage(selectedMolecule.smiles);
+        setMoleculeImageUrl(objectUrl);
+      } catch (err) {
+        console.error("Failed to fetch image", err);
+        setMoleculeImageUrl(null);
+      }
+    };
+
+    if (selectedMolecule?.smiles) {
+      loadImage();
+    }
+
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedMolecule]);
 
   const actions = [
     {
@@ -134,33 +177,39 @@ const handleDelete = () => {
       quantity: 120,
       smiles: "CCOCC",
     },
+    {code: "ciao",
+      name: "ciao",
+      category: "oo",
+      quantity: 120,
+      smiles: "ciao",
+    },
   ]);
 
   // Handle row addition
 
-const handleAddRow = (newFields) => {
-  // 1. Riduci fields in un singolo oggetto entry
-  const entry = newFields.reduce((obj, { id, value }) => {
-    if (id === "Image") {
-      obj.smiles = value;
-    } else {
-      obj[id] = value;
-    }
-    return obj;
-  }, {});
+  const handleAddRow = (newFields) => {
+    // 1. Riduci fields in un singolo oggetto entry
+    const entry = newFields.reduce((obj, { id, value }) => {
+      if (id === "Image") {
+        obj.smiles = value;
+      } else {
+        obj[id] = value;
+      }
+      return obj;
+    }, {});
 
-  // 2. Applica su setProducts esattamente come facevi prima
-  setProducts(prev => [
-    ...prev,
-    {
-      code:     entry.code     || "M" + Math.floor(Math.random() * 1000),
-      name:     entry.name     || "NewMolecule",
-      category: entry.category || "Mock",
-      quantity: entry.quantity ?? Math.floor(Math.random() * 200),
-      smiles:   entry.smiles   || "CNO",
-    }
-  ]);
-};
+    // 2. Applica su setProducts esattamente come facevi prima
+    setProducts(prev => [
+      ...prev,
+      {
+        code: entry.code || "M" + Math.floor(Math.random() * 1000),
+        name: entry.name || "NewMolecule",
+        category: entry.category || "Mock",
+        quantity: entry.quantity ?? Math.floor(Math.random() * 200),
+        smiles: entry.smiles || "CNO",
+      }
+    ]);
+  };
 
   // Responsive layout: on mobile, hide image and force vertical layout
   useEffect(() => {
@@ -210,7 +259,7 @@ const handleAddRow = (newFields) => {
 
   // Layout for the molecule image panel
   const imagePanelStyle = isHorizontal
-    ? { flex: "0 0 40%", background: "#F5F5F5" }
+    ? { flex: "0 0 40%",}
     : { flex: "0 0 200px" };
 
   // Header panel with filters and actions
@@ -339,12 +388,12 @@ const handleAddRow = (newFields) => {
           >
             {selectedMolecule && (
               <img
-                src={getPubChemImageUrl(selectedMolecule.smiles)}
+                src={moleculeImageUrl}
                 alt={`Structure of ${selectedMolecule.name}`}
                 className="molecules-image"
                 onError={(e) =>
-                  (e.currentTarget.src =
-                    "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
+                (e.currentTarget.src =
+                  "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
                 }
               />
             )}
@@ -365,10 +414,11 @@ const handleAddRow = (newFields) => {
           </div>
         </div>
       </div>
-<Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
-<SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
-  showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
-    position: "fixed", bottom: "2rem", right: "2rem",  zIndex: 1000}}/>
+      <Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
+      <SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
+        showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
+          position: "fixed", bottom: "2rem", right: "2rem", zIndex: 1000
+        }} />
 
     </div>
   );
