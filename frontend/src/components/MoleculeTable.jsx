@@ -16,7 +16,8 @@ export default function MoleculeTable({
   onSelectCell,
   onSelectRow,
   filters,
-  visibleColumns
+  visibleColumns,
+  projectId
 }) {
   // Track cell and row selection
   const [selectedCells, setSelectedCells] = useState([]);
@@ -110,15 +111,40 @@ useEffect(() => {
     }, 100);
   }, [products]);
 
-  // Handle cell editing
-  const onCellEditComplete = (e) => {
-    const { rowData, newValue, field, originalEvent: event } = e;
-    if (typeof newValue === "string" && newValue.trim().length > 0) {
-      rowData[field] = newValue;
-    } else {
-      event.preventDefault();
+const onCellEditComplete = async (e) => {
+  const { rowData, newValue, field, originalEvent: event } = e;
+
+  if (typeof newValue === "string" && newValue.trim().length > 0) {
+    try {
+      const moleculeId = rowData.id;
+
+      const response = await fetch(
+        `${API_URL}api/projects/${projectId}/molecules/${moleculeId}/`,
+        {
+          method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+          body: JSON.stringify({ [field]: newValue })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Errore nella richiesta PATCH");
+      }
+
+      const data = await response.json();
+      rowData[field] = data[field]; // aggiorna il valore con quello del backend
+
+    } catch (err) {
+      console.error(err);
+      event.preventDefault(); // impedisce il salvataggio in UI
     }
-  };
+  } else {
+    event.preventDefault(); // valore non valido, rollback
+  }
+};
 
   // Text editor for cell editing
   const textEditor = (options) => (
@@ -259,7 +285,6 @@ const selectSpecificCell = (rowData) => {
             </div>
           )}
         /> */}
-        {/* Molecule image column (optional) */}
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
         {visibleColumns.some(col => col.field === "Image") && (
           <Column
@@ -285,10 +310,6 @@ const selectSpecificCell = (rowData) => {
           )
         ))}
       </DataTable>
-      {/* If you want a button to log selection, uncomment below */}
-      {/* <div style={{ marginTop: "1rem" }}>
-        <Button label="Log Selection" icon="pi pi-list" onClick={logSelection} />
-      </div> */}
     </div>
   );
 }

@@ -364,6 +364,7 @@ useEffect(() => {
               products={products}
               setProducts={setProducts}
               visibleColumns={visibleColumns}
+              projectId={projectId}
             />
           </div>
         </div>
