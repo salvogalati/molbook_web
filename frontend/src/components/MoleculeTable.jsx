@@ -134,8 +134,8 @@ useEffect(() => {
   const cellEditor = (options) => textEditor(options);
 
 const onRowCheckboxChange = (e, rowData) => {
-  const key = rowData.code;
-
+  const key = rowData.id;
+  
   const newSelectedRows = e.checked
     ? [...selectedRows, key]
     : selectedRows.filter(k => k !== key);
@@ -147,7 +147,7 @@ const onRowCheckboxChange = (e, rowData) => {
 
 
   // Check if row is selected
-  const isRowSelected = (rowData) => selectedRows.includes(rowData.code);
+  const isRowSelected = (rowData) => selectedRows.includes(rowData.id);
 
   // Remove product from table
   const deleteProduct = (product) => {
@@ -175,7 +175,17 @@ const imageBodyTemplate = (product) => {
   );
 };
 
+const selectSpecificCell = (rowData) => {
+  console.log(rowData)
+  const cellData = {
+    rowData: rowData,
+    rowIndex: 0,
+    cellIndex: 0,
+  };
 
+    setSelectedCells(prev => [...prev, cellData]);
+  
+};
   // --- Render ---
   return (
     <div className="molecule-table-card card">
@@ -197,12 +207,18 @@ const imageBodyTemplate = (product) => {
         scrollable
         scrollHeight="100%"
         cellSelection
-        selectionMode="multiple"
+        //selectionMode="multiple"
+        selectionMode={'checkbox'}
         selection={selectedCells}
         imageUrls={imageUrls}
         onSelectionChange={e => {
           // Don't allow selecting the image cell
-          if (e.value[e.value.length - 1].field !== "Image") {
+          console.log(e.value)
+          if (e.value.length === 0 ){
+            setSelectedCells(e.value);
+          }
+          else if (e.value[e.value.length - 1].field !== "Image") {
+            
             setSelectedCells(e.value);
           }
           // Notify parent of molecule selection
@@ -215,11 +231,11 @@ const imageBodyTemplate = (product) => {
         removableSort
         editMode="cell"
         dragSelection
-        rowSelectionKey={selectedRows.join(",")}
-        key={selectedRows}
+        //rowSelectionKey={selectedRows.join(",")}
+        //key={selectedRows}
       >
-        {/* Checkbox column for row selection */}
-        <Column
+        {/* CUSTOM Checkbox column for row selection */}
+        {/* <Column
           headerStyle={{
             width: "3rem",
             textAlign: "center",
@@ -236,14 +252,15 @@ const imageBodyTemplate = (product) => {
               }}
             >
               <Checkbox
-                onClick={e => e.stopPropagation()}
+                //onClick={e => e.stopPropagation()}
                 checked={isRowSelected(rowData)}
-                onChange={e => onRowCheckboxChange(e, rowData)}
+                onChange={e => {onRowCheckboxChange(e, rowData); console.log(rowData); selectSpecificCell(rowData);}}
               />
             </div>
           )}
-        />
+        /> */}
         {/* Molecule image column (optional) */}
+        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
         {visibleColumns.some(col => col.field === "Image") && (
           <Column
             header="Image"

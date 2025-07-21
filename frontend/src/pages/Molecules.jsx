@@ -33,10 +33,26 @@ export default function Molecules({ projectId = 2 }) {
   const handleDelete = () => {
     if (!selectedRows || selectedRows.length === 0) return;
 
-    setProducts((prev) =>
-      prev.filter((mol) => !selectedRows.includes(mol.code))
-    );
+    //console.log(selectedRows)
 
+    // try {
+    //   const res = await fetch(
+    //     `${API_URL}/api/molecule-image/?smiles=${encodeURIComponent(smiles)}`,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    //       },
+    //     }
+    //   );
+    //   if (!res.ok) throw new Error("Fetch failed");
+
+    //   const blob = await res.blob();
+    //   return URL.createObjectURL(blob);
+    // } catch (error) {
+    //   console.error("Image loading error", error);
+    //   return FAILED_IMAGE_URL
+    //}
+  
     setSelectedRows([]); // reset selezione
   };
 
@@ -87,6 +103,11 @@ export default function Molecules({ projectId = 2 }) {
       label: "Add",
       icon: "pi pi-plus",
       command: () => setVisibleAddMolecule(true)
+    },
+        {
+      label: "Depict",
+      icon: "pi pi-camera",
+      command: () => setShowWebcamDialog(true)
     },
     {
       label: "Delete",
@@ -285,22 +306,6 @@ useEffect(() => {
               </div>
             </div>
           )}
-          {/* Molecule actions */}
-          <div className="menu-block">
-            <label className="menu-label">Depict Molecule</label>
-            <div className="molecule-actions">
-              <Button
-                icon="pi pi-camera"
-                className="action-btn"
-                onClick={() => setShowWebcamDialog(true)}
-              />
-              <Button
-                icon="pi pi-plus"
-                className="action-btn"
-                onClick={() => handleAddRow([])}
-              />
-            </div>
-          </div>
         </div>
       </AccordionTab>
     </Accordion>
