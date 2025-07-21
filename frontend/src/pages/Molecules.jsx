@@ -17,11 +17,6 @@ import { Tooltip } from 'primereact/tooltip';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
 import "./styles/Molecules.css";
 
-// Helper for PubChem image
-const getPubChemImageUrl = (smiles) =>
-  `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/${encodeURIComponent(
-    smiles
-  )}/PNG?record_type=2d&image_size=300x300`;
 
 export default function Molecules({ projectId = 2 }) {
   // State for current selected molecule
@@ -119,9 +114,9 @@ export default function Molecules({ projectId = 2 }) {
     { field: "category", header: "Category" },
   ];
 
-const [products, setProducts] = useState([]);
+const [products, setProducts] = useState([]); 
 useEffect(() => {
-  fetch(`${API_URL}api/molecules/?project=${projectId}`, {
+  fetch(`${API_URL}api/projects/${projectId}/molecules/`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${localStorage.getItem("access_token")}`,

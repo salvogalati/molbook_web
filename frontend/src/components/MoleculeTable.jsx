@@ -63,7 +63,6 @@ useEffect(() => {
 
     if (!isMounted) return;
 
-    // 3) aggiorna products *una volta sola*, mergiando i nuovi URL
     setProducts(prev =>
       prev.map(p => {
         const found = fetched.find(f => f.smiles === p.smiles);
@@ -157,7 +156,7 @@ const onRowCheckboxChange = (e, rowData) => {
 
   // Render molecule image cell
 const imageBodyTemplate = (product) => {
-  console.log(product)
+  //console.log(product)
   const { imageUrl, name } = product;
 ;
 
