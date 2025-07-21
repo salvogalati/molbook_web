@@ -1,0 +1,9 @@
+code,name,category,quanitity,smiles
+MOL001,Paracetamolo,Analgesico,100,CC(=O)NC1=CC=C(O)C=C1
+MOL002,Ibuprofene,FANS,200,CC(C)CC1=CC=C(C=C1)C(C)C(=O)O
+MOL003,Caffeina,Stimolante,150,CN1C=NC2=C1C(=O)N(C(=O)N2C)C
+MOL004,Diazepam,Ansiolitico,60,CN1C(=O)CN=C(C2=CC=CC=C2Cl)C3=CC=CC=C13
+MOL005,Amoxicillina,Antibiotico,80,CC1(C)SCC(N1C(=O)C(C2=CC=CC=C2)N)C(=O)O
+MOL006,Ciprofloxacina,Antibiotico,90,CC1=CN=C(C=C1C2=CC(=O)C3=C(C=CC=C3O2)F)N4CCNCC4
+MOL007,Metformina,Antidiabetico,300,N=C(N)NC(N)=N
+MOL008,Atorvastatina,Statina,75,CC(C)C[C@H](C(=O)O)CC1=CC=C(C=C1)C(C(=O)O)C2=CC=C(C=C2)F

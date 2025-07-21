@@ -57,7 +57,6 @@ function Home() {
       .catch(console.error);
   }, []);
 
-  const dataScrollerRef = useRef(null);
 
   // Render loading state until user is loaded
   if (!user) {

@@ -62,5 +62,7 @@ urlpatterns = [
       UserViewSet.as_view({'delete': 'destroy'}),
       name='user-delete'
     ),
+    path('api/', include('projects.urls')),
+
 
 ]

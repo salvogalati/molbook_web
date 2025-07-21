@@ -9,14 +9,7 @@ import { API_URL, FAILED_IMAGE_URL } from "../api";
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
 
-/**
- * Displays a table of molecules with advanced features:
- * - Context menu
- * - Editable cells
- * - Row selection with checkboxes
- * - Optional molecule image
- * - Responsive scroll
- */
+
 export default function MoleculeTable({
   products,
   setProducts,

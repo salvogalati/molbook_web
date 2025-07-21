@@ -23,7 +23,7 @@ const getPubChemImageUrl = (smiles) =>
     smiles
   )}/PNG?record_type=2d&image_size=300x300`;
 
-export default function Molecules() {
+export default function Molecules({ projectId = 2 }) {
   // State for current selected molecule
   const [selectedMolecule, setSelectedMolecule] = useState(null);
   const [selectedRows, setSelectedRows] = useState(null);
@@ -119,71 +119,25 @@ export default function Molecules() {
     { field: "category", header: "Category" },
   ];
 
-  // Table row data (mock)
-  const [products, setProducts] = useState([
-    {
-      code: "M001",
-      name: "Acetone",
-      category: "Solvent",
-      quantity: 100,
-      smiles: "CC(=O)C",
+const [products, setProducts] = useState([]);
+useEffect(() => {
+  fetch(`${API_URL}api/molecules/?project=${projectId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
     },
-    {
-      code: "M002",
-      name: "Benzene",
-      category: "Aromatic",
-      quantity: 50,
-      smiles: "C1=CC=CC=C1",
-    },
-    {
-      code: "M003",
-      name: "Ethanol",
-      category: "Alcohol",
-      quantity: 200,
-      smiles: "CCO",
-    },
-    {
-      code: "M004",
-      name: "Toluene",
-      category: "Aromatic",
-      quantity: 75,
-      smiles: "CC1=CC=CC=C1",
-    },
-    {
-      code: "M005",
-      name: "Methanol",
-      category: "Alcohol",
-      quantity: 150,
-      smiles: "CO",
-    },
-    {
-      code: "M006",
-      name: "Hexane",
-      category: "Alkane",
-      quantity: 90,
-      smiles: "CCCCCC",
-    },
-    {
-      code: "M007",
-      name: "Chloroform",
-      category: "Halogenated",
-      quantity: 60,
-      smiles: "C(Cl)(Cl)Cl",
-    },
-    {
-      code: "M008",
-      name: "Diethyl Ether",
-      category: "Ether",
-      quantity: 120,
-      smiles: "CCOCC",
-    },
-    {code: "ciao",
-      name: "ciao",
-      category: "oo",
-      quantity: 120,
-      smiles: "ciao",
-    },
-  ]);
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Errore nel fetch delle molecole");
+      return res.json();
+    })
+    .then(data => {
+      setProducts(data);
+    })
+    .catch(err => {
+      console.error("Errore caricamento molecole:", err);
+    });
+}, [projectId]);
 
   // Handle row addition
 

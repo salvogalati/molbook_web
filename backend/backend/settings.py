@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     #'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     'backend.accounts',
+    "projects",
     'dj_rest_auth',
     'dj_rest_auth.registration',
     "corsheaders",
