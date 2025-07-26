@@ -1304,8 +1304,15 @@ var Cell = function Cell(props) {
     editingRowDataStateRef.current = editingRowData;
   };
   var _onClick = function onClick(event) {
-    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
+    //props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
+    
+    props.onClick(event, getCellCallbackParams(event), false, editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked); //SG
   };
+  var _onDoubleClick = function onClick(event) {
+    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
+  
+  }; //SG
+
   var _onMouseDown = function onMouseDown(event) {
     var params = getCellCallbackParams(event);
     props.onMouseDown && props.onMouseDown(params);
@@ -1728,6 +1735,7 @@ var Cell = function Cell(props) {
       rowSpan: props.rowSpan,
       tabIndex: tabIndex,
       role: 'cell',
+      onDoubleClick: function onDoubleClick(e) {return _onDoubleClick(e)}, //SG
       onClick: function onClick(e) {
         return _onClick(e);
       },
