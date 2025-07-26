@@ -2808,6 +2808,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     var currentSelection = selectionRef.current || [];
     var newSelection = currentSelection;
     //console.log("isSelected(data)", selected, type, toggleable) //SG
+    if (data.cellIndex === 0) {return}
     if (selected) {
       if (toggleable) {
         var selectionIndex = findIndex(currentSelection, data, type);
