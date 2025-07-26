@@ -233,13 +233,11 @@ const selectSpecificCell = (rowData) => {
         scrollable
         scrollHeight="100%"
         cellSelection
-        //selectionMode="multiple"
         selectionMode={'checkbox'}
         selection={selectedCells}
-        imageUrls={imageUrls}
         onSelectionChange={e => {
           // Don't allow selecting the image cell
-          console.log(e.value)
+          //console.log("VALORE", e.value)
           if (e.value.length === 0 ){
             setSelectedCells(e.value);
           }
@@ -249,42 +247,16 @@ const selectSpecificCell = (rowData) => {
           }
           // Notify parent of molecule selection
           if (onSelectCell && e.value.length > 0) {
-            const firstCell = e.value[0];
-            onSelectCell(firstCell.rowData);
+            //const firstCell = e.value[0];
+            const lastCell = e.value[e.value.length - 1];
+            onSelectCell(lastCell.rowData != null ? lastCell.rowData : lastCell);
           }
         }}
         metaKeySelection
         removableSort
         editMode="cell"
         dragSelection
-        //rowSelectionKey={selectedRows.join(",")}
-        //key={selectedRows}
       >
-        {/* CUSTOM Checkbox column for row selection */}
-        {/* <Column
-          headerStyle={{
-            width: "3rem",
-            textAlign: "center",
-            padding: "0 0 0 30px",
-          }}
-          style={{ width: "1%" }}
-          body={rowData => (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100%",
-              }}
-            >
-              <Checkbox
-                //onClick={e => e.stopPropagation()}
-                checked={isRowSelected(rowData)}
-                onChange={e => {onRowCheckboxChange(e, rowData); console.log(rowData); selectSpecificCell(rowData);}}
-              />
-            </div>
-          )}
-        /> */}
         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
         {visibleColumns.some(col => col.field === "Image") && (
           <Column
