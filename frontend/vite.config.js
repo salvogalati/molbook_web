@@ -5,7 +5,10 @@ import fs from 'fs';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-    server: {
+  optimizeDeps: {
+    exclude: ["primeract"]
+  },
+  server: {
     allowedHosts: true,
     //     https: {
     //   key: fs.readFileSync('./cert/key.pem'),
