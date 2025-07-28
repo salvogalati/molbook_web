@@ -7,16 +7,47 @@ import useIsMobile from "../hooks/useIsMobile";
 import { mockPredictFromImage } from "../utils/mockPredictFromImage";
 import "./styles/WebCamDialog.css";
 import "./styles/Loader.css";
-import { DECIMER_API_URL } from "../api";
+import { DECIMER_API_URL, API_URL } from "../api";
 
 /**
  * A dialog for capturing a photo via webcam and sending it to a prediction service.
  * Displays a spinner while analyzing, and a message (success or error) after prediction.
  */
+
+
+// in cima al file, o meglio ancora in src/api.js
+export const createMolecule = async (projectId, data) => {
+  const payload = {
+        code: `M${Date.now()}`,
+        name: data.name || "",
+        category: data.category || "",
+        quantity: data.quantity ?? 0,
+        smiles: data.smiles
+      };
+  const res = await fetch(
+    `${API_URL}/api/projects/${projectId}/molecules/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+  if (!res.ok) {
+    const errJson = await res.json().catch(() => null);
+    throw new Error(errJson?.detail || res.statusText);
+  }
+  return res.json();
+};
+
+
 export default function WebCamDialog({
   showWebcamDialog,
   setShowWebcamDialog,
   handleAddRow,
+  projectId,
 }) {
   const webcamRef = useRef(null);
   const [imgSrc, setImgSrc] = useState(null);
@@ -68,18 +99,22 @@ export default function WebCamDialog({
       );
 
       // Send to prediction endpoint
-      const response = await fetch(`${DECIMER_API_URL}/predict`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      // const response = await fetch(`${DECIMER_API_URL}/predict`, {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      // const data = await response.json();
 
       // Mocked daya
-      // const data = await mockPredictFromImage(imgSrc);
-      // const response = {ok: true}
+       const data = await mockPredictFromImage(imgSrc);
+       const response = {ok: true}
 
       if (response.ok && data.smiles) {
-        handleAddRow([{ id: "Image", value: data.smiles }]);
+      const newMolecule = await createMolecule(projectId, data);
+      console.log(newMolecule)
+      // 4) aggiorno la tabella padre
+        handleAddRow(newMolecule);
+        //handleAddRow([{ id: "Image", value: data.smiles }]);
         setRequestType("success");
         setRequestMessage("Molecule added successfully!");
       } else {

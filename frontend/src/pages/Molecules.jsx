@@ -21,7 +21,7 @@ import "./styles/Molecules.css";
 export default function Molecules({ projectId = 2 }) {
   // State for current selected molecule
   const [selectedMolecule, setSelectedMolecule] = useState(null);
-  const [selectedRows, setSelectedRows] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]);
   // State for layout
   const [isHorizontal, setIsHorizontal] = useState(true);
   const [showImage, setShowImage] = useState(true);
@@ -30,31 +30,42 @@ export default function Molecules({ projectId = 2 }) {
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
 
-  const handleDelete = () => {
-    if (!selectedRows || selectedRows.length === 0) return;
+const handleDelete = async () => {
+  console.log(selectedRows)
+  if (!selectedRows || selectedRows.length === 0) return;
 
-    //console.log(selectedRows)
+  try {
+    // per ogni riga selezionata, manda la DELETE
+    await Promise.all(
+      selectedRows.map(async (row) => {
+        const res = await fetch(
+          `${API_URL}/api/projects/${projectId}/molecules/${row.id}/`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            },
+          }
+        );
+        if (!res.ok) {
+          throw new Error(`Errore eliminazione molecola ${row.id}`);
+        }
+      })
+    );
 
-    // try {
-    //   const res = await fetch(
-    //     `${API_URL}/api/molecule-image/?smiles=${encodeURIComponent(smiles)}`,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-    //       },
-    //     }
-    //   );
-    //   if (!res.ok) throw new Error("Fetch failed");
+    // filtra lo stato removendo le molecole già cancellate
+    setProducts((prev) =>
+      prev.filter((m) => !selectedRows.some((r) => r.id === m.id))
+    );
+    // reset della selezione
+    setSelectedRows([]);
+  } catch (err) {
+    console.error("Delete error:", err);
+    // qui puoi mostrare un messaggio di errore all’utente
+  }
+};
 
-    //   const blob = await res.blob();
-    //   return URL.createObjectURL(blob);
-    // } catch (error) {
-    //   console.error("Image loading error", error);
-    //   return FAILED_IMAGE_URL
-    //}
-  
-    setSelectedRows([]); // reset selezione
-  };
 
   const fetchMoleculeImage = async (smiles) => {
     try {
@@ -157,9 +168,10 @@ useEffect(() => {
 
   // Handle row addition
 
-  const handleAddRow = (newFields) => {
-    // 1. Riduci fields in un singolo oggetto entry
-    const entry = newFields.reduce((obj, { id, value }) => {
+const handleAddRow = (input) => {
+  // Se viene passato un array di campi (es. da WebCamDialog o da AddMoleculeDialog in locale)
+  if (Array.isArray(input)) {
+    const entry = input.reduce((obj, { id, value }) => {
       if (id === "Image") {
         obj.smiles = value;
       } else {
@@ -168,18 +180,27 @@ useEffect(() => {
       return obj;
     }, {});
 
-    // 2. Applica su setProducts esattamente come facevi prima
     setProducts(prev => [
       ...prev,
       {
-        code: entry.code || "M" + Math.floor(Math.random() * 1000),
+        code: entry.code || `M${Math.floor(Math.random() * 1000)}`,
         name: entry.name || "NewMolecule",
         category: entry.category || "Mock",
         quantity: entry.quantity ?? Math.floor(Math.random() * 200),
         smiles: entry.smiles || "CNO",
       }
     ]);
-  };
+  } 
+  // Se viene passato un oggetto (es. risposta JSON della POST)
+  else if (input && typeof input === 'object') {
+    setProducts(prev => [
+      ...prev,
+      input
+    ]);
+  }
+  // altrimenti non fare nulla
+};
+
 
   // Responsive layout: on mobile, hide image and force vertical layout
   useEffect(() => {
@@ -320,11 +341,13 @@ useEffect(() => {
         showWebcamDialog={showWebcamDialog}
         setShowWebcamDialog={setShowWebcamDialog}
         handleAddRow={handleAddRow}
+        projectId={projectId}           
       />
       <AddMoleculeDialog
         showDialog={visibleAddMolecule}
         setShowDialog={setVisibleAddMolecule}
         columns={columns}
+        projectId={projectId}
         onSave={handleAddRow}
       />
       <div className="molecules-layout-container">
@@ -365,6 +388,7 @@ useEffect(() => {
               setProducts={setProducts}
               visibleColumns={visibleColumns}
               projectId={projectId}
+              onDelete={handleDelete}
             />
           </div>
         </div>

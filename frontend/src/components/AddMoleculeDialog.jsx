@@ -6,12 +6,14 @@ import { Fieldset } from "primereact/fieldset";
 import { Message } from "primereact/message";
 import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
+import { API_URL } from "../api";
 import "./styles/Loader.css";
 
 export default function AddMoleculeDialog({
   showDialog,
   setShowDialog,
   columns,
+  projectId,
   onSave,
 }) {
   const [isLoadingSketcher, setIsLoadingSketcher] = useState(true);
@@ -87,12 +89,50 @@ export default function AddMoleculeDialog({
     }, 1000);
   };
 
-  const handleSave = () => {
-    setSubmitted(true);
-    if (!isFormValid) return;
-    onSave(fields);
+const handleSave = async () => {
+  setSubmitted(true);
+  if (!isFormValid) return;
+
+  // Costruisci il payload dal vettore fields
+  const payload = fields.reduce((obj, { id, value }) => {
+    if (id === "Image") {
+      obj.smiles = value.trim();
+    } else {
+      obj[id] = typeof value === "string" ? value.trim() : value;
+    }
+    return obj;
+  }, {});
+
+  try {
+    console.log(payload)
+    const res = await fetch(
+      `${API_URL}/api/projects/${projectId}/molecules/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!res.ok) {
+      const errorJson = await res.json().catch(() => null);
+      throw new Error(
+        `Errore ${res.status}: ${errorJson?.detail || res.statusText}`
+      );
+    }
+
+    const newMolecule = await res.json();
+    onSave(newMolecule);
     setShowDialog(false);
-  };
+  } catch (err) {
+    console.error("Save error:", err);
+    // Qui puoi mostrare un messaggio di errore all’utente
+  }
+};
+
 
   const codeValue = fields.find((f) => f.id === "code")?.value.trim() || "";
   const smilesValue = fields.find((f) => f.id === "Image")?.value.trim() || "";

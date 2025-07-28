@@ -17,7 +17,8 @@ export default function MoleculeTable({
   onSelectRow,
   filters,
   visibleColumns,
-  projectId
+  projectId,
+  onDelete,
 }) {
   // Track cell and row selection
   const [selectedCells, setSelectedCells] = useState([]);
@@ -94,7 +95,8 @@ useEffect(() => {
     {
       label: "Delete",
       icon: "pi pi-fw pi-times",
-      command: () => deleteProduct(selectedProduct),
+      disabled: selectedRows.length === 0,
+      command: onDelete,
     },
   ];
 
@@ -159,21 +161,6 @@ const onCellEditComplete = async (e) => {
 
   const cellEditor = (options) => textEditor(options);
 
-const onRowCheckboxChange = (e, rowData) => {
-  const key = rowData.id;
-  
-  const newSelectedRows = e.checked
-    ? [...selectedRows, key]
-    : selectedRows.filter(k => k !== key);
-
-  setSelectedRows(newSelectedRows);
-  // console.log(newSelectedRows);
-  onSelectRow(newSelectedRows);
-};
-
-
-  // Check if row is selected
-  const isRowSelected = (rowData) => selectedRows.includes(rowData.id);
 
   // Remove product from table
   const deleteProduct = (product) => {
@@ -237,9 +224,10 @@ const selectSpecificCell = (rowData) => {
         selection={selectedCells}
         onSelectionChange={e => {
           // Don't allow selecting the image cell
-          //console.log("VALORE", e.value)
+          //console.log("VALORE", e)
           if (e.value.length === 0 ){
             setSelectedCells(e.value);
+            setSelectedRows(e.value);
           }
           else if (e.value[e.value.length - 1].field !== "Image") {
             
@@ -250,6 +238,10 @@ const selectSpecificCell = (rowData) => {
             //const firstCell = e.value[0];
             const lastCell = e.value[e.value.length - 1];
             onSelectCell(lastCell.rowData != null ? lastCell.rowData : lastCell);
+            if (lastCell.rowData == null) { 
+              onSelectRow(e.value);
+              setSelectedRows(e.value);
+            };
           }
         }}
         metaKeySelection
