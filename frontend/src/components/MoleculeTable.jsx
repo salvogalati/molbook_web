@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
-import { Checkbox } from "primereact/checkbox";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from 'primereact/image';
+import { ToggleButton } from 'primereact/togglebutton';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
@@ -25,6 +25,7 @@ export default function MoleculeTable({
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [imageUrls, setImageUrls] = useState({});
+  const [sortMode, setSortMode] = useState(false);
 
   const fetchMoleculeImageUrl = async (smiles) => {
     const res = await fetch(
@@ -113,6 +114,63 @@ useEffect(() => {
     }, 100);
   }, [products]);
 
+// Fort automatic scroll when drag row
+useEffect(() => {
+  if (!sortMode) return;
+
+  const tableElem = dt.current?.getElement();
+  if (!tableElem) return;
+
+  const wrapper = tableElem.querySelector('.p-datatable-wrapper');
+  if (!wrapper) return;
+
+  let scrollDirection = 0;
+  let scrollInterval = null;
+
+  const startAutoScroll = (direction) => {
+    if (scrollDirection === direction) return;
+    stopAutoScroll();
+    scrollDirection = direction;
+    scrollInterval = setInterval(() => {
+      wrapper.scrollTop += direction * 10;
+    }, 30);
+  };
+
+  const stopAutoScroll = () => {
+    if (scrollInterval) {
+      clearInterval(scrollInterval);
+      scrollInterval = null;
+    }
+    scrollDirection = 0;
+  };
+
+  const handleMouseMove = (e) => {
+    const bounds = wrapper.getBoundingClientRect();
+    const y = e.clientY;
+
+    const edgeThreshold = 50;
+
+    if (y < bounds.top + edgeThreshold) {
+      startAutoScroll(-1);
+    } else if (y > bounds.bottom - edgeThreshold) {
+      startAutoScroll(1);
+    } else {
+      stopAutoScroll();
+    }
+  };
+
+  document.addEventListener('dragover', handleMouseMove);
+  document.addEventListener('dragend', stopAutoScroll);
+  document.addEventListener('drop', stopAutoScroll);
+
+  return () => {
+    stopAutoScroll();
+    document.removeEventListener('dragover', handleMouseMove);
+    document.removeEventListener('dragend', stopAutoScroll);
+    document.removeEventListener('drop', stopAutoScroll);
+  };
+}, [sortMode]);
+
 const onCellEditComplete = async (e) => {
   const { rowData, newValue, field, originalEvent: event } = e;
 
@@ -197,8 +255,16 @@ const selectSpecificCell = (rowData) => {
   };
 
     setSelectedCells(prev => [...prev, cellData]);
-  
 };
+
+    const header = (
+        <div className="flex align-items-center justify-content-end gap-2">
+            <ToggleButton onIcon="pi pi-sort" offIcon="pi pi-sort" id="sort_button"
+            onLabel="" offLabel="" checked={sortMode}
+            onChange={() => setSortMode(!sortMode)}/>
+        </div>
+    );
+
   // --- Render ---
   return (
     <div className="molecule-table-card card">
@@ -212,6 +278,7 @@ const selectSpecificCell = (rowData) => {
         value={products}
         dataKey="code"
         id="molecule-table"
+        header={header}
         onContextMenu={e => cm.current.show(e.originalEvent)}
         onContextMenuSelectionChange={e => setSelectedProduct(e.value)}
         filters={filters}
@@ -219,9 +286,12 @@ const selectSpecificCell = (rowData) => {
         globalFilterFields={["code", "name", "category", "quantity"]}
         scrollable
         scrollHeight="100%"
-        cellSelection
-        selectionMode={'checkbox'}
+        cellSelection={!sortMode}
+        //selectionMode={'checkbox'}
         selection={selectedCells}
+        reorderableColumns
+        reorderableRows={sortMode}
+        onRowReorder={(e) => setProducts(e.value)}
         onSelectionChange={e => {
           // Don't allow selecting the image cell
           //console.log("VALORE", e)
@@ -247,9 +317,13 @@ const selectSpecificCell = (rowData) => {
         metaKeySelection
         removableSort
         editMode="cell"
-        dragSelection
+        dragSelection={!sortMode}
       >
-        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
+        {!sortMode ?
+         (<Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>)
+         :
+        (<Column rowReorder style={{ width: '3rem' }} />)
+        }
         {visibleColumns.some(col => col.field === "Image") && (
           <Column
             header="Image"

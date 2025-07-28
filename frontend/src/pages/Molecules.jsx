@@ -123,7 +123,7 @@ const handleDelete = async () => {
     {
       label: "Delete",
       icon: "pi pi-trash",
-      command: handleDelete,
+      command: () => handleDelete(),
     },
     {
       label: "Import",
