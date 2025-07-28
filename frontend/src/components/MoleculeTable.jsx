@@ -5,7 +5,9 @@ import { InputText } from "primereact/inputtext";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from 'primereact/image';
 import { ToggleButton } from 'primereact/togglebutton';
+import { Button } from 'primereact/button';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
+import { exportCSV, exportPdf, exportExcel } from '../utils/export';
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
 
@@ -256,9 +258,12 @@ const selectSpecificCell = (rowData) => {
 
     setSelectedCells(prev => [...prev, cellData]);
 };
-
+    const exportColumns = visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }));
     const header = (
         <div className="flex align-items-center justify-content-end gap-2">
+          <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(dt, false)} data-pr-tooltip="CSV" />
+            <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
+            <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={() => exportPdf(exportColumns, products)} data-pr-tooltip="PDF" />
             <ToggleButton onIcon="pi pi-sort" offIcon="pi pi-sort" id="sort_button"
             onLabel="" offLabel="" checked={sortMode}
             onChange={() => setSortMode(!sortMode)}/>
