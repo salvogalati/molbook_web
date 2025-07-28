@@ -153,7 +153,7 @@ const onCellEditComplete = async (e) => {
       className="p-inputtext-sm"
       value={options.value}
       onChange={e => options.editorCallback(e.target.value)}
-      onKeyDown={e => e.stopPropagation()}
+      onKeyDown={e => e.preventDefault()}
     />
   );
 

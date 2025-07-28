@@ -512,7 +512,6 @@ var DataTableBase = ComponentBase.extend({
     onAllRowsSelect: null,
     onAllRowsUnselect: null,
     onCellClick: null,
-    onCellDoubleClick: null, // SG
     onCellSelect: null,
     onCellUnselect: null,
     onColReorder: null,
@@ -1253,7 +1252,6 @@ var Cell = function Cell(props) {
     if (onBeforeCellEditHide) {
       onBeforeCellEditHide(params);
     }
-
     /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
     setTimeout(function () {
       setEditingState(false);
@@ -1305,11 +1303,15 @@ var Cell = function Cell(props) {
     editingRowDataStateRef.current = editingRowData;
   };
   var _onClick = function onClick(event) {
-    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener);
+    //props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
+    
+    props.onClick(event, getCellCallbackParams(event), false, editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked); //SG
   };
-  var _onDoubleClick = function onDoubleClick(event) {
-    props.onDoubleClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener);
-  };
+  var _onDoubleClick = function onClick(event) {
+    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
+  
+  }; //SG
+
   var _onMouseDown = function onMouseDown(event) {
     var params = getCellCallbackParams(event);
     props.onMouseDown && props.onMouseDown(params);
@@ -1331,40 +1333,51 @@ var Cell = function Cell(props) {
       var target = event.target,
         cell = event.currentTarget;
       switch (event.code) {
-        case 'ArrowLeft':
+        case 'ArrowLeft': //SG
           var prevCell = props.findPrevSelectableCell(cell);
           if (prevCell) {
-            changeTabIndex(cell, prevCell);
+            //changeTabIndex(cell, prevCell); //SG
             prevCell.focus();
+            prevCell.click();
           }
           event.preventDefault();
           break;
         case 'ArrowRight':
           var nextCell = props.findNextSelectableCell(cell);
           if (nextCell) {
-            changeTabIndex(cell, nextCell);
+            //changeTabIndex(cell, nextCell); //SG
             nextCell.focus();
+            nextCell.click();
           }
           event.preventDefault();
           break;
         case 'ArrowUp':
-          var upCell = props.findUpSelectableCell(cell, props.index);
+          var index = props.index //SG
+          var upCell = props.findUpSelectableCell(cell, index);
           if (upCell) {
-            changeTabIndex(cell, upCell);
+            //changeTabIndex(cell, upCell); SG
             upCell.focus();
+            upCell.click(); 
+            upCell.scrollIntoView({block: "center"});
           }
           event.preventDefault();
           break;
         case 'ArrowDown':
-          var downCell = props.findDownSelectableCell(cell, props.index);
+          var index = props.index //SG
+          var downCell = props.findDownSelectableCell(cell, index);
           if (downCell) {
-            changeTabIndex(cell, downCell);
+            //changeTabIndex(cell, downCell); SG
             downCell.focus();
+            downCell.click();
           }
           event.preventDefault();
           break;
         case 'Enter':
-          _onClick(event);
+          _onDoubleClick(event); //SG
+          break;
+        case "Escape": //SG
+          cell.focus();
+          break;
         case 'NumpadEnter':
           if (event.shiftKey || event.ctrlKey) ; else if (!DomHandler.isClickable(target)) {
             _onClick(event);
@@ -1380,13 +1393,6 @@ var Cell = function Cell(props) {
       }
     }
   };
-  var changeTabIndex = function(oldCell, newCell) {
-    // rimuovi –1 dalla cella vecchia
-    oldCell.tabIndex = -1;
-    // assegna il tabIndex attivo a quella nuova
-    newCell.tabIndex = props.tabIndex;
-  };
-  
   var _onBlur = function onBlur(event) {
     selfClick.current = false;
     if (props.editMode !== 'row' && editingState && getColumnProp('cellEditValidatorEvent') === 'blur') {
@@ -1394,7 +1400,7 @@ var Cell = function Cell(props) {
     }
   };
   var onEditorFocus = function onEditorFocus(event) {
-    _onDoubleClick(event);
+    _onClick(event);
   };
   var onRadioChange = function onRadioChange(event) {
     props.onRadioChange({
@@ -1438,7 +1444,7 @@ var Cell = function Cell(props) {
       field: props.field,
       index: props.rowIndex
     });
-    props.focusOnInit();
+    props.focusOnInit(initFocusTimeout, elementRef);
   };
   React.useEffect(function () {
     if (props.frozenCol) props.updateStickyPosition(elementRef, props.frozenCol, props.alignFrozenCol, styleObjectState, setStyleObjectState);
@@ -1740,11 +1746,9 @@ var Cell = function Cell(props) {
       rowSpan: props.rowSpan,
       tabIndex: tabIndex,
       role: 'cell',
+      onDoubleClick: function onDoubleClick(e) {return _onDoubleClick(e)}, //SG
       onClick: function onClick(e) {
         return _onClick(e);
-      },
-      onDoubleClick: function onDoubleClick(e) {
-        return _onDoubleClick(e);
       },
       onKeyDown: function onKeyDown(e) {
         return _onKeyDown(e);
@@ -1782,11 +1786,18 @@ var RadioCheckCell = /*#__PURE__*/React.memo(function (props) {
   return ObjectUtils.selectiveCompare(prevProps, nextProps, keysToCompare);
 });
 RadioCheckCell.displayName = 'RadioCheckCell';
+var defaultKeysToCompare = ['rowData', 'field', 'allowCellSelection', 'isCellSelected', 'editMode', 'index', 'tabIndex', 'editing', 'expanded', 'editingMeta', 'frozenCol', 'alignFrozenCol'];
 var BodyCell = /*#__PURE__*/React.memo(function (props) {
   return /*#__PURE__*/React.createElement(Cell, props);
 }, function (prevProps, nextProps) {
-  var keysToCompare = ['field', 'allowCellSelection', 'isCellSelected', 'editMode', 'index', 'tabIndex', 'editing', 'expanded', 'editingMeta', 'rowData', 'frozenCol', 'alignFrozenCol'];
-  return ObjectUtils.selectiveCompare(prevProps, nextProps, keysToCompare);
+  if (nextProps.cellMemo === false) return false;
+  var memoProps = nextProps.cellMemoProps;
+  var keysToCompare = Array.isArray(memoProps) && memoProps.every(function (prop) {
+    return typeof prop === 'string';
+  }) ? memoProps : defaultKeysToCompare;
+  var memoPropsDepth = nextProps.cellMemoPropsDepth;
+  var depth = typeof memoPropsDepth === 'number' && memoPropsDepth > 0 ? memoPropsDepth : 1;
+  return ObjectUtils.selectiveCompare(prevProps, nextProps, keysToCompare, depth);
 });
 BodyCell.displayName = 'BodyCell';
 
@@ -1802,7 +1813,8 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
   var _props$ptCallbacks = props.ptCallbacks,
     ptm = _props$ptCallbacks.ptm,
     cx = _props$ptCallbacks.cx;
-  var isRowSelected = !props.allowCellSelection && props.selected || props.contextMenuSelected;
+  //var isRowSelected = !props.allowCellSelection && props.selected || props.contextMenuSelected; 
+  var isRowSelected = props.selected || props.contextMenuSelected; //SG
   var getBodyRowPTOptions = function getBodyRowPTOptions(key) {
     return ptm(key, {
       parent: props.metaData,
@@ -2217,12 +2229,16 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
   var findDownSelectableCell = React.useCallback(function (cell, cellIndex) {
     var downRow = cell.parentElement.nextElementSibling;
     var downCell = downRow ? downRow.children[cellIndex] : null;
-    return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
+    //SG
+    return downRow && downCell ? DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
+    //return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
   }, []);
   var findUpSelectableCell = React.useCallback(function (cell, cellIndex) {
     var upRow = cell.parentElement.previousElementSibling;
     var upCell = upRow ? upRow.children[cellIndex] : null;
-    return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
+    //SG
+    return upRow && upCell ? DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
+    //return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
   }, []);
   var focusOnElement = React.useCallback(function (focusTimeoutRef, editingState, elementRef, keyHelperRef) {
     clearTimeout(focusTimeoutRef.current);
@@ -2263,15 +2279,7 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
       !isSameStyle && setStyleObjectState(styleObject);
     }
   }, []);
-
-  var onCellClick = function onCellClick(event, params, isEditable, editingState, setEditingState, selfClick, column, bindDocumentClickListener, overlayEventListener) {
-      if (props.allowCellSelection && props.onCellClick) {
-      props.onCellClick(params);
-    }
-      return;
-    }
-
-  var onCellDoubleClick = function onCellDoubleClick(event, params, isEditable, editingState, setEditingState, selfClick, column, bindDocumentClickListener, overlayEventListener) {
+  var onCellClick = function onCellClick(event, params, isEditable, editingState, setEditingState, selfClick, column, bindDocumentClickListener, overlayEventListener, isOutsideClicked) {
     if (props.editMode !== 'row' && isEditable && !editingState && (props.selectOnEdit || !props.selectOnEdit && props.isRowSelected)) {
       selfClick.current = true;
       var onBeforeCellEditShow = getColumnProp(column, 'onBeforeCellEditShow');
@@ -2313,7 +2321,9 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
         }
       }, 1);
     }
-
+    if (props.allowCellSelection && props.onCellClick) {
+      props.onCellClick(params);
+    }
   };
   var createContent = function createContent() {
     return props.columns.map(function (col, i) {
@@ -2328,6 +2338,9 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
         var cellProps = mergeProps({
           hostName: props.hostName,
           allowCellSelection: props.allowCellSelection,
+          cellMemo: props.cellMemo,
+          cellMemoProps: props.cellMemoProps,
+          cellMemoPropsDepth: props.cellMemoPropsDepth,
           cellClassName: props.cellClassName,
           checkIcon: props.checkIcon,
           collapsedRowIcon: props.collapsedRowIcon,
@@ -2351,7 +2364,6 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
           isSelectable: props.isSelectable,
           onCheckboxChange: onCheckboxChange,
           onClick: onCellClick,
-          onDoubleClick: onCellDoubleClick,
           onMouseDown: props.onCellMouseDown,
           onMouseUp: props.onCellMouseUp,
           onRadioChange: props.onRadioChange,
@@ -2425,7 +2437,6 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
     },
     onClick: function onClick(e) {
       return _onClick(e);
-      
     },
     onDoubleClick: function onDoubleClick(e) {
       return _onDoubleClick(e);
@@ -2579,10 +2590,15 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
   var isCheckboxSelectionMode = props.selectionMode === 'checkbox';
   var isRadioSelectionModeInColumn = props.selectionModeInColumn === 'single';
   var isCheckboxSelectionModeInColumn = props.selectionModeInColumn === 'multiple';
-  var equals = function equals(data1, data2) {
-    if (allowCellSelection()) {
+  var equals = function equals(data1, data2, type="cell") {
+    //console.log("equals", data1, data2, type) //SG
+//if (allowCellSelection()) {
+    if (type!=="checkbox") { //SG
+      //console.log("RES equals",data1.rowIndex === data2.rowIndex || data1.rowData === data2.rowData) && (data1.field === data2.field || data1.cellIndex === data2.cellIndex)
+
       return (data1.rowIndex === data2.rowIndex || data1.rowData === data2.rowData) && (data1.field === data2.field || data1.cellIndex === data2.cellIndex);
     }
+    //console.log("RES equals",props.compareSelectionBy === 'equals' ? data1 === data2 : ObjectUtils.equals(data1, data2, props.dataKey))
     return props.compareSelectionBy === 'equals' ? data1 === data2 : ObjectUtils.equals(data1, data2, props.dataKey);
   };
   var isSelectionEnabled = function isSelectionEnabled() {
@@ -2602,9 +2618,11 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
   var isCheckboxOnlySelection = function isCheckboxOnlySelection() {
     return isCheckboxSelectionMode && isCheckboxSelectionModeInColumn;
   };
-  var isSelected = function isSelected(rowData) {
+  var isSelected = function isSelected(rowData, type="cell") {
+    //console.log("isSelected - TableBody", rowData, props.selection, type) //SG
     if (rowData && props.selection) {
-      return props.selection instanceof Array ? findIndex(props.selection, rowData) > -1 : equals(rowData, props.selection);
+      return props.selection instanceof Array ? findIndex(props.selection, rowData, type) > -1 : equals(rowData, props.selection);
+      
     }
     return false;
   };
@@ -2682,9 +2700,13 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     return isMultipleSelection() && event.originalEvent.shiftKey && anchorRowIndex.current !== null;
   };
   var allowRowSelection = function allowRowSelection() {
+    //console.log( (props.selectionMode || props.selectionModeInColumn), !isRadioOnlySelection(), !isCheckboxOnlySelection()) //SG
+    return false //SG
     return (props.selectionMode || props.selectionModeInColumn) && !isRadioOnlySelection() && !isCheckboxOnlySelection();
   };
   var allowCellSelection = function allowCellSelection() {
+    //console.log(props.cellSelection , !isRadioSelectionModeInColumn , !isCheckboxSelectionModeInColumn) //SG
+    return true //SG
     return props.cellSelection && !isRadioSelectionModeInColumn && !isCheckboxSelectionModeInColumn;
   };
   var getColumnsLength = function getColumnsLength() {
@@ -2697,12 +2719,9 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     options = options || props.virtualScrollerOptions;
     return options ? options[option] : null;
   };
-  var getProcessedDataIndex = function getProcessedDataIndex(rowIndex) {
-    return props.lazy ? rowIndex - props.first : rowIndex;
-  };
-  var findIndex = function findIndex(collection, rowData) {
+  var findIndex = function findIndex(collection, rowData, type) {
     return (collection || []).findIndex(function (data) {
-      return equals(rowData, data);
+      return equals(rowData, data, type);
     });
   };
   var rowGroupHeaderStyle = function rowGroupHeaderStyle() {
@@ -2765,7 +2784,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     })) {
       return;
     }
-    var selected = isSelected(data);
+    var selected = isSelected(data, type);
     var currentSelection = selectionRef.current || [];
     var newSelection = currentSelection;
     if (selected) {
@@ -2795,23 +2814,27 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     }
   };
   var onMultipleSelection = function onMultipleSelection(_ref2) {
+    //console.log("onMultipleSelection", _ref2) //SG
     var originalEvent = _ref2.originalEvent,
       data = _ref2.data,
       index = _ref2.index,
       toggleable = _ref2.toggleable,
       type = _ref2.type;
+    //console.log("!isSelecatble", (!isSelectable({data: data,index: index}))) //SG
     if (!isSelectable({
       data: data,
       index: index
     })) {
       return;
     }
-    var selected = isSelected(data);
+    var selected = isSelected(data, type);
     var currentSelection = selectionRef.current || [];
     var newSelection = currentSelection;
+    //console.log("isSelected(data)", selected, type, toggleable) //SG
+    if (data.cellIndex === 0) {return}
     if (selected) {
       if (toggleable) {
-        var selectionIndex = findIndex(currentSelection, data);
+        var selectionIndex = findIndex(currentSelection, data, type);
         newSelection = currentSelection.filter(function (val, i) {
           return i !== selectionIndex;
         });
@@ -2838,6 +2861,14 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     } else {
       newSelection = ObjectUtils.isObject(currentSelection) ? [currentSelection] : currentSelection;
       newSelection = toggleable && isMultipleSelection() ? [].concat(_toConsumableArray(newSelection), [data]) : [data];
+      //SG
+      var hasCells = currentSelection.some(s => s && (s.hasOwnProperty('rowData')));
+      //console.log("current - new", currentSelection, newSelection, hasCells) 
+      if (hasCells && !data.hasOwnProperty('rowData')) {
+        newSelection = newSelection.filter(s => s && !(s.hasOwnProperty('field') || s.hasOwnProperty('cellIndex')));
+        //console.log("newSelection filtered", newSelection)    
+      }
+      //SG
       onSelect({
         originalEvent: originalEvent,
         data: data,
@@ -2870,16 +2901,14 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     var rangeStart;
     var rangeEnd;
     var isAllowCellSelection = allowCellSelection();
-    var rangeRowIndexInProcessedData = getProcessedDataIndex(rangeRowIndex.current);
-    var anchorRowIndexInProcessedData = getProcessedDataIndex(anchorRowIndex.current);
-    if (rangeRowIndexInProcessedData > anchorRowIndexInProcessedData) {
-      rangeStart = anchorRowIndexInProcessedData;
-      rangeEnd = rangeRowIndexInProcessedData;
-    } else if (rangeRowIndexInProcessedData < anchorRowIndexInProcessedData) {
-      rangeStart = rangeRowIndexInProcessedData;
-      rangeEnd = anchorRowIndexInProcessedData;
+    if (rangeRowIndex.current > anchorRowIndex.current) {
+      rangeStart = anchorRowIndex.current;
+      rangeEnd = rangeRowIndex.current;
+    } else if (rangeRowIndex.current < anchorRowIndex.current) {
+      rangeStart = rangeRowIndex.current;
+      rangeEnd = anchorRowIndex.current;
     } else {
-      rangeStart = rangeEnd = rangeRowIndexInProcessedData;
+      rangeStart = rangeEnd = rangeRowIndex.current;
     }
     return isAllowCellSelection ? selectRangeOnCell(event, rangeStart, rangeEnd) : selectRangeOnRow(event, rangeStart, rangeEnd);
   };
@@ -2920,7 +2949,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     for (var i = rowRangeStart; i <= rowRangeEnd; i++) {
       var rowData = value[i];
       var columns = props.columns;
-      var rowIndex = props.lazy ? i + props.first : i;
+      var rowIndex = props.paginator ? i + props.first : i;
       for (var j = cellRangeStart; j <= cellRangeEnd; j++) {
         var field = getColumnProp(columns[j], 'field');
         var _value = ObjectUtils.resolveFieldData(rowData, field);
@@ -3010,10 +3039,12 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     }
   };
   var onRowClick = function onRowClick(event) {
-    if (event.defaultPrevented || event.originalEvent && event.originalEvent.defaultPrevented || allowCellSelection() || !allowSelection(event)) {
-      return;
-    }
-    props.onRowClick && props.onRowClick(event);
+
+    // if (event.defaultPrevented || event.originalEvent && event.originalEvent.defaultPrevented || allowCellSelection() || !allowSelection(event)) {
+    //   return;
+    // } //SG
+    //props.onRowClick && props.onRowClick(event);
+    //console.log("allowRowSelection", allowRowSelection(), "allowRangeSelection(event)", allowRangeSelection(event)) //SG
     if (allowRowSelection()) {
       if (allowRangeSelection(event)) {
         onRangeSelection(event, 'row');
@@ -3022,12 +3053,14 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
         anchorRowIndex.current = event.index;
         rangeRowIndex.current = event.index;
         anchorRowFirst.current = props.first;
+        //console.log("isSingleSelection()", isSingleSelection()) //SGs
         if (isSingleSelection()) {
           onSingleSelection(_objectSpread$8(_objectSpread$8({}, event), {}, {
             toggleable: toggleable,
             type: 'row'
           }));
         } else {
+          
           onMultipleSelection(_objectSpread$8(_objectSpread$8({}, event), {}, {
             toggleable: toggleable,
             type: 'row'
@@ -3119,13 +3152,17 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
       onRangeSelection(event, 'row');
     }
   };
+  var expandedRowsRef = React.useRef(props.expandedRows);
+  React.useEffect(function () {
+    expandedRowsRef.current = props.expandedRows;
+  }, [props.expandedRows]);
   var onRowToggle = function onRowToggle(event) {
     var expandedRows;
     var dataKey = props.dataKey;
     var hasDataKey = props.groupRowsBy ? dataKey === props.groupRowsBy : !!dataKey;
     if (hasDataKey) {
       var dataKeyValue = String(ObjectUtils.resolveFieldData(event.data, dataKey));
-      expandedRows = props.expandedRows ? _objectSpread$8({}, props.expandedRows) : {};
+      expandedRows = expandedRowsRef.current ? _objectSpread$8({}, expandedRowsRef.current) : {};
       if (expandedRows[dataKeyValue] != null) {
         delete expandedRows[dataKeyValue];
         if (props.onRowCollapse) {
@@ -3144,8 +3181,8 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
         }
       }
     } else {
-      var expandedRowIndex = findIndex(props.expandedRows, event.data);
-      expandedRows = props.expandedRows ? _toConsumableArray(props.expandedRows) : [];
+      var expandedRowIndex = findIndex(expandedRowsRef.current, event.data);
+      expandedRows = expandedRowsRef.current ? _toConsumableArray(expandedRowsRef.current) : [];
       if (expandedRowIndex !== -1) {
         expandedRows = expandedRows.filter(function (_, i) {
           return i !== expandedRowIndex;
@@ -3296,12 +3333,6 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     document.removeEventListener('mousemove', onDragSelectionMouseMove);
     document.removeEventListener('mouseup', _onDragSelectionMouseUp);
   };
-
-  var onCellDoubleClick = function onCellDoubleClick(event) {
-
-      return;
-  }
-
   var onCellClick = function onCellClick(event) {
     if (!allowSelection(event)) {
       return;
@@ -3401,7 +3432,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
     return null;
   };
   var createGroupHeader = function createGroupHeader(rowData, rowIndex, expanded, colSpan) {
-    if (isSubheaderGrouping && shouldRenderRowGroupHeader(props.value, rowData, getProcessedDataIndex(rowIndex))) {
+    if (isSubheaderGrouping && shouldRenderRowGroupHeader(props.value, rowData, rowIndex - props.first)) {
       var style = rowGroupHeaderStyle();
       var toggler = props.expandableRowGroups && /*#__PURE__*/React.createElement(RowTogglerButton, {
         hostName: props.hostName,
@@ -3442,7 +3473,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
   };
   var createRow = function createRow(rowData, rowIndex, index, expanded) {
     if (!props.expandableRowGroups || expanded) {
-      var selected = isSelectionEnabled() ? isSelected(rowData) : false;
+      var selected = isSelectionEnabled() ? isSelected(rowData, "checkbox") : false;
       var contextMenuSelected = isContextMenuSelected(rowData);
       var _allowRowSelection = allowRowSelection();
       var _allowCellSelection = allowCellSelection();
@@ -3451,6 +3482,9 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
         hostName: props.hostName,
         allowCellSelection: _allowCellSelection,
         allowRowSelection: _allowRowSelection,
+        cellMemo: props.cellMemo,
+        cellMemoProps: props.cellMemoProps,
+        cellMemoPropsDepth: props.cellMemoPropsDepth,
         cellClassName: props.cellClassName,
         checkIcon: props.checkIcon,
         collapsedRowIcon: props.collapsedRowIcon,
@@ -3470,7 +3504,6 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
         index: index,
         isSelectable: isSelectable,
         onCellClick: onCellClick,
-        onCellDoubleClick: onCellDoubleClick,
         onCellMouseDown: onCellMouseDown,
         onCellMouseUp: onCellMouseUp,
         onCheckboxChange: onCheckboxChange,
@@ -3844,6 +3877,7 @@ var FilterMatchMode = Object.freeze({
   EQUALS: 'equals',
   NOT_EQUALS: 'notEquals',
   IN: 'in',
+  NOT_IN: 'notIn',
   LESS_THAN: 'lt',
   LESS_THAN_OR_EQUAL_TO: 'lte',
   GREATER_THAN: 'gt',
@@ -3932,6 +3966,7 @@ var locales = {
     emptySelectionMessage: 'No selected item',
     endsWith: 'Ends with',
     equals: 'Equals',
+    fileChosenMessage: '{0} files',
     fileSizeTypes: ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
     filter: 'Filter',
     firstDayOfWeek: 0,
@@ -3950,6 +3985,7 @@ var locales = {
     nextMonth: 'Next Month',
     nextSecond: 'Next Second',
     nextYear: 'Next Year',
+    noFileChosenMessage: 'No file chosen',
     noFilter: 'No Filter',
     notContains: 'Not contains',
     notEquals: 'Not equals',
@@ -3977,8 +4013,10 @@ var locales = {
     aria: {
       cancelEdit: 'Cancel Edit',
       close: 'Close',
+      collapseLabel: 'Collapse',
       collapseRow: 'Row Collapsed',
       editRow: 'Edit Row',
+      expandLabel: 'Expand',
       expandRow: 'Row Expanded',
       falseLabel: 'False',
       filterConstraint: 'Filter Constraint',
@@ -4003,18 +4041,20 @@ var locales = {
       next: 'Next',
       nextPageLabel: 'Next Page',
       nullLabel: 'Not Selected',
-      pageLabel: 'Page {page}',
       otpLabel: 'Please enter one time password character {0}',
+      pageLabel: 'Page {page}',
       passwordHide: 'Hide Password',
       passwordShow: 'Show Password',
       previous: 'Previous',
       prevPageLabel: 'Previous Page',
+      removeLabel: 'Remove',
       rotateLeft: 'Rotate Left',
       rotateRight: 'Rotate Right',
       rowsPerPageLabel: 'Rows per page',
       saveEdit: 'Save Edit',
       scrollTop: 'Scroll Top',
       selectAll: 'All items selected',
+      selectLabel: 'Select',
       selectRow: 'Row Selected',
       showFilterMenu: 'Show Filter Menu',
       slide: 'Slide',
@@ -4023,6 +4063,7 @@ var locales = {
       stars: '{star} stars',
       trueLabel: 'True',
       unselectAll: 'All items unselected',
+      unselectLabel: 'Unselect',
       unselectRow: 'Row Unselected',
       zoomImage: 'Zoom Image',
       zoomIn: 'Zoom In',
@@ -6949,58 +6990,60 @@ var DataTable = /*#__PURE__*/React.forwardRef(function (inProps, ref) {
   var exportCSV = function exportCSV(options) {
     var data;
     var csv = "\uFEFF";
-    var columns = getColumns();
     if (options && options.selectionOnly) {
       data = props.selection || [];
     } else {
       data = [].concat(_toConsumableArray(props.frozenValue || []), _toConsumableArray(processedData() || []));
     }
 
-    //headers
-    columns.forEach(function (column, i) {
-      var _ref5 = [getColumnProp(column, 'field'), getColumnProp(column, 'header'), getColumnProp(column, 'exportHeader'), getColumnProp(column, 'exportable')],
+    // First build collection of exportable columns
+    var exportableColumns = getColumns().filter(function (column) {
+      var exportable = getColumnProp(column, 'exportable');
+      var field = getColumnProp(column, 'field');
+
+      // Column must be exportable (or undefined/not set) and have a field defined
+      return exportable !== false && field;
+    });
+
+    // headers
+    exportableColumns.forEach(function (column, i) {
+      var _ref5 = [getColumnProp(column, 'field'), getColumnProp(column, 'header'), getColumnProp(column, 'exportHeader')],
         field = _ref5[0],
         header = _ref5[1],
-        exportHeader = _ref5[2],
-        exportable = _ref5[3];
-      if (exportable && field) {
-        var columnHeader = String(exportHeader || header || field).replace(/"/g, '""').replace(/\n/g, "\u2028");
-        csv = csv + ('"' + columnHeader + '"');
-        if (i < columns.length - 1) {
-          csv = csv + props.csvSeparator;
-        }
+        exportHeader = _ref5[2];
+      var columnHeader = String(exportHeader || header || field).replace(/"/g, '""').replace(/\n/g, "\u2028");
+      csv = csv + ('"' + columnHeader + '"');
+      if (i < exportableColumns.length - 1) {
+        csv = csv + props.csvSeparator;
       }
     });
 
-    //body
+    // body
     data.forEach(function (record) {
       csv = csv + '\n';
-      columns.forEach(function (column, i) {
-        var _ref6 = [getColumnProp(column, 'field'), getColumnProp(column, 'exportField'), getColumnProp(column, 'exportable')],
+      exportableColumns.forEach(function (column, i) {
+        var _ref6 = [getColumnProp(column, 'field'), getColumnProp(column, 'exportField')],
           colField = _ref6[0],
-          exportField = _ref6[1],
-          exportable = _ref6[2];
+          exportField = _ref6[1];
         var field = exportField || colField;
-        if (exportable && field) {
-          var cellData = ObjectUtils.resolveFieldData(record, field);
-          if (cellData != null) {
-            if (props.exportFunction) {
-              cellData = props.exportFunction({
-                data: cellData,
-                field: field,
-                rowData: record,
-                column: column
-              });
-            } else {
-              cellData = String(cellData).replace(/"/g, '""').replace(/\n/g, "\u2028");
-            }
+        var cellData = ObjectUtils.resolveFieldData(record, field);
+        if (cellData != null) {
+          if (props.exportFunction) {
+            cellData = props.exportFunction({
+              data: cellData,
+              field: field,
+              rowData: record,
+              column: column
+            });
           } else {
-            cellData = '';
+            cellData = String(cellData).replace(/"/g, '""').replace(/\n/g, "\u2028");
           }
-          csv = csv + ('"' + cellData + '"');
-          if (i < columns.length - 1) {
-            csv = csv + props.csvSeparator;
-          }
+        } else {
+          cellData = '';
+        }
+        csv = csv + ('"' + cellData + '"');
+        if (i < exportableColumns.length - 1) {
+          csv = csv + props.csvSeparator;
         }
       });
     });
@@ -7265,6 +7308,9 @@ var DataTable = /*#__PURE__*/React.forwardRef(function (inProps, ref) {
     var frozenBody = ObjectUtils.isNotEmpty(props.frozenValue) && /*#__PURE__*/React.createElement(TableBody, {
       hostName: "DataTable",
       ref: frozenBodyRef,
+      cellMemo: props.cellMemo,
+      cellMemoProps: props.cellMemoProps,
+      cellMemoPropsDepth: props.cellMemoPropsDepth,
       cellClassName: props.cellClassName,
       cellSelection: props.cellSelection,
       checkIcon: props.checkIcon,
@@ -7291,7 +7337,6 @@ var DataTable = /*#__PURE__*/React.forwardRef(function (inProps, ref) {
       loading: props.loading,
       metaKeySelection: props.metaKeySelection,
       onCellClick: props.onCellClick,
-      onCellDoubleClick: props.onCellDoubleClick,
       onCellSelect: props.onCellSelect,
       onCellUnselect: props.onCellUnselect,
       onContextMenu: props.onContextMenu,
@@ -7350,6 +7395,9 @@ var DataTable = /*#__PURE__*/React.forwardRef(function (inProps, ref) {
     var body = /*#__PURE__*/React.createElement(TableBody, {
       hostName: "DataTable",
       ref: bodyRef,
+      cellMemo: props.cellMemo,
+      cellMemoProps: props.cellMemoProps,
+      cellMemoPropsDepth: props.cellMemoPropsDepth,
       cellClassName: props.cellClassName,
       cellSelection: props.cellSelection,
       checkIcon: props.checkIcon,
@@ -7377,7 +7425,6 @@ var DataTable = /*#__PURE__*/React.forwardRef(function (inProps, ref) {
       loading: props.loading,
       metaKeySelection: props.metaKeySelection,
       onCellClick: props.onCellClick,
-      onCellDoubleClick: props.onCellDoubleClick,
       onCellSelect: props.onCellSelect,
       onCellUnselect: props.onCellUnselect,
       onContextMenu: props.onContextMenu,
