@@ -9,14 +9,14 @@ export const exportCSV = (dt, selectionOnly) => {
     }
 };
 
-export const exportPdf = (exportColumns, products) => {
+export const exportPdf_ = (exportColumns, products) => {
     const doc = new jsPDF(); // Parametri corretti mancanti
-    
+
     // Aggiungi controllo per i dati
     if (exportColumns && products) {
         doc.autoTable({
-            head: [exportColumns.map(col => col.header)],
-            body: products.map(product => 
+            head: [exportColumns.map(col => col.title)],
+            body: products.map(product =>
                 exportColumns.map(col => product[col.dataKey] || product[col.field])
             )
         });
@@ -24,14 +24,98 @@ export const exportPdf = (exportColumns, products) => {
     }
 }
 
+export const exportPdf = async (exportColumns, products) => {
+    const doc = new jsPDF();
+
+    // 1. Converti le immagini in base64
+    const productsWithBase64 = await prepareProductsWithBase64(products);
+    console.log(productsWithBase64)
+    const columns = exportColumns.map(col => {
+        const key = col.dataKey || col.field;
+        if (key.toLowerCase() === 'image') {
+            return { header: col.title || 'Image', dataKey: 'imageBase64' };
+        }
+        return { header: col.title, dataKey: key };
+    });
+
+
+    doc.autoTable({
+        columns,
+        body: productsWithBase64,
+        styles: {
+            cellPadding: 2, minCellHeight: 22, halign: 'center', // testo centrato orizzontalmente
+            valign: 'middle'
+        },
+        columnStyles: {
+            imageBase64: { cellWidth: 28, halign: 'center' } // colonna un filo più larga
+        },
+        didParseCell: (data) => {
+            if (data.section === 'body' && data.column.dataKey === 'imageBase64') {
+                data.cell.text = '';
+            }
+        },
+        didDrawCell: (data) => {
+            if (data.column.dataKey === 'imageBase64' && data.cell.raw !== "Image") {
+                const raw = data.cell.raw;
+                const pad = 2;
+                const boxW = data.cell.width - pad * 2;
+                const boxH = data.cell.height - pad * 2;
+
+                // Lato massimo: non deve superare boxH, così non sborda
+                const side = Math.min(boxW, boxH);
+                const x = data.cell.x + pad + (boxW - side) / 2;
+                const y = data.cell.y + pad + (boxH - side) / 2;
+                // debug utile
+                if (typeof raw !== 'string' || !raw.startsWith('data:image/')) {
+                    console.warn('imageBase64 non valido:', typeof raw, raw?.slice?.(0, 30));
+                    return; // evita addImage su contenuti non immagine
+                }
+                try {
+                    const fmt = raw.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
+                    doc.addImage(raw, fmt, x, y, side, side);
+                } catch (err) {
+                    console.error('addImage error:', err);
+                }
+            }
+        },
+
+    });
+
+    doc.save('products.pdf');
+};
+
+const blobUrlToBase64 = async (blobUrl) => {
+    const blob = await fetch(blobUrl).then((res) => res.blob());
+
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result); // base64 string
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};
+
+const prepareProductsWithBase64 = async (products) => {
+    return await Promise.all(
+        products.map(async (p) => {
+            const imageBase64 = await blobUrlToBase64(p.imageUrl);
+            return {
+                 ...p,
+                imageBase64,
+            };
+        })
+    );
+};
+
+
 
 export const exportExcel = (products, fileName = 'products') => {
     import('xlsx').then((xlsx) => {
         if (products && products.length > 0) {
             const worksheet = xlsx.utils.json_to_sheet(products);
-            const workbook = { 
-                Sheets: { data: worksheet }, 
-                SheetNames: ['data'] 
+            const workbook = {
+                Sheets: { data: worksheet },
+                SheetNames: ['data']
             };
             const excelBuffer = xlsx.write(workbook, {
                 bookType: 'xlsx',
@@ -55,7 +139,7 @@ export const saveAsExcelFile = (buffer, fileName) => {
             });
 
             module.default.saveAs(
-                data, 
+                data,
                 fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION
             );
         }

@@ -21,6 +21,11 @@
   padding: 0;
 }
 
+#molecule-table .p-datatable-header .p-button.p-component.p-button-icon-only.p-button-rounded {
+  margin: 0.5rem 0 0.5rem 0;
+}
+
+
 /* Make the internal table scroller take full height */
 #molecule-table .p-datatable-wrapper {
   min-height: 0;
