@@ -193,7 +193,7 @@ const handleSave = async () => {
           const showError = isRequired && !value.trim();
 
           return (
-            <div>
+            <div key={id}>
               <div
                 style={{
                   display: "flex",
