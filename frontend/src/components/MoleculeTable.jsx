@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, forwardRef, useRef, useImperativeHandle } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
@@ -7,12 +7,11 @@ import { Image } from 'primereact/image';
 import { ToggleButton } from 'primereact/togglebutton';
 import { Button } from 'primereact/button';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
-import { exportCSV, exportPdf, exportExcel } from '../utils/export';
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
 
 
-export default function MoleculeTable({
+export default forwardRef(function MoleculeTable({
   products,
   setProducts,
   onSelectCell,
@@ -21,7 +20,7 @@ export default function MoleculeTable({
   visibleColumns,
   projectId,
   onDelete,
-}) {
+}, ref) {
   // Track cell and row selection
   const [selectedCells, setSelectedCells] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -82,11 +81,14 @@ useEffect(() => {
 }, [products]);
 
 
-
-
   // Refs for DataTable and ContextMenu
   const dt = useRef(null);
   const cm = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    getDataTable: () => dt.current,
+    exportCSV: (options) => dt.current?.exportCSV(options),
+  }));
 
   // Context menu items
   const menuModel = [
@@ -258,17 +260,8 @@ const selectSpecificCell = (rowData) => {
 
     setSelectedCells(prev => [...prev, cellData]);
 };
-  const test = () => {
-    console.log(exportColumns)
-    console.log(products)
-    exportPdf(exportColumns, products);
-  }
-    const exportColumns = visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }));
     const header = (
         <div className="flex align-items-center justify-content-end gap-2">
-          <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(dt, false)} data-pr-tooltip="CSV" />
-            <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
-            <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={() => test()} data-pr-tooltip="PDF" />
             <ToggleButton onIcon="pi pi-sort" offIcon="pi pi-sort" id="sort_button"
             onLabel="" offLabel="" checked={sortMode}
             onChange={() => setSortMode(!sortMode)}/>
@@ -360,4 +353,4 @@ const selectSpecificCell = (rowData) => {
       </DataTable>
     </div>
   );
-}
+})

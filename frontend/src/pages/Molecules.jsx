@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MoleculeTable from "../components/MoleculeTable";
 import WebCamDialog from "../components/WebCamDialog";
 import AddMoleculeDialog from "../components/AddMoleculeDialog";
@@ -15,6 +15,7 @@ import useIsMobile from "../hooks/useIsMobile";
 import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from 'primereact/tooltip';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
+import { ExportDialog } from '../utils/export';
 import "./styles/Molecules.css";
 
 
@@ -29,6 +30,8 @@ export default function Molecules({ projectId = 2 }) {
   const [showWebcamDialog, setShowWebcamDialog] = useState(false);
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const tableRef = useRef(null);
 
 const handleDelete = async () => {
   console.log(selectedRows)
@@ -132,6 +135,7 @@ const handleDelete = async () => {
     {
       label: "Export",
       icon: "pi pi-download",
+      command: () => setShowExportDialog(true)
     },
   ];
 
@@ -343,6 +347,13 @@ const handleAddRow = (input) => {
         handleAddRow={handleAddRow}
         projectId={projectId}           
       />
+      <ExportDialog 
+      showExportDialog={showExportDialog} 
+      setShowExportDialog={setShowExportDialog}
+      exportColumns={visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }))}
+      products={products}
+      exportCSV={() => tableRef.current?.exportCSV()}
+        />
       <AddMoleculeDialog
         showDialog={visibleAddMolecule}
         setShowDialog={setVisibleAddMolecule}
@@ -381,6 +392,7 @@ const handleAddRow = (input) => {
             style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
           >
             <MoleculeTable
+              ref={tableRef}
               onSelectCell={setSelectedMolecule}
               onSelectRow={setSelectedRows}
               filters={filters}

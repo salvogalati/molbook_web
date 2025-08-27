@@ -1,5 +1,8 @@
 import { jsPDF } from 'jspdf';
 import { applyPlugin } from 'jspdf-autotable'
+import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
+
 applyPlugin(jsPDF)
 
 // Parametri che devono essere passati alle funzioni
@@ -9,20 +12,6 @@ export const exportCSV = (dt, selectionOnly) => {
     }
 };
 
-export const exportPdf_ = (exportColumns, products) => {
-    const doc = new jsPDF(); // Parametri corretti mancanti
-
-    // Aggiungi controllo per i dati
-    if (exportColumns && products) {
-        doc.autoTable({
-            head: [exportColumns.map(col => col.title)],
-            body: products.map(product =>
-                exportColumns.map(col => product[col.dataKey] || product[col.field])
-            )
-        });
-        doc.save('products.pdf');
-    }
-}
 
 export const exportPdf = async (exportColumns, products) => {
     const doc = new jsPDF();
@@ -147,3 +136,37 @@ export const saveAsExcelFile = (buffer, fileName) => {
         console.error('Errore durante l\'import di file-saver:', error);
     });
 };
+
+
+export function ExportDialog({ showExportDialog, setShowExportDialog, exportColumns, products, exportCSV}) {
+    return (
+        <div className="card flex justify-content-center">
+            <Dialog 
+                header="Select the format to export the data" 
+                visible={showExportDialog} 
+                style={{ width: '35vw' }} 
+                onHide={() => { 
+                    if (!showExportDialog) return; 
+                    setShowExportDialog(false); 
+                }}
+            >
+                {/* contenitore dei gruppetti: in riga */}
+<div className="flex w-full justify-content-evenly">
+  <div className="flex-1 flex flex-column align-items-center gap-2">
+    <Button icon="pi pi-file-excel" severity="success" rounded onClick={() => exportExcel(products)}/>
+    <h3 className="m-0 text-center">MS Excel</h3>
+  </div>
+  <div className="flex-1 flex flex-column align-items-center gap-2">
+    <Button icon="pi pi-file" severity="info" rounded onClick={() => exportCSV()}/>
+    <h3 className="m-0 text-center">CSV</h3>
+  </div>
+  <div className="flex-1 flex flex-column align-items-center gap-2">
+    <Button icon="pi pi-file-pdf" severity="warning" rounded onClick={() => exportPdf(exportColumns, products)}/>
+    <h3 className="m-0 text-center">PDF</h3>
+  </div>
+</div>
+
+            </Dialog>
+        </div>
+    )
+}
