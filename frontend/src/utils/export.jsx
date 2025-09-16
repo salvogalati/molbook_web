@@ -140,7 +140,7 @@ export const saveAsExcelFile = (buffer, fileName) => {
 
 export function ExportDialog({ showExportDialog, setShowExportDialog, exportColumns, products, exportCSV}) {
     return (
-        <div className="card flex justify-content-center">
+        <div className="card flex justify-content-center" style={{padding: 0}}>
             <Dialog 
                 header="Select the format to export the data" 
                 visible={showExportDialog} 
