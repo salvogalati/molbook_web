@@ -193,9 +193,9 @@ export default function SignupPage() {
             icon="pi pi-angle-right"
             className="signup-nav-btn next-btn"
             label={activeIndex === stepsModel.length - 2 ? "Confirm" : "Next"}
-            //onClick={activeIndex === stepsModel.length - 2 ? handleSignUp : next}
-            onClick={next}
-            //disabled={!isStepValid}
+            onClick={activeIndex === stepsModel.length - 2 ? handleSignUp : next}
+            //onClick={next}
+            disabled={!isStepValid}
           />
         )}
       </div>

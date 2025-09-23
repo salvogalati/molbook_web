@@ -149,7 +149,7 @@ function Home() {
               News
             </h5>
           </div>
-          <Accordion id="newsAccordion" style={{ width: "100%", height: "80%" }}>
+          <Accordion id="newsAccordion" style={{ width: "100%", height: "80%" }} activeIndex={0}>
             <AccordionTab header="MolBook Pro is now available.">
               <p className="m-0" style={{ textAlign: "left" }}>
                 We are excited to announce that <strong>MolBook Pro</strong> is officially available!<br />

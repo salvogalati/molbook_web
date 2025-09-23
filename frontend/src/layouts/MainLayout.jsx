@@ -10,7 +10,7 @@ export default function MainLayout() {
       <Navbar />
 
       {/* Qui verranno renderizzate le Route figlie */}
-      <div style={{marginTop: "30px", paddingBottom: "30px",}}><Outlet /></div>
+      <div style={{marginTop: "30px"}}><Outlet /></div>
     </>
   );
 }

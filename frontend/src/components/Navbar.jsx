@@ -16,6 +16,11 @@ function Navbar() {
       command: () => navigate('/home')
     },
     {
+      label: 'Projects',
+      icon: 'pi pi-sitemap',
+      command: () => navigate('/projects')
+    },
+    {
       label: 'Molecules',
       icon: 'pi pi-sitemap',
       command: () => navigate('/molecules')

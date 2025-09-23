@@ -27,6 +27,7 @@ import RequireAuth from "./components/RequireAuth";
 import TempPage from "./pages/Temp";
 import ResetPasswordPage from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
+import ProjectsManager from "./pages/ProjectManager";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
           >
             <Route path="/home" element={<Home />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/projects" element={<ProjectsManager />} />
             <Route path="/molecules" element={<MoleculeDashboard />} />
           </Route>
         </Routes>
