@@ -16,6 +16,7 @@ import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from 'primereact/tooltip';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
 import { ExportDialog } from '../utils/export';
+import { TabView, TabPanel } from 'primereact/tabview';
 import "./styles/Molecules.css";
 
 
@@ -33,41 +34,41 @@ export default function Molecules({ projectId = 2 }) {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const tableRef = useRef(null);
 
-const handleDelete = async () => {
-  console.log(selectedRows)
-  if (!selectedRows || selectedRows.length === 0) return;
+  const handleDelete = async () => {
+    console.log(selectedRows)
+    if (!selectedRows || selectedRows.length === 0) return;
 
-  try {
-    // per ogni riga selezionata, manda la DELETE
-    await Promise.all(
-      selectedRows.map(async (row) => {
-        const res = await fetch(
-          `${API_URL}/api/projects/${projectId}/molecules/${row.id}/`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-            },
+    try {
+      // per ogni riga selezionata, manda la DELETE
+      await Promise.all(
+        selectedRows.map(async (row) => {
+          const res = await fetch(
+            `${API_URL}/api/projects/${projectId}/molecules/${row.id}/`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+          if (!res.ok) {
+            throw new Error(`Errore eliminazione molecola ${row.id}`);
           }
-        );
-        if (!res.ok) {
-          throw new Error(`Errore eliminazione molecola ${row.id}`);
-        }
-      })
-    );
+        })
+      );
 
-    // filtra lo stato removendo le molecole già cancellate
-    setProducts((prev) =>
-      prev.filter((m) => !selectedRows.some((r) => r.id === m.id))
-    );
-    // reset della selezione
-    setSelectedRows([]);
-  } catch (err) {
-    console.error("Delete error:", err);
-    // qui puoi mostrare un messaggio di errore all’utente
-  }
-};
+      // filtra lo stato removendo le molecole già cancellate
+      setProducts((prev) =>
+        prev.filter((m) => !selectedRows.some((r) => r.id === m.id))
+      );
+      // reset della selezione
+      setSelectedRows([]);
+    } catch (err) {
+      console.error("Delete error:", err);
+      // qui puoi mostrare un messaggio di errore all’utente
+    }
+  };
 
 
   const fetchMoleculeImage = async (smiles) => {
@@ -118,7 +119,7 @@ const handleDelete = async () => {
       icon: "pi pi-plus",
       command: () => setVisibleAddMolecule(true)
     },
-        {
+    {
       label: "Depict",
       icon: "pi pi-camera",
       command: () => setShowWebcamDialog(true)
@@ -150,60 +151,60 @@ const handleDelete = async () => {
     { field: "category", header: "Category" },
   ];
 
-const [products, setProducts] = useState([]); 
-useEffect(() => {
-  fetch(`${API_URL}api/projects/${projectId}/molecules/`, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-    },
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Errore nel fetch delle molecole");
-      return res.json();
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    fetch(`${API_URL}api/projects/${projectId}/molecules/`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
     })
-    .then(data => {
-      setProducts(data);
-    })
-    .catch(err => {
-      console.error("Errore caricamento molecole:", err);
-    });
-}, [projectId]);
+      .then(res => {
+        if (!res.ok) throw new Error("Errore nel fetch delle molecole");
+        return res.json();
+      })
+      .then(data => {
+        setProducts(data);
+      })
+      .catch(err => {
+        console.error("Errore caricamento molecole:", err);
+      });
+  }, [projectId]);
 
   // Handle row addition
 
-const handleAddRow = (input) => {
-  // Se viene passato un array di campi (es. da WebCamDialog o da AddMoleculeDialog in locale)
-  if (Array.isArray(input)) {
-    const entry = input.reduce((obj, { id, value }) => {
-      if (id === "Image") {
-        obj.smiles = value;
-      } else {
-        obj[id] = value;
-      }
-      return obj;
-    }, {});
+  const handleAddRow = (input) => {
+    // Se viene passato un array di campi (es. da WebCamDialog o da AddMoleculeDialog in locale)
+    if (Array.isArray(input)) {
+      const entry = input.reduce((obj, { id, value }) => {
+        if (id === "Image") {
+          obj.smiles = value;
+        } else {
+          obj[id] = value;
+        }
+        return obj;
+      }, {});
 
-    setProducts(prev => [
-      ...prev,
-      {
-        code: entry.code || `M${Math.floor(Math.random() * 1000)}`,
-        name: entry.name || "NewMolecule",
-        category: entry.category || "Mock",
-        quantity: entry.quantity ?? Math.floor(Math.random() * 200),
-        smiles: entry.smiles || "CNO",
-      }
-    ]);
-  } 
-  // Se viene passato un oggetto (es. risposta JSON della POST)
-  else if (input && typeof input === 'object') {
-    setProducts(prev => [
-      ...prev,
-      input
-    ]);
-  }
-  // altrimenti non fare nulla
-};
+      setProducts(prev => [
+        ...prev,
+        {
+          code: entry.code || `M${Math.floor(Math.random() * 1000)}`,
+          name: entry.name || "NewMolecule",
+          category: entry.category || "Mock",
+          quantity: entry.quantity ?? Math.floor(Math.random() * 200),
+          smiles: entry.smiles || "CNO",
+        }
+      ]);
+    }
+    // Se viene passato un oggetto (es. risposta JSON della POST)
+    else if (input && typeof input === 'object') {
+      setProducts(prev => [
+        ...prev,
+        input
+      ]);
+    }
+    // altrimenti non fare nulla
+  };
 
 
   // Responsive layout: on mobile, hide image and force vertical layout
@@ -254,7 +255,7 @@ const handleAddRow = (input) => {
 
   // Layout for the molecule image panel
   const imagePanelStyle = isHorizontal
-    ? { flex: "0 0 40%",}
+    ? { flex: "0 0 40%", }
     : { flex: "0 0 200px" };
 
   // Header panel with filters and actions
@@ -345,15 +346,15 @@ const handleAddRow = (input) => {
         showWebcamDialog={showWebcamDialog}
         setShowWebcamDialog={setShowWebcamDialog}
         handleAddRow={handleAddRow}
-        projectId={projectId}           
+        projectId={projectId}
       />
-      <ExportDialog 
-      showExportDialog={showExportDialog} 
-      setShowExportDialog={setShowExportDialog}
-      exportColumns={visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }))}
-      products={products}
-      exportCSV={() => tableRef.current?.exportCSV()}
-        />
+      <ExportDialog
+        showExportDialog={showExportDialog}
+        setShowExportDialog={setShowExportDialog}
+        exportColumns={visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }))}
+        products={products}
+        exportCSV={() => tableRef.current?.exportCSV()}
+      />
       <AddMoleculeDialog
         showDialog={visibleAddMolecule}
         setShowDialog={setVisibleAddMolecule}
@@ -361,56 +362,63 @@ const handleAddRow = (input) => {
         projectId={projectId}
         onSave={handleAddRow}
       />
-      <div className="molecules-layout-container">
-        <div
-          className="molecules-layout"
-          style={{ flexDirection: isHorizontal ? "row" : "column" }}
-        >
-          {/* Molecule image panel */}
-          <div
-            className="molecules-image-panel"
-            style={{
-              ...imagePanelStyle,
-              display: showImage ? undefined : "none",
-            }}
-          >
-            {selectedMolecule && (
-              <img
-                src={moleculeImageUrl}
-                alt={`Structure of ${selectedMolecule.name}`}
-                className="molecules-image"
-                onError={(e) =>
-                (e.currentTarget.src =
-                  "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
-                }
-              />
-            )}
-          </div>
-          {/* Molecule table */}
-          <div
-            className="molecules-table-panel"
-            style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
-          >
-            <MoleculeTable
-              ref={tableRef}
-              onSelectCell={setSelectedMolecule}
-              onSelectRow={setSelectedRows}
-              filters={filters}
-              products={products}
-              setProducts={setProducts}
-              visibleColumns={visibleColumns}
-              projectId={projectId}
-              onDelete={handleDelete}
-            />
-          </div>
-        </div>
-      </div>
-      <Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
-      <SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
-        showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
-          position: "fixed", bottom: "2rem", right: "2rem", zIndex: 1000
-        }} />
 
+      <div>
+        <TabView>
+          <TabPanel header="My Project I">
+            <div className="molecules-layout-container">
+              <div
+                className="molecules-layout"
+                style={{ flexDirection: isHorizontal ? "row" : "column" }}
+              >
+                {/* Molecule image panel */}
+                <div
+                  className="molecules-image-panel"
+                  style={{
+                    ...imagePanelStyle,
+                    display: showImage ? undefined : "none",
+                  }}
+                >
+                  {selectedMolecule && (
+                    <img
+                      src={moleculeImageUrl}
+                      alt={`Structure of ${selectedMolecule.name}`}
+                      className="molecules-image"
+                      onError={(e) =>
+                      (e.currentTarget.src =
+                        "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
+                      }
+                    />
+                  )}
+                </div>
+                {/* Molecule table */}
+                <div
+                  className="molecules-table-panel"
+                  style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
+                >
+
+                  <MoleculeTable
+                    ref={tableRef}
+                    onSelectCell={setSelectedMolecule}
+                    onSelectRow={setSelectedRows}
+                    filters={filters}
+                    products={products}
+                    setProducts={setProducts}
+                    visibleColumns={visibleColumns}
+                    projectId={projectId}
+                    onDelete={handleDelete}
+                  />
+                </div>
+              </div>
+            </div>
+            <Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
+            <SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
+              showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
+                position: "fixed", bottom: "2rem", right: "2rem", zIndex: 1000
+              }} />
+          </TabPanel>
+        </TabView>
+      </div>
     </div>
   );
 }
