@@ -21,11 +21,6 @@ function Navbar() {
       command: () => navigate('/projects')
     },
     {
-      label: 'Molecules',
-      icon: 'pi pi-sitemap',
-      command: () => navigate('/molecules')
-    },
-    {
       label: 'Contacts Us',
       icon: 'pi pi-envelope',
       command: () => navigate('/contacts')

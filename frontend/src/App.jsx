@@ -18,7 +18,7 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Contacts from "./pages/Contacts.jsx";
-import MoleculeDashboard from "./pages/Molecules.jsx";
+import ProjectsDashboard from "./pages/Molecules.jsx";
 import Login from "./pages/Login.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
@@ -53,8 +53,7 @@ function App() {
           >
             <Route path="/home" element={<Home />} />
             <Route path="/contacts" element={<Contacts />} />
-            <Route path="/projects" element={<ProjectsManager />} />
-            <Route path="/molecules" element={<MoleculeDashboard />} />
+            <Route path="/projects" element={<ProjectsDashboard />} />
           </Route>
         </Routes>
       </AuthProvider>

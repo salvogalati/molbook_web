@@ -15,7 +15,7 @@ import "../components/styles/Loader.css";
 import "./styles/ProjectManager.css";
 
 
-function ProjectsManager() {
+function ProjectsManager({ addNewTab }) {
   // Set a pleasant background when the component is mounted
   useEffect(() => {
     document.body.style.background = "#F0F8FF";
@@ -119,12 +119,13 @@ function ProjectsManager() {
   const itemTemplate = (p) => (
     <div className="col-12 md:col-4 p-2">
       <Card>
-        <div style={{ display: "flex", gap: "3rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           <div className="flex align-items-center justify-content-between">
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", gap: "1rem" }} className="align-items-center">
                 <h4>{p.name}</h4>
-                <Chip label={`${p.molecules} molecole`} style={{ height: "100%" }} />
+                <Chip label={`${p.molecules} molecole`} style={{ height: "100%" }} 
+                pt={{root:  { style: {fontSize: '0.85rem',}}}} />
               </div>
               <div style={{ display: "flex", gap: "0.7rem" }} className="align-items-center justify-content-between" >
                 <div style={{ display: "flex", gap: "0.5rem" }} className="align-items-center justify-content-between createdAtDiv" data-pr-tooltip="Created at">
@@ -140,16 +141,14 @@ function ProjectsManager() {
             </div>
           </div>
           <div className="flex gap-2 align-items-center">
-            <Button icon="pi pi-trash" severity="danger" text onClick={() => confirmDelete(p.id)} />
-            <Button icon="pi pi-clone" severity="success" text />
-            <Button icon="pi pi-external-link" text />
+            <Button icon="pi pi-trash" severity="danger" text onClick={() => confirmDelete(p.id)} tooltip="Delete"/>
+            <Button icon="pi pi-clone" severity="success" text tooltip="Duplicate"/>
+            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name)}} tooltip="Open project"/>
           </div>
         </div>
       </Card>
     </div>
   );
-
-
 
   const centerContent = (
 
@@ -166,8 +165,6 @@ function ProjectsManager() {
           onClick={() => setSortAsc(prev => !prev)}
         />
       </div>
-
-      <Button label="Add new" icon="pi pi-plus-circle" />
     </div>
   );
 
@@ -184,7 +181,7 @@ function ProjectsManager() {
       <ConfirmDialog />
       <Toolbar center={centerContent} style={{ width: "100%" }} />
       <DataView value={visibleProjects} itemTemplate={itemTemplate} layout="grid" paginator
-        rows={9} />
+        rows={6} />
     </div>
   )
 }
