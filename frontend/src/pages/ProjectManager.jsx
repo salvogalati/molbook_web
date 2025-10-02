@@ -169,7 +169,7 @@ function ProjectsManager({ addNewTab }) {
   );
 
   return (
-    <div className="card xl:flex" style={{ padding: "0 4rem 0 4rem", flexDirection: "column" }}>
+    <div className="card xl:flex" style={{flexDirection: "column" }}>
       <Tooltip
         target=".createdAtDiv, .updateAtDiv"
         position="top"

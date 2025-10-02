@@ -18,6 +18,10 @@
   align-items: center;
 }
 
+.p-tabview.p-component.p-tabview-scrollable{
+  width: 75%;
+}
+
 /* Menu/Toolbar styles */
 .molecules-menu .p-accordion-header {
   height: 2rem;
