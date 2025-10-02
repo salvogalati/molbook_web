@@ -11,6 +11,10 @@
   flex-direction: column;
 }
 
+.p-tabview-nav-container{
+  max-width: 80%;
+}
+
 .molecules-header {
   display: flex;
   border: 1px solid #ccc;
@@ -19,7 +23,7 @@
 }
 
 .p-tabview.p-component.p-tabview-scrollable{
-  width: 75%;
+  width: 100%;
 }
 
 /* Menu/Toolbar styles */
@@ -142,6 +146,10 @@
   .molecules-table-panel {
     min-height: 220px;
   }
+  .p-tabview-nav-container{
+  max-width: 75%;
+}
+
 }
 
 /* Accordion styles */
@@ -168,3 +176,28 @@
 .p-speeddial-action{
   color: white;
 }
+
+
+
+
+
+.tabbar-extended {
+  position: relative;
+  /* Larghezza pulsante + margine */
+  --actions-w: 9rem;
+  /* Larghezza “zona frecce” del TabView (di solito ~5rem) */
+  --arrows-w: 5.5rem;
+}
+
+
+.tabbar-actions {
+  position: absolute;
+  right: 0;       /* va proprio in fondo */
+  top: .25rem;
+  z-index: 2;
+}
+
+
+
+
+
