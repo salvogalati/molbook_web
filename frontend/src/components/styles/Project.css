@@ -1,0 +1,191 @@
+.molecules-card {
+  position: relative;
+  width: 100%;
+  height: 86vh;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-tabview-nav-container{
+  max-width: 80%;
+}
+
+.p-tabview-nav-content{
+  max-width: 90%;
+}
+
+.molecules-header {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  align-items: center;
+}
+
+.p-tabview.p-component.p-tabview-scrollable{
+  width: 100%;
+}
+
+/* Menu/Toolbar styles */
+.molecules-menu .p-accordion-header {
+  height: 2rem;
+}
+.menu-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: flex-end;
+  padding: 0.5rem 0;
+}
+.menu-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 0 1rem 0 1rem;
+}
+.menu-label {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+.layout-switch {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.layout-btn {
+  width: 2rem;
+  height: 2rem;
+}
+.molecule-actions {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.action-btn {
+  width: 2rem;
+  height: 2rem;
+}
+
+.molecules-layout-container {
+  position: relative;
+  height: calc(100vh - 180px);
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.molecules-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  height: 100%;
+  margin-top: 10px;
+}
+
+#molecule-search{
+  width: 100%;
+}
+
+/* Image panel */
+.molecules-image-panel {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.molecules-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Table panel */
+.molecules-table-panel {
+  flex: 1 1 60%;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Multiselect, search, etc. */
+.p-inputtext.p-component, .molecules-multiselect {
+  height: 3rem;
+}
+@media (max-width: 600px) {
+  .p-multiselect-panel {
+    min-width: 0 !important;
+    width: 92vw !important;
+    max-width: 98vw !important;
+    left: 4vw !important;
+    right: unset !important;
+  }
+  .p-multiselect {
+    /* width: 100% !important; */
+    min-width: 0 !important;
+  }
+  .molecules-layout-container {
+    padding: 6px;
+    height: auto;
+  }
+  .molecules-layout {
+    flex-direction: column;
+    min-height: unset;
+  }
+  .molecules-image-panel {
+    flex: none;
+    min-height: 180px;
+  }
+  .molecules-table-panel {
+    min-height: 220px;
+  }
+  .p-tabview-nav-container{
+  max-width: 75%;
+}
+
+}
+
+/* Accordion styles */
+
+#menu-accordion{
+  width: 100%;
+}
+
+#menu-accordion .p-accordion-tab {
+  margin-bottom: 0;
+  height: 100%;
+}
+#menu-accordion .p-accordion-header {
+  height: 2rem;
+}
+#menu-accordion .p-accordion-content {
+  padding: 0;
+}
+
+#menu-accordion .p-accordion-header-link{
+  height: 100%;
+  padding: 0;
+}
+.p-speeddial-action{
+  color: white;
+}
+
+
+
+
+
+
+
+
+

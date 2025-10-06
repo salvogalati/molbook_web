@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import MoleculeTable from "../components/MoleculeTable";
-import WebCamDialog from "../components/WebCamDialog";
-import AddMoleculeDialog from "../components/AddMoleculeDialog";
+import MoleculeTable from "./MoleculeTable";
+import WebCamDialog from "./WebCamDialog";
+import AddMoleculeDialog from "./AddMoleculeDialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
@@ -16,8 +16,7 @@ import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from 'primereact/tooltip';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
 import { ExportDialog } from '../utils/export';
-import { TabView, TabPanel } from 'primereact/tabview';
-import "./styles/Molecules.css";
+import "./styles/Project.css";
 
 
 export default function Project({ projectId = 2 }) {
@@ -33,8 +32,6 @@ export default function Project({ projectId = 2 }) {
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const tableRef = useRef(null);
-  const [title, setTitle] = useState("My project");
-  const [editing, setEditing] = useState(false);
 
   const handleDelete = async () => {
     if (!selectedRows || selectedRows.length === 0) return;
@@ -363,28 +360,6 @@ export default function Project({ projectId = 2 }) {
       />
 
       <div>
-        <TabView>
-          <TabPanel header={
-                        editing ? (
-                            <InputText
-                                value={title}
-                                autoFocus
-                                onChange={(e) => setTitle(e.target.value)}
-                                onBlur={() => setEditing(false)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') setEditing(false);
-                                }}
-                                style={{ width: "120px" }}
-                            />
-                        ) : (
-                            <span
-                                onDoubleClick={() => setEditing(true)}
-                                style={{ cursor: "pointer" }}
-                            >
-                                {title}
-                            </span>
-                        )
-                    }>
             <div className="molecules-layout-container">
               <div
                 className="molecules-layout"
@@ -435,8 +410,6 @@ export default function Project({ projectId = 2 }) {
               showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
                 position: "fixed", bottom: "2rem", right: "2rem", zIndex: 1000
               }} />
-          </TabPanel>
-        </TabView>
       </div>
     </div>
   );
