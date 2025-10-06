@@ -5,7 +5,6 @@ import { InputText } from "primereact/inputtext";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from 'primereact/image';
 import { ToggleButton } from 'primereact/togglebutton';
-import { Button } from 'primereact/button';
 import { API_URL, FAILED_IMAGE_URL } from "../api";
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
@@ -25,7 +24,6 @@ export default forwardRef(function MoleculeTable({
   const [selectedCells, setSelectedCells] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [imageUrls, setImageUrls] = useState({});
   const [sortMode, setSortMode] = useState(false);
 
   const fetchMoleculeImageUrl = async (smiles) => {
@@ -181,7 +179,7 @@ const onCellEditComplete = async (e) => {
   if (typeof newValue === "string" && newValue.trim().length > 0) {
     try {
       const moleculeId = rowData.id;
-
+      setProducts(prev => prev.map(p => p.id === moleculeId ? { ...p, [field]: newValue } : p));
       const response = await fetch(
         `${API_URL}api/projects/${projectId}/molecules/${moleculeId}/`,
         {
@@ -217,17 +215,11 @@ const onCellEditComplete = async (e) => {
       className="p-inputtext-sm"
       value={options.value}
       onChange={e => options.editorCallback(e.target.value)}
-      onKeyDown={e => e.preventDefault()}
     />
   );
 
   const cellEditor = (options) => textEditor(options);
 
-
-  // Remove product from table
-  const deleteProduct = (product) => {
-    setProducts(prev => prev.filter(p => p.code !== product.code));
-  };
 
   // Render molecule image cell
 const imageBodyTemplate = (product) => {
@@ -250,16 +242,16 @@ const imageBodyTemplate = (product) => {
   );
 };
 
-const selectSpecificCell = (rowData) => {
-  console.log(rowData)
-  const cellData = {
-    rowData: rowData,
-    rowIndex: 0,
-    cellIndex: 0,
-  };
+// const selectSpecificCell = (rowData) => {
+//   console.log(rowData)
+//   const cellData = {
+//     rowData: rowData,
+//     rowIndex: 0,
+//     cellIndex: 0,
+//   };
 
-    setSelectedCells(prev => [...prev, cellData]);
-};
+//     setSelectedCells(prev => [...prev, cellData]);
+// };
     const header = (
         <div className="flex align-items-center justify-content-end gap-2">
             <ToggleButton onIcon="pi pi-sort" offIcon="pi pi-sort" id="sort_button"
