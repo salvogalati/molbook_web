@@ -7,7 +7,7 @@ import { Dialog } from "primereact/dialog";
 import { TabView, TabPanel } from "primereact/tabview";
 import ProjectsManager from "./ProjectManager";
 import { Image } from "primereact/image";
-import Project from "./Project";
+import Project from "../components/Project";
 import "./styles/Molecules.css";
 
 export default function ProjectsDashboard() {
@@ -33,7 +33,7 @@ export default function ProjectsDashboard() {
     },
   ];
 
-  const addNewTab = (name) => {
+  const addNewTab = (name, backendId = null) => {
     setTabs((prev) => {
       const newId = (prev.at(-1)?.id ?? 0) + 1;
       const next = [
@@ -42,6 +42,7 @@ export default function ProjectsDashboard() {
           id: newId,
           title: name ?? `New Project ${newId}`,
           content: `Project ${newId}`,
+          backendId
         },
       ];
       setActiveIndex(next.length - 1); // indice coerente con "next"
@@ -116,7 +117,7 @@ export default function ProjectsDashboard() {
                 }
                 
               >
-                <Project></Project>
+                <Project projectId={tab.backendId}/>
               </TabPanel>
             ))}
           </TabView>

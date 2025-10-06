@@ -143,7 +143,7 @@ function ProjectsManager({ addNewTab }) {
           <div className="flex gap-2 align-items-center">
             <Button icon="pi pi-trash" severity="danger" text onClick={() => confirmDelete(p.id)} tooltip="Delete"/>
             <Button icon="pi pi-clone" severity="success" text tooltip="Duplicate"/>
-            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name)}} tooltip="Open project"/>
+            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name, 2)}} tooltip="Open project"/>
           </div>
         </div>
       </Card>
