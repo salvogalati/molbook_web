@@ -1252,6 +1252,7 @@ var Cell = function Cell(props) {
     if (onBeforeCellEditHide) {
       onBeforeCellEditHide(params);
     }
+
     /* When using the 'tab' key, the focus event of the next cell is not called in IE. */
     setTimeout(function () {
       setEditingState(false);
@@ -1336,48 +1337,40 @@ var Cell = function Cell(props) {
         case 'ArrowLeft': //SG
           var prevCell = props.findPrevSelectableCell(cell);
           if (prevCell) {
-            //changeTabIndex(cell, prevCell); //SG
+            //changeTabIndex(cell, prevCell);
+            prevCell.click(); //SG
             prevCell.focus();
-            prevCell.click();
           }
           event.preventDefault();
           break;
         case 'ArrowRight':
           var nextCell = props.findNextSelectableCell(cell);
           if (nextCell) {
-            //changeTabIndex(cell, nextCell); //SG
+            //changeTabIndex(cell, nextCell);
+            nextCell.click(); //SG
             nextCell.focus();
-            nextCell.click();
           }
           event.preventDefault();
           break;
         case 'ArrowUp':
-          var index = props.index //SG
-          var upCell = props.findUpSelectableCell(cell, index);
+          var upCell = props.findUpSelectableCell(cell, props.index);
           if (upCell) {
-            //changeTabIndex(cell, upCell); SG
+            //changeTabIndex(cell, upCell);
+            upCell.click(); //SG
             upCell.focus();
-            upCell.click(); 
-            upCell.scrollIntoView({block: "center"});
           }
           event.preventDefault();
           break;
         case 'ArrowDown':
-          var index = props.index //SG
-          var downCell = props.findDownSelectableCell(cell, index);
+          var downCell = props.findDownSelectableCell(cell, props.index);
           if (downCell) {
-            //changeTabIndex(cell, downCell); SG
+            //changeTabIndex(cell, downCell);
+            downCell.click(); //SG
             downCell.focus();
-            downCell.click();
           }
           event.preventDefault();
           break;
         case 'Enter':
-          _onDoubleClick(event); //SG
-          break;
-        case "Escape": //SG
-          cell.focus();
-          break;
         case 'NumpadEnter':
           if (event.shiftKey || event.ctrlKey) ; else if (!DomHandler.isClickable(target)) {
             _onClick(event);
@@ -2229,15 +2222,13 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
   var findDownSelectableCell = React.useCallback(function (cell, cellIndex) {
     var downRow = cell.parentElement.nextElementSibling;
     var downCell = downRow ? downRow.children[cellIndex] : null;
-    //SG
-    return downRow && downCell ? DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
+    return downCell //SG
     //return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
   }, []);
   var findUpSelectableCell = React.useCallback(function (cell, cellIndex) {
     var upRow = cell.parentElement.previousElementSibling;
     var upCell = upRow ? upRow.children[cellIndex] : null;
-    //SG
-    return upRow && upCell ? DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
+    return upCell //SG
     //return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
   }, []);
   var focusOnElement = React.useCallback(function (focusTimeoutRef, editingState, elementRef, keyHelperRef) {

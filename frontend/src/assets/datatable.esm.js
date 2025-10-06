@@ -1337,7 +1337,8 @@ var Cell = function Cell(props) {
         case 'ArrowLeft': //SG
           var prevCell = props.findPrevSelectableCell(cell);
           if (prevCell) {
-            changeTabIndex(cell, prevCell);
+            //changeTabIndex(cell, prevCell);
+            prevCell.click(); //SG
             prevCell.focus();
           }
           event.preventDefault();
@@ -1345,23 +1346,26 @@ var Cell = function Cell(props) {
         case 'ArrowRight':
           var nextCell = props.findNextSelectableCell(cell);
           if (nextCell) {
-            changeTabIndex(cell, nextCell);
+            //changeTabIndex(cell, nextCell);
+            nextCell.click(); //SG
             nextCell.focus();
           }
           event.preventDefault();
           break;
         case 'ArrowUp':
-          var upCell = props.findUpSelectableCell(cell, index);
+          var upCell = props.findUpSelectableCell(cell, props.index);
           if (upCell) {
-            changeTabIndex(cell, upCell);
+            //changeTabIndex(cell, upCell);
+            upCell.click(); //SG
             upCell.focus();
           }
           event.preventDefault();
           break;
         case 'ArrowDown':
-          var downCell = props.findDownSelectableCell(cell, index);
+          var downCell = props.findDownSelectableCell(cell, props.index);
           if (downCell) {
-            changeTabIndex(cell, downCell);
+            //changeTabIndex(cell, downCell);
+            downCell.click(); //SG
             downCell.focus();
           }
           event.preventDefault();
@@ -2218,12 +2222,14 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
   var findDownSelectableCell = React.useCallback(function (cell, cellIndex) {
     var downRow = cell.parentElement.nextElementSibling;
     var downCell = downRow ? downRow.children[cellIndex] : null;
-    return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
+    return downCell //SG
+    //return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
   }, []);
   var findUpSelectableCell = React.useCallback(function (cell, cellIndex) {
     var upRow = cell.parentElement.previousElementSibling;
     var upCell = upRow ? upRow.children[cellIndex] : null;
-    return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
+    return upCell //SG
+    //return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
   }, []);
   var focusOnElement = React.useCallback(function (focusTimeoutRef, editingState, elementRef, keyHelperRef) {
     clearTimeout(focusTimeoutRef.current);
