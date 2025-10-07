@@ -17,6 +17,7 @@ export default function ProjectsDashboard() {
   const [visibleProjectDialog, setVisibleProjectDialog] = useState(false);
   const [editingTabId, setEditingTabId] = useState(null);
   const isMobile = useIsMobile();
+  const [originalTitle, setOriginalTitle] = useState("");
   const items = [
     {
       label: "Add",
@@ -33,6 +34,10 @@ export default function ProjectsDashboard() {
       },
     },
   ];
+  const authHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+  });
 
   const getUniqueTitle = (
     desiredTitle,
@@ -58,10 +63,7 @@ export default function ProjectsDashboard() {
     try {
       const res = await fetch(`${API_URL}/api/projects/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
+        headers: authHeaders(),
         body: JSON.stringify({ name: projectName ?? localUniqueTitle }),
       });
 
@@ -123,6 +125,72 @@ export default function ProjectsDashboard() {
     );
   };
 
+  const commitRename = async (tab) => {
+    // prendo il titolo corrente dalla UI (lo stai già aggiornando mentre digiti)
+    const newTitle = (tabs.find((t) => t.id === tab.id)?.title || "").trim();
+
+    // niente da fare se vuoto o invariato
+    if (!newTitle || newTitle === originalTitle) {
+      setEditingTabId(null);
+      setOriginalTitle("");
+      // se è vuoto, ripristino quello originale
+      if (!newTitle) {
+        setTabs((prev) =>
+          prev.map((t) =>
+            t.id === tab.id ? { ...t, title: originalTitle } : t
+          )
+        );
+      }
+      return;
+    }
+
+    // se non ho backendId, è solo tab locale → chiudo editor
+    if (!tab.backendId) {
+      setEditingTabId(null);
+      setOriginalTitle("");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/projects/${tab.backendId}/`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ name: newTitle }),
+      });
+
+      // se il backend rifiuta (es. nome già esistente), ripristino
+      if (!res.ok) {
+        setTabs((prev) =>
+          prev.map((t) =>
+            t.id === tab.id ? { ...t, title: originalTitle } : t
+          )
+        );
+        const data = await res.json().catch(() => null);
+        console.error(
+          data?.detail || data?.error || "Errore nel rinominare il progetto"
+        );
+      }
+    } catch (e) {
+      // errore di rete → ripristino
+      setTabs((prev) =>
+        prev.map((t) => (t.id === tab.id ? { ...t, title: originalTitle } : t))
+      );
+      console.error("Network error on rename:", e);
+    } finally {
+      setEditingTabId(null);
+      setOriginalTitle("");
+    }
+  };
+
+  const cancelRename = (tab) => {
+    // annulla (Esc): ripristina UI senza chiamare backend
+    setTabs((prev) =>
+      prev.map((t) => (t.id === tab.id ? { ...t, title: originalTitle } : t))
+    );
+    setEditingTabId(null);
+    setOriginalTitle("");
+  };
+
   // --- Render ---
   return (
     <div className="molecules-card">
@@ -148,15 +216,17 @@ export default function ProjectsDashboard() {
                         handleTitleChange(tab.id, e.target.value)
                       }
                       onBlur={() => setEditingTabId(null)}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && setEditingTabId(null)
-                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") commitRename(tab);
+                        if (e.key === "Escape") cancelRename(tab);
+                      }}
                       style={{ width: "160px" }}
                     />
                   ) : (
                     <span
                       onDoubleClick={(e) => {
-                        e.stopPropagation(); // evita focus blu
+                        e.stopPropagation();
+                        setOriginalTitle(tab.title);
                         setEditingTabId(tab.id);
                       }}
                       style={{ cursor: "pointer" }}

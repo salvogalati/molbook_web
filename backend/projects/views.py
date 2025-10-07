@@ -1,5 +1,7 @@
 # views.py
 from django.shortcuts import get_object_or_404
+from django.db import IntegrityError, transaction
+from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
 from .models import Project
 from .serializers import MoleculeSerializer, ProjectSerializer
@@ -48,3 +50,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Quando crei un nuovo progetto, assegna sempre l'utente corrente
         serializer.save(user=self.request.user)
+
+    def perform_create(self, serializer):
+        try:
+            with transaction.atomic():
+                serializer.save(user=self.request.user)
+        except IntegrityError:
+            # 400 Bad Request con errore sul campo name
+            raise ValidationError({"error": ["Hai già un progetto con questo nome."]})
+
+    def perform_update(self, serializer):
+        try:
+            with transaction.atomic():
+                serializer.save()
+        except IntegrityError:
+            raise ValidationError({"error": ["Hai già un progetto con questo nome."]})

@@ -12,7 +12,13 @@ class Project(models.Model):
     def __str__(self):
         return f"{self.name} ({self.user.email})"
 
-
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'name'],
+                name='uniq_project_user_name',
+            )
+        ]
 
 
 class Molecule(models.Model):
