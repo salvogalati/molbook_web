@@ -1,21 +1,12 @@
-from django.urls import path
-from .views import MoleculeViewSet
+from rest_framework_nested import routers
+from .views import ProjectViewSet, MoleculeViewSet
 
-molecule_list = MoleculeViewSet.as_view({
-    'get':    'list',
-    'post':   'create',
-})
-molecule_detail = MoleculeViewSet.as_view({
-    'get':             'retrieve',
-    'patch':           'partial_update',
-    'delete':          'destroy',
-})
+# Router principale
+router = routers.SimpleRouter()
+router.register(r'projects', ProjectViewSet, basename='project')
 
-urlpatterns = [
-    path('projects/<int:project_pk>/molecules/',
-         molecule_list,
-         name='molecule-list'),
-    path('projects/<int:project_pk>/molecules/<int:pk>/',
-         molecule_detail,
-         name='molecule-detail'),
-]
+# Router annidato per le molecole
+projects_router = routers.NestedSimpleRouter(router, r'projects', lookup='project')
+projects_router.register(r'molecules', MoleculeViewSet, basename='project-molecules')
+
+urlpatterns = router.urls + projects_router.urls

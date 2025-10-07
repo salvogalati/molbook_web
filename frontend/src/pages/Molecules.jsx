@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { SplitButton } from "primereact/splitbutton";
@@ -8,6 +8,7 @@ import { TabView, TabPanel } from "primereact/tabview";
 import ProjectsManager from "./ProjectManager";
 import { Image } from "primereact/image";
 import Project from "../components/Project";
+import { API_URL } from "../api";
 import "./styles/Molecules.css";
 
 export default function ProjectsDashboard() {
@@ -21,7 +22,7 @@ export default function ProjectsDashboard() {
       label: "Add",
       icon: "pi pi-refresh",
       command: () => {
-        addNewTab();
+        handleCreateNewProject();
       },
     },
     {
@@ -33,16 +34,67 @@ export default function ProjectsDashboard() {
     },
   ];
 
+  const getUniqueTitle = (
+    desiredTitle,
+    existingTitles,
+    fallbackBase = "New Project"
+  ) => {
+    const base = (desiredTitle && desiredTitle.trim()) || fallbackBase;
+    if (!existingTitles.has(base)) return base;
+
+    let i = 2;
+    while (existingTitles.has(`${base} ${i}`)) i += 1;
+    return `${base} ${i}`;
+  };
+
+  const handleCreateNewProject = async (projectName) => {
+    const existingTitles = new Set(tabs.map((t) => t.title));
+    const localUniqueTitle = getUniqueTitle(
+      projectName,
+      existingTitles,
+      "New Project"
+    );
+    console.log("CREATE", projectName);
+    try {
+      const res = await fetch(`${API_URL}/api/projects/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify({ name: projectName ?? localUniqueTitle }),
+      });
+
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        /* ok se vuoto */
+      }
+
+      if (!res.ok) {
+        throw new Error(`Errore creazione progetto`);
+      }
+
+      const finalTitle = data?.name || localUniqueTitle;
+      const backendId = data?.id ?? null;
+      addNewTab(finalTitle, backendId);
+    } catch (err) {
+      console.error("Creation error:", err);
+    }
+  };
+
   const addNewTab = (name, backendId = null) => {
     setTabs((prev) => {
       const newId = (prev.at(-1)?.id ?? 0) + 1;
+
       const next = [
         ...prev,
         {
           id: newId,
           title: name ?? `New Project ${newId}`,
           content: `Project ${newId}`,
-          backendId
+          backendId,
         },
       ];
       setActiveIndex(next.length - 1); // indice coerente con "next"
@@ -84,7 +136,7 @@ export default function ProjectsDashboard() {
           >
             {tabs.map((tab) => (
               <TabPanel
-                style={{marginLeft: "0.5rem"}}
+                style={{ marginLeft: "0.5rem" }}
                 key={tab.id}
                 closable
                 header={
@@ -111,25 +163,22 @@ export default function ProjectsDashboard() {
                     >
                       {tab.title}
                     </span>
-                    
                   )
-
                 }
-                
               >
-                <Project projectId={tab.backendId}/>
+                <Project projectId={tab.backendId} />
               </TabPanel>
             ))}
           </TabView>
-            <div className="tabbar-actions">
-    <SplitButton
-      label={isMobile ? undefined : "New"}
-      onClick={() => addNewTab()}
-      rounded
-      icon="pi pi-plus"
-      model={items}
-    />
-  </div>
+          <div className="tabbar-actions">
+            <SplitButton
+              label={isMobile ? undefined : "New"}
+              onClick={() => handleCreateNewProject()}
+              rounded
+              icon="pi pi-plus"
+              model={items}
+            />
+          </div>
         </div>
       )}
       <Dialog

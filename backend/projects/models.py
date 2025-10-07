@@ -7,6 +7,7 @@ class Project(models.Model):
                              related_name='projects')
     name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} ({self.user.email})"

@@ -13,22 +13,17 @@ class IsProjectOwnerOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         print("🔍 has_permission called:", request.method, view.kwargs)
+        # Per leggere: basta essere autenticati; lascia che la view filtri/404
+        if request.method in permissions.SAFE_METHODS:
+            return request.user and request.user.is_authenticated
 
-        # Look for project_pk in URL kwargs or in the request body
-        project_pk = (
-            view.kwargs.get('project_pk') or
-            request.data.get('project')
-        )
+        # Per scrivere/modificare: serve un project_pk o un project nel body
+        project_pk = view.kwargs.get('project_pk') or request.data.get('project')
         if not project_pk:
             return False
 
-        # Verify that the project exists and belongs to the user
-        try:
-            project = get_object_or_404(Project, pk=project_pk)
-        except Exception:
-            return False
-
-        return project.user == request.user
+        # Consenti solo se il progetto esiste ed è dell'utente
+        return Project.objects.filter(pk=project_pk, user=request.user).exists()
 
     def has_object_permission(self, request, view, obj):
         # Allow safe methods on the object

@@ -1,9 +1,10 @@
 # views.py
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from .models import Molecule, Project
-from .serializers import MoleculeSerializer
+from .models import Project
+from .serializers import MoleculeSerializer, ProjectSerializer
 from .permissions import IsProjectOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 class MoleculeViewSet(viewsets.ModelViewSet):
     """
@@ -29,3 +30,21 @@ class MoleculeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # 3) assegno al salvataggio sempre il project corretto
         serializer.save(project=self.get_project())
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    """
+    /api/projects/
+    /api/projects/{pk}/
+    """
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated] 
+
+    def get_queryset(self):
+        # Mostra solo i progetti dell'utente loggato
+        print("OOOOOO")
+        return Project.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Quando crei un nuovo progetto, assegna sempre l'utente corrente
+        serializer.save(user=self.request.user)

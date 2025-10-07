@@ -11,7 +11,8 @@ import { DataView } from 'primereact/dataview';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Toast } from 'primereact/toast';
 import { Tooltip } from 'primereact/tooltip';
-import "../components/styles/Loader.css";
+import { API_URL } from "../api";
+import "../components/styles/Loader.css"; 
 import "./styles/ProjectManager.css";
 
 
@@ -24,25 +25,46 @@ function ProjectsManager({ addNewTab }) {
     };
   }, []);
 
+  const [projects, setProjects] = useState([]);
+  useEffect(() => {
+    fetch(`${API_URL}api/projects/`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Errore nel fetch delle molecole");
+        return res.json();
+      })
+      .then(data => {
+        setProjects(data);
+      })
+      .catch(err => {
+        console.error("Errore caricamento molecole:", err);
+      });
+  }, []);
+
+
   // Example: mock data for recent projects
   const toast = useRef(null);
 
-  const [projects, setProjects] = useState([
-    { id: '1000', code: 'f230fh0g3', name: 'My project TEST', molecules: 8, createdAt: "2025-01-12T09:24:00Z", updatedAt: "2025-01-15T14:45:00Z" },
-    { id: '1001', code: 'a230dh0d1', name: 'My project RF445', molecules: 12, createdAt: "2025-02-05T11:10:00Z", updatedAt: "2025-02-08T16:32:00Z" },
-    { id: '1002', code: 'b330gh0d2', name: 'My project TEST 3', molecules: 57, createdAt: "2024-12-22T08:40:00Z", updatedAt: "2025-01-03T19:20:00Z" },
-    { id: '1003', code: 'c440hh0d3', name: 'My project WE41', molecules: 18, createdAt: "2025-03-01T07:15:00Z", updatedAt: "2025-03-04T21:50:00Z" },
-    { id: '1004', code: 'd550ih0d4', name: 'My project GT4', molecules: 1863, createdAt: "2024-11-10T13:25:00Z", updatedAt: "2025-01-20T09:05:00Z" },
-    { id: '1005', code: 'e660jh0d5', name: 'My project 6EQA', molecules: 2, createdAt: "2025-02-14T15:00:00Z", updatedAt: "2025-02-15T10:45:00Z" },
-    { id: '1006', code: 'e660jh0d6', name: 'My project e7f4', molecules: 245, createdAt: "2024-10-05T10:12:00Z", updatedAt: "2025-02-28T18:33:00Z" },
-    { id: '1007', code: 'f230fh0g3', name: 'My project A', molecules: 8, createdAt: "2025-01-03T09:55:00Z", updatedAt: "2025-01-05T20:14:00Z" },
-    { id: '1008', code: 'a230dh0d1', name: 'My project F', molecules: 12, createdAt: "2025-02-01T11:40:00Z", updatedAt: "2025-02-03T16:02:00Z" },
-    { id: '1009', code: 'b330gh0d2', name: 'My project C', molecules: 57, createdAt: "2024-12-12T14:22:00Z", updatedAt: "2025-01-02T09:48:00Z" },
-    { id: '1010', code: 'c440hh0d3', name: 'My project E', molecules: 18, createdAt: "2025-01-28T17:11:00Z", updatedAt: "2025-01-30T08:25:00Z" },
-    { id: '1011', code: 'd550ih0d4', name: 'My project D', molecules: 1863, createdAt: "2024-11-22T09:05:00Z", updatedAt: "2025-02-05T22:10:00Z" },
-    { id: '1012', code: 'e660jh0d5', name: 'My project Z', molecules: 2, createdAt: "2025-03-02T06:20:00Z", updatedAt: "2025-03-02T18:05:00Z" },
-    { id: '1013', code: 'e660jh0d6', name: 'My project S', molecules: 245, createdAt: "2024-12-01T12:30:00Z", updatedAt: "2025-01-25T11:50:00Z" }
-  ]);
+  // setProjects([
+  //   { id: '1000', code: 'f230fh0g3', name: 'My project TEST', molecules: 8, createdAt: "2025-01-12T09:24:00Z", updatedAt: "2025-01-15T14:45:00Z" },
+  //   { id: '1001', code: 'a230dh0d1', name: 'My project RF445', molecules: 12, createdAt: "2025-02-05T11:10:00Z", updatedAt: "2025-02-08T16:32:00Z" },
+  //   { id: '1002', code: 'b330gh0d2', name: 'My project TEST 3', molecules: 57, createdAt: "2024-12-22T08:40:00Z", updatedAt: "2025-01-03T19:20:00Z" },
+  //   { id: '1003', code: 'c440hh0d3', name: 'My project WE41', molecules: 18, createdAt: "2025-03-01T07:15:00Z", updatedAt: "2025-03-04T21:50:00Z" },
+  //   { id: '1004', code: 'd550ih0d4', name: 'My project GT4', molecules: 1863, createdAt: "2024-11-10T13:25:00Z", updatedAt: "2025-01-20T09:05:00Z" },
+  //   { id: '1005', code: 'e660jh0d5', name: 'My project 6EQA', molecules: 2, createdAt: "2025-02-14T15:00:00Z", updatedAt: "2025-02-15T10:45:00Z" },
+  //   { id: '1006', code: 'e660jh0d6', name: 'My project e7f4', molecules: 245, createdAt: "2024-10-05T10:12:00Z", updatedAt: "2025-02-28T18:33:00Z" },
+  //   { id: '1007', code: 'f230fh0g3', name: 'My project A', molecules: 8, createdAt: "2025-01-03T09:55:00Z", updatedAt: "2025-01-05T20:14:00Z" },
+  //   { id: '1008', code: 'a230dh0d1', name: 'My project F', molecules: 12, createdAt: "2025-02-01T11:40:00Z", updatedAt: "2025-02-03T16:02:00Z" },
+  //   { id: '1009', code: 'b330gh0d2', name: 'My project C', molecules: 57, createdAt: "2024-12-12T14:22:00Z", updatedAt: "2025-01-02T09:48:00Z" },
+  //   { id: '1010', code: 'c440hh0d3', name: 'My project E', molecules: 18, createdAt: "2025-01-28T17:11:00Z", updatedAt: "2025-01-30T08:25:00Z" },
+  //   { id: '1011', code: 'd550ih0d4', name: 'My project D', molecules: 1863, createdAt: "2024-11-22T09:05:00Z", updatedAt: "2025-02-05T22:10:00Z" },
+  //   { id: '1012', code: 'e660jh0d5', name: 'My project Z', molecules: 2, createdAt: "2025-03-02T06:20:00Z", updatedAt: "2025-03-02T18:05:00Z" },
+  //   { id: '1013', code: 'e660jh0d6', name: 'My project S', molecules: 245, createdAt: "2024-12-01T12:30:00Z", updatedAt: "2025-01-25T11:50:00Z" }
+  // ]);
 
 
 
@@ -99,7 +121,33 @@ function ProjectsManager({ addNewTab }) {
     return sorted;
   }, [projects, query, sortField, sortAsc]);
 
-  const handleDelete = (id) => setProjects(prev => prev.filter(p => p.id !== id));
+  //const handleDelete = (id) => setProjects(prev => prev.filter(p => p.id !== id));
+
+  const handleDelete = async (projectId) => {
+
+    try {
+          const res = await fetch(
+            `${API_URL}/api/projects/${projectId}/`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+              },
+            }
+          );
+          if (!res.ok) {
+            throw new Error(`Errore eliminazione progetto ${projectId}`);
+          }
+        
+      setProjects(prev => prev.filter(p => p.id !== projectId));
+
+    } catch (err) {
+      console.error("Delete error:", err);
+      // qui puoi mostrare un messaggio di errore all’utente
+    }
+  };
+
   const acceptDelete = (id) => {
     toast.current.show({ severity: 'success', summary: 'Confirmed', detail: 'Project deleted', life: 2500 });
     handleDelete(id);
@@ -142,8 +190,8 @@ function ProjectsManager({ addNewTab }) {
           </div>
           <div className="flex gap-2 align-items-center">
             <Button icon="pi pi-trash" severity="danger" text onClick={() => confirmDelete(p.id)} tooltip="Delete"/>
-            <Button icon="pi pi-clone" severity="success" text tooltip="Duplicate"/>
-            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name, 2)}} tooltip="Open project"/>
+            {/* <Button icon="pi pi-clone" severity="success" text tooltip="Duplicate"/> */}
+            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name, p.id)}} tooltip="Open project"/>
           </div>
         </div>
       </Card>
