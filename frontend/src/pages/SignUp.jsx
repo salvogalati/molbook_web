@@ -63,13 +63,13 @@ export default function SignupPage() {
 
   // Validate current step
   const isStepValid = useMemo(() => {
+    const dob = new Date(formData.date_of_birth);
+    dob.setHours(0, 0, 0, 0);
     switch (activeIndex) {
       case 0: // Personal info
         if (!formData.first_name.trim() || !formData.last_name.trim()) return false;
         if (!(formData.date_of_birth instanceof Date)) return false;
         // Normalize time and compare
-        const dob = new Date(formData.date_of_birth);
-        dob.setHours(0, 0, 0, 0);
         if (dob > eighteenYearsAgo) return false;
         return Boolean(formData.gender);
 
