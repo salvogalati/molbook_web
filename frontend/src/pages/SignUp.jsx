@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo} from "react";
 import { Steps } from "primereact/steps";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { API_URL } from "../api";
 
 import "primeicons/primeicons.css";
-import "./styles/Signup.css"; // Dedicated stylesheet for this page
+import "./styles/SignUp.css"; // Dedicated stylesheet for this page
 import SignUpSteps from "../components/SignUpSteps";
 
 // Validation utilities
