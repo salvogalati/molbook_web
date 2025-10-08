@@ -25,7 +25,7 @@ from django.contrib.auth import views as auth_views
 
 from django.http import JsonResponse
 from .views_api import HelloProtectedView, HelloView, MoleculeImageView
-from backend.accounts.views import CustomPasswordResetView, UserViewSet
+from backend.accounts.views import CustomPasswordResetView, UserViewSet, UIStateDetailCreate
 
 def api_root(request):
     return JsonResponse({'message': 'MolBook API root. Benvenuto!'})
@@ -63,6 +63,8 @@ urlpatterns = [
       name='user-delete'
     ),
     path('api/', include('projects.urls')),
+
+    path("api/ui-state", UIStateDetailCreate.as_view()),
 
 
 ]

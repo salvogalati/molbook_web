@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { SplitButton } from "primereact/splitbutton";
@@ -10,6 +10,7 @@ import { Image } from "primereact/image";
 import Project from "../components/Project";
 import { Toast } from "primereact/toast";
 import { API_URL } from "../api";
+import { fetchUIState, saveUIState } from "../utils/api_helper";
 import "./styles/Molecules.css";
 
 export default function ProjectsDashboard() {
@@ -231,6 +232,50 @@ export default function ProjectsDashboard() {
       return next;
     });
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        const ui = await fetchUIState({ API_URL, token});
+        const { tabs: savedTabs = [], activeIndex: savedIndex = 0 } = ui?.state || {};
+        // Sanity check: tieni solo i campi che ti servono
+        const cleanTabs = (savedTabs || []).map(t => ({
+          id: t.id ?? undefined,          // opzionale; se non lo salvi, lo ricalcoli
+          title: t.title ?? "Untitled",
+          backendId: t.backendId ?? null,
+        }));
+        // Se non hai salvato 'id', riassegnali in base all'ordine:
+        const withIds = cleanTabs.map((t, i) => ({ ...t, id: i + 1 }));
+
+        setTabs(withIds);
+        setActiveIndex(Math.min(savedIndex, Math.max(0, withIds.length - 1)));
+      } catch {
+        // Nessuno stato lato server alla prima apertura: ignora
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // solo mount
+
+  const saveDebounceRef = useRef(null);
+
+// Salva ogni volta che tabs o activeIndex cambiano (con debounce)
+useEffect(() => {
+  const snapshot = {
+    version: 1,
+    tabs: tabs.map(t => ({ backendId: t.backendId ?? null, title: t.title })), // leggero
+    activeIndex,
+  };
+   const token = localStorage.getItem("access_token");
+
+  if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+  saveDebounceRef.current = setTimeout(() => {
+    saveUIState({ API_URL, token, state: snapshot })
+      .catch((e) => console.warn("UI state save failed:", e.message));
+  }, 400); // 300–600ms è ok
+
+  return () => clearTimeout(saveDebounceRef.current);
+}, [tabs, activeIndex]);
 
   // --- Render ---
   return (

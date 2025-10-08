@@ -1,14 +1,15 @@
 from dj_rest_auth.registration.views import RegisterView
-from .serializers import CustomRegisterSerializer
 from dj_rest_auth.views import PasswordResetView
-from .serializers import CustomPasswordResetSerializer
+from .serializers import CustomPasswordResetSerializer, UIStateSerializer, CustomRegisterSerializer
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction, IntegrityError
 from rest_framework.views import APIView
 from .serializers import UserMeSerializer
+from .models import UIState
+
 
 class CustomRegisterView(RegisterView):
     # forziamo qui il serializer, ignorando la configurazione dinamica
@@ -61,3 +62,27 @@ class MeView(APIView):
     def get(self, request):
         serializer = UserMeSerializer(request.user)
         return Response(serializer.data)
+
+
+class UIStateDetailCreate(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UIStateSerializer
+
+    def get_object(self):
+        scope = self.request.query_params.get("scope", "projects_dashboard")
+        obj, _ = UIState.objects.get_or_create(
+            user=self.request.user, scope=scope,
+            defaults={"state": {"version": 1}}
+        )
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        return Response(self.get_serializer(obj).data)
+
+    def put(self, request, *args, **kwargs):
+        obj = self.get_object()
+        ser = self.get_serializer(obj, data=request.data, partial=True)
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return Response(ser.data)

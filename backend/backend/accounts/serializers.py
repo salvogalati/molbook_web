@@ -7,6 +7,7 @@ from rest_framework.validators import UniqueValidator
 from rest_framework import serializers
 from django.conf import settings
 from allauth.account.utils import user_pk_to_url_str
+from .models import UIState
 
 User = get_user_model()
 
@@ -61,3 +62,10 @@ class UserMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name']
+
+
+
+class UIStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UIState
+        fields = ["scope", "state", "updated_at"]

@@ -1,5 +1,6 @@
 # backend/accounts/models.py
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 )
@@ -34,3 +35,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD  = "email"
     REQUIRED_FIELDS = []      # nessun altro campo obbligatorio via createsuperuser
+
+
+class UIState(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # opzionale: scindere tra device o workspace diversi
+    scope = models.CharField(max_length=64, default="projects_dashboard")
+    state = models.JSONField(default=dict)  # { "tabs": [...], "activeIndex": 0, "version": 3 }
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "scope")
