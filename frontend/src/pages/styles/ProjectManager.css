@@ -7,17 +7,16 @@
   max-height: 250px;
 } */
 
-.p-card-body{
-    /* height: 100%; */
+#project-card .p-card-body{
     min-height: 200px;
   max-height: 220px;
 }
 
-.p-card-content{
+#project-card .p-card-content{
     height: 100%;
 }
 
-.p-dialog-header{
+#project-card .p-dialog-header{
     padding: 0.3rem;
     text-align: center;
 }

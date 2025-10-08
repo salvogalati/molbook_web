@@ -183,7 +183,7 @@ function ProjectsManager({ addNewTab, closeTabById }) {
 
   const itemTemplate = (p) => (
     <div className="col-12 md:col-4 p-2">
-      <Card className="project-card">
+      <Card id="project-card">
         <div style={{gap: "1rem", flexWrap: "wrap", maxHeight: "220px" }}>
           <div className="flex align-items-center justify-content-between">
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -291,6 +291,7 @@ function ProjectsManager({ addNewTab, closeTabById }) {
       <ConfirmDialog />
       <Toolbar center={centerContent} style={{ width: "100%" }} />
       <DataView
+      emptyMessage="No Project saved"
         value={visibleProjects}
         itemTemplate={itemTemplate}
         layout="grid"

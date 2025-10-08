@@ -274,6 +274,7 @@ const imageBodyTemplate = (product) => {
         dataKey="code"
         id="molecule-table"
         header={header}
+        emptyMessage="No molecules present"
         onContextMenu={e => cm.current.show(e.originalEvent)}
         onContextMenuSelectionChange={e => setSelectedProduct(e.value)}
         filters={filters}

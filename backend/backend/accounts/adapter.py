@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"  # O "backend/.env" se sta in backend
 
 load_dotenv(dotenv_path=env_path)
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173/verify-email")
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def get_email_confirmation_url(self, request, emailconfirmation):
@@ -30,7 +30,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         # refresh = RefreshToken.for_user(user)
         # token   = str(refresh.access_token)
 
-        return f"{frontend_url}/{key}"
+        return f"{frontend_url}/verify-email/{key}"
     
 def send_mail(self, template_prefix, email, context):
         """

@@ -12,7 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env_path = BASE_DIR / ".env"  # O "backend/.env" se sta in backend
 
 load_dotenv(dotenv_path=env_path)
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173/verify-email")
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
 def custom_password_reset_url(request, user, token):
