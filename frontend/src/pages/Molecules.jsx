@@ -10,7 +10,7 @@ import { Image } from "primereact/image";
 import Project from "../components/Project";
 import { Toast } from "primereact/toast";
 import { API_URL } from "../api";
-import { fetchUIState, saveUIState } from "../utils/api_helper";
+import { fetchUIState, saveUIState, listProjectNames } from "./api/Molecules";
 import "./styles/Molecules.css";
 
 export default function ProjectsDashboard() {
@@ -52,14 +52,19 @@ export default function ProjectsDashboard() {
     toastRef.current?.show({ severity, summary, detail, life });
   };
 
-  const getUniqueTitle = (
+  const getUniqueTitle = async (
     desiredTitle,
     existingTitles,
     fallbackBase = "New Project"
   ) => {
     const base = (desiredTitle && desiredTitle.trim()) || fallbackBase;
+      try {
+    const backendNames = await listProjectNames();
+    for (const name of backendNames) existingTitles.add(name);
+  } catch (err) {
+    console.warn("⚠️ Impossibile caricare i nomi backend:", err);
+  }
     if (!existingTitles.has(base)) return base;
-
     let i = 2;
     while (existingTitles.has(`${base} ${i}`)) i += 1;
     return `${base} ${i}`;
@@ -67,12 +72,11 @@ export default function ProjectsDashboard() {
 
   const handleCreateNewProject = async (projectName) => {
     const existingTitles = new Set(tabs.map((t) => t.title));
-    const localUniqueTitle = getUniqueTitle(
+    const localUniqueTitle = await getUniqueTitle(
       projectName,
       existingTitles,
-      "New Project"
     );
-    console.log("CREATE", projectName);
+    console.log("CREATE", projectName, localUniqueTitle);
     try {
       const res = await fetch(`${API_URL}/api/projects/`, {
         method: "POST",
@@ -109,6 +113,39 @@ export default function ProjectsDashboard() {
 
   const addNewTab = (name, backendId = null) => {
     setTabs((prev) => {
+      if (backendId != null) {
+        const existingIndex = prev.findIndex((t) => t.backendId === backendId);
+        if (existingIndex !== -1) {
+          // Metto a fuoco il tab esistente e NON creo un nuovo tab
+          setActiveIndex(existingIndex);
+          setVisibleProjectDialog(false);
+          showMessage({
+            severity: "info",
+            toastRef: toastErr,
+            summary: "Project already open",
+            life: 1500,
+          });
+          return prev;
+        }
+      }
+
+      const title = name ?? `New Project ${(prev.at(-1)?.id ?? 0) + 1}`;
+      const dupLocalIndex =
+        backendId == null
+          ? prev.findIndex((t) => t.backendId == null && t.title === title)
+          : -1;
+      if (dupLocalIndex !== -1) {
+        setActiveIndex(dupLocalIndex);
+        setVisibleProjectDialog(false);
+        showMessage({
+          severity: "info",
+          toastRef: toastErr,
+          summary: "Project already open",
+          life: 1500,
+        });
+        return prev;
+      }
+
       const newId = (prev.at(-1)?.id ?? 0) + 1;
 
       const next = [
@@ -187,7 +224,8 @@ export default function ProjectsDashboard() {
           )
         );
         const data = await res.json().catch(() => null);
-        const detail = data?.detail || data?.error || "Error during renaming project";
+        const detail =
+          data?.detail || data?.error || "Error during renaming project";
         showMessage({
           severity: "error",
           toastRef: toastErr,
@@ -237,11 +275,12 @@ export default function ProjectsDashboard() {
     (async () => {
       try {
         const token = localStorage.getItem("access_token");
-        const ui = await fetchUIState({ API_URL, token});
-        const { tabs: savedTabs = [], activeIndex: savedIndex = 0 } = ui?.state || {};
+        const ui = await fetchUIState({ API_URL, token });
+        const { tabs: savedTabs = [], activeIndex: savedIndex = 0 } =
+          ui?.state || {};
         // Sanity check: tieni solo i campi che ti servono
-        const cleanTabs = (savedTabs || []).map(t => ({
-          id: t.id ?? undefined,          // opzionale; se non lo salvi, lo ricalcoli
+        const cleanTabs = (savedTabs || []).map((t) => ({
+          id: t.id ?? undefined, // opzionale; se non lo salvi, lo ricalcoli
           title: t.title ?? "Untitled",
           backendId: t.backendId ?? null,
         }));
@@ -259,23 +298,27 @@ export default function ProjectsDashboard() {
 
   const saveDebounceRef = useRef(null);
 
-// Salva ogni volta che tabs o activeIndex cambiano (con debounce)
-useEffect(() => {
-  const snapshot = {
-    version: 1,
-    tabs: tabs.map(t => ({ backendId: t.backendId ?? null, title: t.title })), // leggero
-    activeIndex,
-  };
-   const token = localStorage.getItem("access_token");
+  // Salva ogni volta che tabs o activeIndex cambiano (con debounce)
+  useEffect(() => {
+    const snapshot = {
+      version: 1,
+      tabs: tabs.map((t) => ({
+        backendId: t.backendId ?? null,
+        title: t.title,
+      })), // leggero
+      activeIndex,
+    };
+    const token = localStorage.getItem("access_token");
 
-  if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
-  saveDebounceRef.current = setTimeout(() => {
-    saveUIState({ API_URL, token, state: snapshot })
-      .catch((e) => console.warn("UI state save failed:", e.message));
-  }, 400); // 300–600ms è ok
+    if (saveDebounceRef.current) clearTimeout(saveDebounceRef.current);
+    saveDebounceRef.current = setTimeout(() => {
+      saveUIState({ API_URL, token, state: snapshot }).catch((e) =>
+        console.warn("UI state save failed:", e.message)
+      );
+    }, 400); // 300–600ms è ok
 
-  return () => clearTimeout(saveDebounceRef.current);
-}, [tabs, activeIndex]);
+    return () => clearTimeout(saveDebounceRef.current);
+  }, [tabs, activeIndex]);
 
   // --- Render ---
   return (
