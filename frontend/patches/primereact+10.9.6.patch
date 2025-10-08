@@ -1,0 +1,255 @@
+diff --git a/node_modules/primereact/datatable/datatable.esm.js b/node_modules/primereact/datatable/datatable.esm.js
+index 7077c21..433427d 100644
+--- a/node_modules/primereact/datatable/datatable.esm.js
++++ b/node_modules/primereact/datatable/datatable.esm.js
+@@ -1304,8 +1304,15 @@ var Cell = function Cell(props) {
+     editingRowDataStateRef.current = editingRowData;
+   };
+   var _onClick = function onClick(event) {
+-    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
++    //props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
++    
++    props.onClick(event, getCellCallbackParams(event), false, editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked); //SG
+   };
++  var _onDoubleClick = function onClick(event) {
++    props.onClick(event, getCellCallbackParams(event), isEditable(), editingState, setEditingState, selfClick, props.column, bindDocumentClickListener, overlayEventListener, isOutsideClicked);
++  
++  }; //SG
++
+   var _onMouseDown = function onMouseDown(event) {
+     var params = getCellCallbackParams(event);
+     props.onMouseDown && props.onMouseDown(params);
+@@ -1327,10 +1334,11 @@ var Cell = function Cell(props) {
+       var target = event.target,
+         cell = event.currentTarget;
+       switch (event.code) {
+-        case 'ArrowLeft':
++        case 'ArrowLeft': //SG
+           var prevCell = props.findPrevSelectableCell(cell);
+           if (prevCell) {
+-            changeTabIndex(cell, prevCell);
++            //changeTabIndex(cell, prevCell);
++            prevCell.click(); //SG
+             prevCell.focus();
+           }
+           event.preventDefault();
+@@ -1338,23 +1346,26 @@ var Cell = function Cell(props) {
+         case 'ArrowRight':
+           var nextCell = props.findNextSelectableCell(cell);
+           if (nextCell) {
+-            changeTabIndex(cell, nextCell);
++            //changeTabIndex(cell, nextCell);
++            nextCell.click(); //SG
+             nextCell.focus();
+           }
+           event.preventDefault();
+           break;
+         case 'ArrowUp':
+-          var upCell = props.findUpSelectableCell(cell, index);
++          var upCell = props.findUpSelectableCell(cell, props.index);
+           if (upCell) {
+-            changeTabIndex(cell, upCell);
++            //changeTabIndex(cell, upCell);
++            upCell.click(); //SG
+             upCell.focus();
+           }
+           event.preventDefault();
+           break;
+         case 'ArrowDown':
+-          var downCell = props.findDownSelectableCell(cell, index);
++          var downCell = props.findDownSelectableCell(cell, props.index);
+           if (downCell) {
+-            changeTabIndex(cell, downCell);
++            //changeTabIndex(cell, downCell);
++            downCell.click(); //SG
+             downCell.focus();
+           }
+           event.preventDefault();
+@@ -1728,6 +1739,7 @@ var Cell = function Cell(props) {
+       rowSpan: props.rowSpan,
+       tabIndex: tabIndex,
+       role: 'cell',
++      onDoubleClick: function onDoubleClick(e) {return _onDoubleClick(e)}, //SG
+       onClick: function onClick(e) {
+         return _onClick(e);
+       },
+@@ -1794,7 +1806,8 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
+   var _props$ptCallbacks = props.ptCallbacks,
+     ptm = _props$ptCallbacks.ptm,
+     cx = _props$ptCallbacks.cx;
+-  var isRowSelected = !props.allowCellSelection && props.selected || props.contextMenuSelected;
++  //var isRowSelected = !props.allowCellSelection && props.selected || props.contextMenuSelected; 
++  var isRowSelected = props.selected || props.contextMenuSelected; //SG
+   var getBodyRowPTOptions = function getBodyRowPTOptions(key) {
+     return ptm(key, {
+       parent: props.metaData,
+@@ -2209,12 +2222,14 @@ var BodyRow = /*#__PURE__*/React.memo(function (props) {
+   var findDownSelectableCell = React.useCallback(function (cell, cellIndex) {
+     var downRow = cell.parentElement.nextElementSibling;
+     var downCell = downRow ? downRow.children[cellIndex] : null;
+-    return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
++    return downCell //SG
++    //return downRow && downCell ? DomHandler.getAttribute(downRow, 'data-p-selectable-row') && DomHandler.getAttribute(downCell, 'data-p-selectable-cell') ? downCell : findDownSelectableCell(downCell) : null;
+   }, []);
+   var findUpSelectableCell = React.useCallback(function (cell, cellIndex) {
+     var upRow = cell.parentElement.previousElementSibling;
+     var upCell = upRow ? upRow.children[cellIndex] : null;
+-    return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
++    return upCell //SG
++    //return upRow && upCell ? DomHandler.getAttribute(upRow, 'data-p-selectable-row') && DomHandler.getAttribute(upCell, 'data-p-selectable-cell') ? upCell : findUpSelectableCell(upCell) : null;
+   }, []);
+   var focusOnElement = React.useCallback(function (focusTimeoutRef, editingState, elementRef, keyHelperRef) {
+     clearTimeout(focusTimeoutRef.current);
+@@ -2566,10 +2581,15 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+   var isCheckboxSelectionMode = props.selectionMode === 'checkbox';
+   var isRadioSelectionModeInColumn = props.selectionModeInColumn === 'single';
+   var isCheckboxSelectionModeInColumn = props.selectionModeInColumn === 'multiple';
+-  var equals = function equals(data1, data2) {
+-    if (allowCellSelection()) {
++  var equals = function equals(data1, data2, type="cell") {
++    //console.log("equals", data1, data2, type) //SG
++//if (allowCellSelection()) {
++    if (type!=="checkbox") { //SG
++      //console.log("RES equals",data1.rowIndex === data2.rowIndex || data1.rowData === data2.rowData) && (data1.field === data2.field || data1.cellIndex === data2.cellIndex)
++
+       return (data1.rowIndex === data2.rowIndex || data1.rowData === data2.rowData) && (data1.field === data2.field || data1.cellIndex === data2.cellIndex);
+     }
++    //console.log("RES equals",props.compareSelectionBy === 'equals' ? data1 === data2 : ObjectUtils.equals(data1, data2, props.dataKey))
+     return props.compareSelectionBy === 'equals' ? data1 === data2 : ObjectUtils.equals(data1, data2, props.dataKey);
+   };
+   var isSelectionEnabled = function isSelectionEnabled() {
+@@ -2589,9 +2609,11 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+   var isCheckboxOnlySelection = function isCheckboxOnlySelection() {
+     return isCheckboxSelectionMode && isCheckboxSelectionModeInColumn;
+   };
+-  var isSelected = function isSelected(rowData) {
++  var isSelected = function isSelected(rowData, type="cell") {
++    //console.log("isSelected - TableBody", rowData, props.selection, type) //SG
+     if (rowData && props.selection) {
+-      return props.selection instanceof Array ? findIndex(props.selection, rowData) > -1 : equals(rowData, props.selection);
++      return props.selection instanceof Array ? findIndex(props.selection, rowData, type) > -1 : equals(rowData, props.selection);
++      
+     }
+     return false;
+   };
+@@ -2669,9 +2691,13 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     return isMultipleSelection() && event.originalEvent.shiftKey && anchorRowIndex.current !== null;
+   };
+   var allowRowSelection = function allowRowSelection() {
++    //console.log( (props.selectionMode || props.selectionModeInColumn), !isRadioOnlySelection(), !isCheckboxOnlySelection()) //SG
++    return false //SG
+     return (props.selectionMode || props.selectionModeInColumn) && !isRadioOnlySelection() && !isCheckboxOnlySelection();
+   };
+   var allowCellSelection = function allowCellSelection() {
++    //console.log(props.cellSelection , !isRadioSelectionModeInColumn , !isCheckboxSelectionModeInColumn) //SG
++    return true //SG
+     return props.cellSelection && !isRadioSelectionModeInColumn && !isCheckboxSelectionModeInColumn;
+   };
+   var getColumnsLength = function getColumnsLength() {
+@@ -2684,9 +2710,9 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     options = options || props.virtualScrollerOptions;
+     return options ? options[option] : null;
+   };
+-  var findIndex = function findIndex(collection, rowData) {
++  var findIndex = function findIndex(collection, rowData, type) {
+     return (collection || []).findIndex(function (data) {
+-      return equals(rowData, data);
++      return equals(rowData, data, type);
+     });
+   };
+   var rowGroupHeaderStyle = function rowGroupHeaderStyle() {
+@@ -2749,7 +2775,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     })) {
+       return;
+     }
+-    var selected = isSelected(data);
++    var selected = isSelected(data, type);
+     var currentSelection = selectionRef.current || [];
+     var newSelection = currentSelection;
+     if (selected) {
+@@ -2779,23 +2805,27 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     }
+   };
+   var onMultipleSelection = function onMultipleSelection(_ref2) {
++    //console.log("onMultipleSelection", _ref2) //SG
+     var originalEvent = _ref2.originalEvent,
+       data = _ref2.data,
+       index = _ref2.index,
+       toggleable = _ref2.toggleable,
+       type = _ref2.type;
++    //console.log("!isSelecatble", (!isSelectable({data: data,index: index}))) //SG
+     if (!isSelectable({
+       data: data,
+       index: index
+     })) {
+       return;
+     }
+-    var selected = isSelected(data);
++    var selected = isSelected(data, type);
+     var currentSelection = selectionRef.current || [];
+     var newSelection = currentSelection;
++    //console.log("isSelected(data)", selected, type, toggleable) //SG
++    if (data.cellIndex === 0) {return}
+     if (selected) {
+       if (toggleable) {
+-        var selectionIndex = findIndex(currentSelection, data);
++        var selectionIndex = findIndex(currentSelection, data, type);
+         newSelection = currentSelection.filter(function (val, i) {
+           return i !== selectionIndex;
+         });
+@@ -2822,6 +2852,14 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     } else {
+       newSelection = ObjectUtils.isObject(currentSelection) ? [currentSelection] : currentSelection;
+       newSelection = toggleable && isMultipleSelection() ? [].concat(_toConsumableArray(newSelection), [data]) : [data];
++      //SG
++      var hasCells = currentSelection.some(s => s && (s.hasOwnProperty('rowData')));
++      //console.log("current - new", currentSelection, newSelection, hasCells) 
++      if (hasCells && !data.hasOwnProperty('rowData')) {
++        newSelection = newSelection.filter(s => s && !(s.hasOwnProperty('field') || s.hasOwnProperty('cellIndex')));
++        //console.log("newSelection filtered", newSelection)    
++      }
++      //SG
+       onSelect({
+         originalEvent: originalEvent,
+         data: data,
+@@ -2992,10 +3030,12 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+     }
+   };
+   var onRowClick = function onRowClick(event) {
+-    if (event.defaultPrevented || event.originalEvent && event.originalEvent.defaultPrevented || allowCellSelection() || !allowSelection(event)) {
+-      return;
+-    }
+-    props.onRowClick && props.onRowClick(event);
++
++    // if (event.defaultPrevented || event.originalEvent && event.originalEvent.defaultPrevented || allowCellSelection() || !allowSelection(event)) {
++    //   return;
++    // } //SG
++    //props.onRowClick && props.onRowClick(event);
++    //console.log("allowRowSelection", allowRowSelection(), "allowRangeSelection(event)", allowRangeSelection(event)) //SG
+     if (allowRowSelection()) {
+       if (allowRangeSelection(event)) {
+         onRangeSelection(event, 'row');
+@@ -3004,12 +3044,14 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+         anchorRowIndex.current = event.index;
+         rangeRowIndex.current = event.index;
+         anchorRowFirst.current = props.first;
++        //console.log("isSingleSelection()", isSingleSelection()) //SGs
+         if (isSingleSelection()) {
+           onSingleSelection(_objectSpread$8(_objectSpread$8({}, event), {}, {
+             toggleable: toggleable,
+             type: 'row'
+           }));
+         } else {
++          
+           onMultipleSelection(_objectSpread$8(_objectSpread$8({}, event), {}, {
+             toggleable: toggleable,
+             type: 'row'
+@@ -3422,7 +3464,7 @@ var TableBody = /*#__PURE__*/React.memo(/*#__PURE__*/React.forwardRef(function (
+   };
+   var createRow = function createRow(rowData, rowIndex, index, expanded) {
+     if (!props.expandableRowGroups || expanded) {
+-      var selected = isSelectionEnabled() ? isSelected(rowData) : false;
++      var selected = isSelectionEnabled() ? isSelected(rowData, "checkbox") : false;
+       var contextMenuSelected = isContextMenuSelected(rowData);
+       var _allowRowSelection = allowRowSelection();
+       var _allowCellSelection = allowCellSelection();
