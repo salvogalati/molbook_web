@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { SplitButton } from "primereact/splitbutton";
@@ -8,6 +8,7 @@ import { TabView, TabPanel } from "primereact/tabview";
 import ProjectsManager from "./ProjectManager";
 import { Image } from "primereact/image";
 import Project from "../components/Project";
+import { Toast } from "primereact/toast";
 import { API_URL } from "../api";
 import "./styles/Molecules.css";
 
@@ -18,6 +19,7 @@ export default function ProjectsDashboard() {
   const [editingTabId, setEditingTabId] = useState(null);
   const isMobile = useIsMobile();
   const [originalTitle, setOriginalTitle] = useState("");
+  const toastErr = useRef(null);
   const items = [
     {
       label: "Add",
@@ -38,6 +40,16 @@ export default function ProjectsDashboard() {
     "Content-Type": "application/json",
     Authorization: `Bearer ${localStorage.getItem("access_token")}`,
   });
+
+  const showMessage = ({
+    severity = "info",
+    toastRef,
+    summary,
+    detail,
+    life = 3000,
+  }) => {
+    toastRef.current?.show({ severity, summary, detail, life });
+  };
 
   const getUniqueTitle = (
     desiredTitle,
@@ -75,7 +87,15 @@ export default function ProjectsDashboard() {
       }
 
       if (!res.ok) {
-        throw new Error(`Errore creazione progetto`);
+        const detail =
+          data?.detail || data?.error || "Errore during project creation";
+        showMessage({
+          severity: "error",
+          toastRef: toastErr,
+          summary: "Project not created",
+          detail,
+        });
+        return;
       }
 
       const finalTitle = data?.name || localUniqueTitle;
@@ -166,9 +186,13 @@ export default function ProjectsDashboard() {
           )
         );
         const data = await res.json().catch(() => null);
-        console.error(
-          data?.detail || data?.error || "Errore nel rinominare il progetto"
-        );
+        const detail = data?.detail || data?.error || "Error during renaming project";
+        showMessage({
+          severity: "error",
+          toastRef: toastErr,
+          summary: "Project not renamed",
+          detail,
+        });
       }
     } catch (e) {
       // errore di rete → ripristino
@@ -189,6 +213,23 @@ export default function ProjectsDashboard() {
     );
     setEditingTabId(null);
     setOriginalTitle("");
+  };
+
+  const closeTabById = (idOrBackendId) => {
+    setTabs((prev) => {
+      const idx = prev.findIndex(
+        (t) => t.id === idOrBackendId || t.backendId === idOrBackendId
+      );
+      if (idx === -1) return prev;
+      const next = prev.filter((_, i) => i !== idx);
+      setActiveIndex((ai) => {
+        if (next.length === 0) return 0;
+        if (ai > idx) return ai - 1;
+        if (ai === idx) return Math.max(0, ai - 1);
+        return ai;
+      });
+      return next;
+    });
   };
 
   // --- Render ---
@@ -263,6 +304,7 @@ export default function ProjectsDashboard() {
         <ProjectsManager
           addNewTab={addNewTab}
           setVisibleProjectDialog={setVisibleProjectDialog}
+          closeTabById={closeTabById}
         ></ProjectsManager>
       </Dialog>
       {tabs.length === 0 && (
@@ -290,7 +332,7 @@ export default function ProjectsDashboard() {
             <Button
               label="Add new"
               icon="pi pi-plus-circle"
-              onClick={() => addNewTab()}
+              onClick={() => handleCreateNewProject()}
             />
             <Button
               label="Load"
@@ -300,6 +342,7 @@ export default function ProjectsDashboard() {
           </div>
         </div>
       )}
+      <Toast ref={toastErr} position="center" />
     </div>
   );
 }

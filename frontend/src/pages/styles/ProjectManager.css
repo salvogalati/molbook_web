@@ -2,3 +2,22 @@
     padding: 0;
 }
 
+/* .project-card {
+    min-height: 220px;
+  max-height: 250px;
+} */
+
+.p-card-body{
+    /* height: 100%; */
+    min-height: 200px;
+  max-height: 220px;
+}
+
+.p-card-content{
+    height: 100%;
+}
+
+.p-dialog-header{
+    padding: 0.3rem;
+    text-align: center;
+}

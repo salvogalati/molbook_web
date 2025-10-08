@@ -57,11 +57,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 serializer.save(user=self.request.user)
         except IntegrityError:
             # 400 Bad Request con errore sul campo name
-            raise ValidationError({"error": ["Hai già un progetto con questo nome."]})
+            raise ValidationError({"error": "A project with this name already exists."})
 
     def perform_update(self, serializer):
         try:
             with transaction.atomic():
                 serializer.save()
         except IntegrityError:
-            raise ValidationError({"error": ["Hai già un progetto con questo nome."]})
+            raise ValidationError({"error": "A project with this name already exists."})

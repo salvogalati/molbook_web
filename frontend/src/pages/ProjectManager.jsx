@@ -1,22 +1,21 @@
 import { useEffect, useState, useMemo, useRef } from "react";
-import { Toolbar } from 'primereact/toolbar';
-import { InputText } from 'primereact/inputtext';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
-import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
-import { Chip } from 'primereact/chip';
-import { DataView } from 'primereact/dataview';
-import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import { Toast } from 'primereact/toast';
-import { Tooltip } from 'primereact/tooltip';
+import { Toolbar } from "primereact/toolbar";
+import { InputText } from "primereact/inputtext";
+import { IconField } from "primereact/iconfield";
+import { InputIcon } from "primereact/inputicon";
+import { Dropdown } from "primereact/dropdown";
+import { Button } from "primereact/button";
+import { Card } from "primereact/card";
+import { Chip } from "primereact/chip";
+import { DataView } from "primereact/dataview";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { Toast } from "primereact/toast";
+import { Tooltip } from "primereact/tooltip";
 import { API_URL } from "../api";
-import "../components/styles/Loader.css"; 
+import "../components/styles/Loader.css";
 import "./styles/ProjectManager.css";
 
-
-function ProjectsManager({ addNewTab }) {
+function ProjectsManager({ addNewTab, closeTabById }) {
   // Set a pleasant background when the component is mounted
   useEffect(() => {
     document.body.style.background = "#F0F8FF";
@@ -29,25 +28,24 @@ function ProjectsManager({ addNewTab }) {
   useEffect(() => {
     fetch(`${API_URL}api/projects/`, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error("Errore nel fetch delle molecole");
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setProjects(data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Errore caricamento molecole:", err);
       });
   }, []);
 
-
   // Example: mock data for recent projects
-  const toast = useRef(null);
+  const toastMessage = useRef(null);
 
   // setProjects([
   //   { id: '1000', code: 'f230fh0g3', name: 'My project TEST', molecules: 8, createdAt: "2025-01-12T09:24:00Z", updatedAt: "2025-01-15T14:45:00Z" },
@@ -66,13 +64,20 @@ function ProjectsManager({ addNewTab }) {
   //   { id: '1013', code: 'e660jh0d6', name: 'My project S', molecules: 245, createdAt: "2024-12-01T12:30:00Z", updatedAt: "2025-01-25T11:50:00Z" }
   // ]);
 
-
-
   const sortingFields = ["name", "molecules", "createdAt", "updatedAt"];
   const [query, setQuery] = useState("");
   const [sortField, setSortField] = useState("updatedAt");
   const [sortAsc, setSortAsc] = useState(true);
 
+  const showMessage = ({
+    severity = "info",
+    toastRef,
+    summary,
+    detail,
+    life = 3000,
+  }) => {
+    toastRef.current?.show({ severity, summary, detail, life });
+  };
 
   function formatDate(isoString) {
     const date = new Date(isoString);
@@ -88,11 +93,12 @@ function ProjectsManager({ addNewTab }) {
     return `${day}/${month}/${year} | ${hours}:${minutes}:${seconds}`;
   }
 
-
   const visibleProjects = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = q
-      ? projects.filter((p) => [p.name].some((v) => (v ?? "").toLowerCase().includes(q)))
+      ? projects.filter((p) =>
+          [p.name].some((v) => (v ?? "").toLowerCase().includes(q))
+        )
       : projects;
 
     const sorted = [...filtered].sort((a, b) => {
@@ -124,74 +130,120 @@ function ProjectsManager({ addNewTab }) {
   //const handleDelete = (id) => setProjects(prev => prev.filter(p => p.id !== id));
 
   const handleDelete = async (projectId) => {
-
     try {
-          const res = await fetch(
-            `${API_URL}/api/projects/${projectId}/`,
-            {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-              },
-            }
-          );
-          if (!res.ok) {
-            throw new Error(`Errore eliminazione progetto ${projectId}`);
-          }
-        
-      setProjects(prev => prev.filter(p => p.id !== projectId));
+      const res = await fetch(`${API_URL}/api/projects/${projectId}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        //
+      }
+      if (!res.ok) {
+        const detail =
+          data?.detail || data?.error || "Errore during project deleting";
+        showMessage({
+          severity: "error",
+          toastRef: toastMessage,
+          summary: "Project not deleted",
+          detail,
+        });
+        return;
+      }
 
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      closeTabById(projectId);
+      showMessage({
+        severity: "success",
+        toastRef: toastMessage,
+        summary: "Confirmed",
+        detail: "Project deleted",
+      });
     } catch (err) {
       console.error("Delete error:", err);
       // qui puoi mostrare un messaggio di errore all’utente
     }
   };
 
-  const acceptDelete = (id) => {
-    toast.current.show({ severity: 'success', summary: 'Confirmed', detail: 'Project deleted', life: 2500 });
-    handleDelete(id);
-  }
   const confirmDelete = (id) => {
     confirmDialog({
-      message: 'Do you want to delete this project?',
-      header: 'Delete Confirmation',
-      icon: 'pi pi-info-circle',
-      defaultFocus: 'reject',
-      acceptClassName: 'p-button-danger',
-      accept: () => acceptDelete(id)
+      message: "Do you want to delete this project?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger",
+      accept: () => handleDelete(id),
     });
   };
 
-
   const itemTemplate = (p) => (
     <div className="col-12 md:col-4 p-2">
-      <Card>
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+      <Card className="project-card">
+        <div style={{gap: "1rem", flexWrap: "wrap", maxHeight: "220px" }}>
           <div className="flex align-items-center justify-content-between">
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ display: "flex", gap: "1rem" }} className="align-items-center">
+              <div
+                style={{ display: "flex", gap: "1rem" }}
+                className="align-items-center"
+              >
                 <h4>{p.name}</h4>
-                <Chip label={`${p.molecules} molecole`} style={{ height: "100%" }} 
-                pt={{root:  { style: {fontSize: '0.85rem',}}}} />
+                <Chip
+                  label={`${p.molecules} molecole`}
+                  style={{ height: "100%" }}
+                  pt={{ root: { style: { fontSize: "0.85rem" } } }}
+                />
               </div>
-              <div style={{ display: "flex", gap: "0.7rem" }} className="align-items-center justify-content-between" >
-                <div style={{ display: "flex", gap: "0.5rem" }} className="align-items-center justify-content-between createdAtDiv" data-pr-tooltip="Created at">
-                  <i className="pi pi-calendar" style={{ fontSize: '1rem' }}></i>
+              <div
+                style={{ display: "flex", gap: "0.7rem" }}
+                className="align-items-center justify-content-between"
+              >
+                <div
+                  style={{ display: "flex", gap: "0.5rem" }}
+                  className="align-items-center justify-content-between createdAtDiv"
+                  data-pr-tooltip="Created at"
+                >
+                  <i
+                    className="pi pi-calendar"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
                   <span className="text-xs">{formatDate(p.createdAt)}</span>
                 </div>
-                <div style={{ display: "flex", gap: "0.5rem" }} className="updateAtDiv align-items-center justify-content-between" data-pr-tooltip="Last Updated">
-                  <i className="pi pi-calendar" style={{ fontSize: '1rem' }}></i>
+                <div
+                  style={{ display: "flex", gap: "0.5rem" }}
+                  className="updateAtDiv align-items-center justify-content-between"
+                  data-pr-tooltip="Last Updated"
+                >
+                  <i
+                    className="pi pi-calendar"
+                    style={{ fontSize: "1rem" }}
+                  ></i>
                   <span className="text-xs">{formatDate(p.updatedAt)}</span>
                 </div>
               </div>
-
             </div>
           </div>
           <div className="flex gap-2 align-items-center">
-            <Button icon="pi pi-trash" severity="danger" text onClick={() => confirmDelete(p.id)} tooltip="Delete"/>
+            <Button
+              icon="pi pi-trash"
+              severity="danger"
+              text
+              onClick={() => confirmDelete(p.id)}
+              tooltip="Delete"
+            />
             {/* <Button icon="pi pi-clone" severity="success" text tooltip="Duplicate"/> */}
-            <Button icon="pi pi-external-link" text onClick={() => {addNewTab(p.name, p.id)}} tooltip="Open project"/>
+            <Button
+              icon="pi pi-external-link"
+              text
+              onClick={() => {
+                addNewTab(p.name, p.id);
+              }}
+              tooltip="Open project"
+            />
           </div>
         </div>
       </Card>
@@ -199,25 +251,35 @@ function ProjectsManager({ addNewTab }) {
   );
 
   const centerContent = (
-
     <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
       <IconField iconPosition="left">
         <InputIcon className="pi pi-search" />
-        <InputText placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} style={{ width: "100%" }} />
+        <InputText
+          placeholder="Search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </IconField>
       <div className="flex align-items-center justify-content-between gap-2">
-        <Dropdown value={sortField} onChange={(e) => setSortField(e.value)}
-          options={sortingFields} placeholder="Sort by" className="w-full md:w-14rem" />
+        <Dropdown
+          value={sortField}
+          onChange={(e) => setSortField(e.value)}
+          options={sortingFields}
+          placeholder="Sort by"
+          className="w-full md:w-14rem"
+        />
         <Button
-          icon={sortAsc ? "pi pi-sort-amount-up" : "pi pi-sort-amount-down"} outlined
-          onClick={() => setSortAsc(prev => !prev)}
+          icon={sortAsc ? "pi pi-sort-amount-up" : "pi pi-sort-amount-down"}
+          outlined
+          onClick={() => setSortAsc((prev) => !prev)}
         />
       </div>
     </div>
   );
 
   return (
-    <div className="card xl:flex" style={{flexDirection: "column" }}>
+    <div className="card xl:flex" style={{ flexDirection: "column" }}>
       <Tooltip
         target=".createdAtDiv, .updateAtDiv"
         position="top"
@@ -225,13 +287,18 @@ function ProjectsManager({ addNewTab }) {
         showDelay={150}
       />
 
-      <Toast ref={toast} />
+      <Toast ref={toastMessage} />
       <ConfirmDialog />
       <Toolbar center={centerContent} style={{ width: "100%" }} />
-      <DataView value={visibleProjects} itemTemplate={itemTemplate} layout="grid" paginator
-        rows={6} />
+      <DataView
+        value={visibleProjects}
+        itemTemplate={itemTemplate}
+        layout="grid"
+        paginator
+        rows={6}
+      />
     </div>
-  )
+  );
 }
 
 export default ProjectsManager;
