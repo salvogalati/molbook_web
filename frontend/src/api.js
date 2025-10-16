@@ -5,7 +5,8 @@ export const FAILED_IMAGE_URL = "https://www.washingtonpost.com/wp-apps/imrs.php
 export async function getCurrentUser(accessToken) {
   const res = await fetch(`${API_URL}/api/auth/me/`, {
     headers: {
-      "Authorization": `Bearer ${accessToken}`
+      "Authorization": `Bearer ${accessToken}`,
+      "ngrok-skip-browser-warning": "true",
     }
   });
   if (!res.ok) {

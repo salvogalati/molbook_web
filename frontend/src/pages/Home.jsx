@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState} from "react";
 import { getCurrentUser } from "../api";
 import { DataScroller } from 'primereact/datascroller';
 import { Button } from 'primereact/button';

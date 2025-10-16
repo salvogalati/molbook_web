@@ -29,6 +29,7 @@ function ProjectsManager({ addNewTab, closeTabById }) {
     fetch(`${API_URL}api/projects/`, {
       headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": 'skip-browser-warning',
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })
