@@ -12,6 +12,7 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { Tooltip } from "primereact/tooltip";
 import { API_URL } from "../api";
+import { formatDate } from "../utils/date";
 import "../components/styles/Loader.css";
 import "./styles/ProjectManager.css";
 
@@ -80,19 +81,7 @@ function ProjectsManager({ addNewTab, closeTabById }) {
     toastRef.current?.show({ severity, summary, detail, life });
   };
 
-  function formatDate(isoString) {
-    const date = new Date(isoString);
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-
-    return `${day}/${month}/${year} | ${hours}:${minutes}:${seconds}`;
-  }
 
   const visibleProjects = useMemo(() => {
     const q = query.trim().toLowerCase();
