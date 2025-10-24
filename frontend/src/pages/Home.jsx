@@ -58,14 +58,14 @@ function Home() {
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Errore nel fetch delle molecole");
+        if (!res.ok) throw new Error("Errore nel fetch dei progetti");
         return res.json();
       })
       .then((data) => {
-        setProjects(data);
+        setProjects(data.slice(0, 5));
       })
       .catch((err) => {
-        console.error("Errore caricamento molecole:", err);
+        console.error("Errore caricamento progetti:", err);
       });
   }, []);
 

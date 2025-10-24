@@ -348,6 +348,7 @@ export default function ProjectsDashboard() {
                       }
                       onBlur={() => setEditingTabId(null)}
                       onKeyDown={(e) => {
+                        e.stopPropagation()
                         if (e.key === "Enter") commitRename(tab);
                         if (e.key === "Escape") cancelRename(tab);
                       }}
