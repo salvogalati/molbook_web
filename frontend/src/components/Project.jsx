@@ -45,7 +45,7 @@ const updatingRef = useRef(false);
 
 // Quando cambia la selezione locale → notifica al padre
 useEffect(() => {
-  console.log("OnselectionChange Project", selectedRows, selectedMolecule)
+  //console.log("OnselectionChange Project", selectedRows, selectedMolecule)
   if (updatingRef.current) return; // se stiamo sincronizzando dal padre, non reinviare
   onSelectionChange({
       selectedMolecule,
