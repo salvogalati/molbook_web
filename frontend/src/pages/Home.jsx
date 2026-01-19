@@ -45,9 +45,24 @@ function Home() {
   // Fetch the current user on mount
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
-    if (!accessToken) return;
-    getCurrentUser(accessToken).then(setUser).catch(console.error);
-  }, []);
+
+    if (!accessToken) {
+      // Se non c'è token → vai subito al login
+      navigate("/login");
+      return;
+    }
+
+    getCurrentUser(accessToken)
+      .then((data) => {
+        setUser(data);
+      })
+      .catch((error) => {
+        console.error("Errore durante il fetch dell'utente:", error);
+        // Se il token è scaduto o non valido → lo rimuovo e reindirizzo
+        localStorage.removeItem("access_token");
+        navigate("/login");
+      });
+  }, [navigate]);
 
   useEffect(() => {
     fetch(`${API_URL}api/projects/`, {

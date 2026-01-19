@@ -28,6 +28,7 @@ export default function ProjectsDashboard() {
   const isMobile = useIsMobile();
   const [originalTitle, setOriginalTitle] = useState("");
   const toastErr = useRef(null);
+  const [projectSelections, setProjectSelections] = useState({});
 
   // Menu options for the SplitButton
   const items = [
@@ -251,6 +252,14 @@ export default function ProjectsDashboard() {
     });
   };
 
+  const handleSelectionChange = useCallback((projectId, sel) => {
+    //console.log("handleSelectionChange", projectSelections, projectId, sel)
+  setProjectSelections((prev) => ({
+    ...prev,
+    [projectId]: sel,
+  }));
+}, []);
+
   // Load UI state (tabs, active index) from backend when component mounts
   useEffect(() => {
     (async () => {
@@ -370,7 +379,10 @@ export default function ProjectsDashboard() {
                 }
               >
                 {/* Project content */}
-                <Project projectId={tab.backendId} />
+                <Project projectId={tab.backendId}   selectionState={projectSelections[tab.backendId]}
+  onSelectionChange={(sel) => handleSelectionChange(tab.backendId, sel)}
+  
+   />
               </TabPanel>
             ))}
           </TabView>

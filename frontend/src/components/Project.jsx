@@ -13,16 +13,23 @@ import HorizontalSplitIcon from "@mui/icons-material/HorizontalSplit";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import useIsMobile from "../hooks/useIsMobile";
 import { SpeedDial } from "primereact/speeddial";
-import { Tooltip } from 'primereact/tooltip';
+import { Tooltip } from "primereact/tooltip";
 import { API_URL, FAILED_IMAGE_URL } from "../api";
-import { ExportDialog } from '../utils/export';
+import { ExportDialog } from "../utils/export";
 import "./styles/Project.css";
 
-
-export default function Project({ projectId = 2 }) {
+export default function Project({
+  projectId = 2,
+  selectionState = [],
+  onSelectionChange = () => {},
+}) {
   // State for current selected molecule
-  const [selectedMolecule, setSelectedMolecule] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedMolecule, setSelectedMolecule] = useState(
+    selectionState?.selectedMolecule || null
+  );
+  const [selectedRows, setSelectedRows] = useState(
+    selectionState?.selectedRows || []
+  );
   // State for layout
   const [isHorizontal, setIsHorizontal] = useState(true);
   const [showImage, setShowImage] = useState(true);
@@ -32,6 +39,45 @@ export default function Project({ projectId = 2 }) {
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const tableRef = useRef(null);
+
+  // Ref per evitare cicli di update
+const updatingRef = useRef(false);
+
+// Quando cambia la selezione locale → notifica al padre
+useEffect(() => {
+  console.log("OnselectionChange Project", selectedRows, selectedMolecule)
+  if (updatingRef.current) return; // se stiamo sincronizzando dal padre, non reinviare
+  onSelectionChange({
+      selectedMolecule,
+      selectedRows,
+    });
+}, [selectedMolecule, selectedRows]);
+
+//  useEffect(() => {
+//   if (!selectionState) return;
+// updatingRef.current = true; // blocca update inverso
+
+//   setSelectedMolecule(prev => {
+//     if (prev?.id === selectedMolecule?.id) return prev;
+//     return selectedMolecule || null;
+//   });
+
+//   setSelectedRows(prev => {
+//     const newIds = (selectedRows || []).map(r => r.id);
+//     const oldIds = prev.map(r => r.id);
+//     if (JSON.stringify(newIds) === JSON.stringify(oldIds)) return prev;
+//     return selectedRows || [];
+//   });
+//   // dopo un breve delay, rimuovi il blocco per riabilitare update verso l’alto
+//   const timeout = setTimeout(() => {
+//     updatingRef.current = false;
+//   }, 0);
+
+//   return () => clearTimeout(timeout);
+// }, [selectionState]);
+
+
+
 
   const handleDelete = async () => {
     if (!selectedRows || selectedRows.length === 0) return;
@@ -68,7 +114,6 @@ export default function Project({ projectId = 2 }) {
     }
   };
 
-
   const fetchMoleculeImage = async (smiles) => {
     try {
       const res = await fetch(
@@ -85,7 +130,7 @@ export default function Project({ projectId = 2 }) {
       return URL.createObjectURL(blob);
     } catch (error) {
       console.error("Image loading error", error);
-      return FAILED_IMAGE_URL
+      return FAILED_IMAGE_URL;
     }
   };
 
@@ -115,12 +160,12 @@ export default function Project({ projectId = 2 }) {
     {
       label: "Add",
       icon: "pi pi-plus",
-      command: () => setVisibleAddMolecule(true)
+      command: () => setVisibleAddMolecule(true),
     },
     {
       label: "Depict",
       icon: "pi pi-camera",
-      command: () => setShowWebcamDialog(true)
+      command: () => setShowWebcamDialog(true),
     },
     {
       label: "Delete",
@@ -134,10 +179,10 @@ export default function Project({ projectId = 2 }) {
     {
       label: "Export",
       icon: "pi pi-download",
-      command: () => setShowExportDialog(true)
+      command: () => setShowExportDialog(true),
     },
   ];
-    
+
   // Define table columns (always include image, but can be hidden)
   const columns = [
     { field: "Image", header: "Image" },
@@ -148,21 +193,22 @@ export default function Project({ projectId = 2 }) {
   ];
 
   const [products, setProducts] = useState([]);
+  
   useEffect(() => {
     fetch(`${API_URL}api/projects/${projectId}/molecules/`, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
       },
     })
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error("Errore nel fetch delle molecole");
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setProducts(data);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Errore caricamento molecole:", err);
       });
   }, [projectId]);
@@ -181,7 +227,7 @@ export default function Project({ projectId = 2 }) {
         return obj;
       }, {});
 
-      setProducts(prev => [
+      setProducts((prev) => [
         ...prev,
         {
           code: entry.code || `M${Math.floor(Math.random() * 1000)}`,
@@ -189,19 +235,15 @@ export default function Project({ projectId = 2 }) {
           category: entry.category || "Mock",
           quantity: entry.quantity ?? Math.floor(Math.random() * 200),
           smiles: entry.smiles || "CNO",
-        }
+        },
       ]);
     }
     // Se viene passato un oggetto (es. risposta JSON della POST)
-    else if (input && typeof input === 'object') {
-      setProducts(prev => [
-        ...prev,
-        input
-      ]);
+    else if (input && typeof input === "object") {
+      setProducts((prev) => [...prev, input]);
     }
     // altrimenti non fare nulla
   };
-
 
   // Responsive layout: on mobile, hide image and force vertical layout
   useEffect(() => {
@@ -251,7 +293,7 @@ export default function Project({ projectId = 2 }) {
 
   // Layout for the molecule image panel
   const imagePanelStyle = isHorizontal
-    ? { flex: "0 0 40%", }
+    ? { flex: "0 0 40%" }
     : { flex: "0 0 200px" };
 
   // Header panel with filters and actions
@@ -333,7 +375,6 @@ export default function Project({ projectId = 2 }) {
     </Accordion>
   );
 
-
   // --- Render ---
   return (
     <div className="molecules-card">
@@ -347,7 +388,10 @@ export default function Project({ projectId = 2 }) {
       <ExportDialog
         showExportDialog={showExportDialog}
         setShowExportDialog={setShowExportDialog}
-        exportColumns={visibleColumns.map((col) => ({ title: col.header, dataKey: col.field }))}
+        exportColumns={visibleColumns.map((col) => ({
+          title: col.header,
+          dataKey: col.field,
+        }))}
         products={products}
         exportCSV={() => tableRef.current?.exportCSV()}
       />
@@ -360,56 +404,71 @@ export default function Project({ projectId = 2 }) {
       />
 
       <div>
-            <div className="molecules-layout-container">
-              <div
-                className="molecules-layout"
-                style={{ flexDirection: isHorizontal ? "row" : "column" }}
-              >
-                {/* Molecule image panel */}
-                <div
-                  className="molecules-image-panel"
-                  style={{
-                    ...imagePanelStyle,
-                    display: showImage ? undefined : "none",
-                  }}
-                >
-                  {selectedMolecule && (
-                    <img
-                      src={moleculeImageUrl}
-                      alt={`Structure of ${selectedMolecule.name}`}
-                      className="molecules-image"
-                      onError={(e) =>
-                      (e.currentTarget.src =
-                        "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
-                      }
-                    />
-                  )}
-                </div>
-                {/* Molecule table */}
-                <div
-                  className="molecules-table-panel"
-                  style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
-                >
-
-                  <MoleculeTable
-                    ref={tableRef}
-                    onSelectCell={setSelectedMolecule}
-                    onSelectRow={setSelectedRows}
-                    filters={filters}
-                    products={products}
-                    setProducts={setProducts}
-                    visibleColumns={visibleColumns}
-                    projectId={projectId}
-                    onDelete={handleDelete}
-                  />
-                </div>
-              </div>
+        <div className="molecules-layout-container">
+          <div
+            className="molecules-layout"
+            style={{ flexDirection: isHorizontal ? "row" : "column" }}
+          >
+            {/* Molecule image panel */}
+            <div
+              className="molecules-image-panel"
+              style={{
+                ...imagePanelStyle,
+                display: showImage ? undefined : "none",
+              }}
+            >
+              {selectedMolecule && (
+                <img
+                  src={moleculeImageUrl}
+                  alt={`Structure of ${selectedMolecule.name}`}
+                  className="molecules-image"
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      "https://www.washingtonpost.com/wp-apps/imrs.php?src=https://arc-anglerfish-washpost-prod-washpost.s3.amazonaws.com/public/LD7WEPSAP7XPVEERGVIKMYX24Q.JPG&w=1800&h=1800")
+                  }
+                />
+              )}
             </div>
-            <Tooltip target=".speeddial-bottom-right .p-speeddial-action" position="left" />
-            <SpeedDial model={actions} className="speeddial-bottom-right" direction="up"
-              showIcon="pi pi-plus" hideIcon="pi pi-times" style={{
-                position: "fixed", bottom: "2rem", right: "2rem", zIndex: 1000
-              }} />
+            {/* Molecule table */}
+            <div
+              className="molecules-table-panel"
+              style={{ flex: isHorizontal ? "1 1 60%" : 1 }}
+            >
+              <MoleculeTable
+                ref={tableRef}
+                onSelectCell={setSelectedMolecule}
+                //onSelectCell={(rowData) => console.log("cell", rowData)}
+                onSelectRow={setSelectedRows}
+                //onSelectRow={(rowData) => console.log("row", rowData)}
+                filters={filters}
+                products={products}
+                setProducts={setProducts}
+                visibleColumns={visibleColumns}
+                projectId={projectId}
+                onDelete={handleDelete}
+                selectedCells={selectedRows}
+                onSelectionChange={onSelectionChange}
+              />
+            </div>
+          </div>
+        </div>
+        <Tooltip
+          target=".speeddial-bottom-right .p-speeddial-action"
+          position="left"
+        />
+        <SpeedDial
+          model={actions}
+          className="speeddial-bottom-right"
+          direction="up"
+          showIcon="pi pi-plus"
+          hideIcon="pi pi-times"
+          style={{
+            position: "fixed",
+            bottom: "2rem",
+            right: "2rem",
+            zIndex: 1000,
+          }}
+        />
       </div>
     </div>
   );

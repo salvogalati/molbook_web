@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useRef, useImperativeHandle } from "react";
+import React, { useState, useEffect, forwardRef, useRef, useImperativeHandle, useCallback } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
@@ -19,9 +19,11 @@ export default forwardRef(function MoleculeTable({
   visibleColumns,
   projectId,
   onDelete,
+  selectedCells,
+  onSelectionChange,
 }, ref) {
+
   // Track cell and row selection
-  const [selectedCells, setSelectedCells] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [sortMode, setSortMode] = useState(false);
@@ -51,11 +53,9 @@ useEffect(() => {
   let isMounted = true;
 
   const loadImages = async () => {
-    // 1) individua i prodotti che NON hanno ancora imageUrl
     const toLoad = products.filter(p => p.smiles && !p.imageUrl);
-    if (toLoad.length === 0) return;  // niente da fare!
+    if (toLoad.length === 0) return;
 
-    // 2) scarica in parallelo
     const fetched = await Promise.all(
       toLoad.map(async p => {
         const url = await fetchMoleculeImageUrl(p.smiles);
@@ -63,20 +63,27 @@ useEffect(() => {
       })
     );
 
-    if (!isMounted) return;
+    if (!isMounted || fetched.length === 0) return;
 
-    setProducts(prev =>
-      prev.map(p => {
+    setProducts(prev => {
+      let changed = false;
+      const updated = prev.map(p => {
         const found = fetched.find(f => f.smiles === p.smiles);
-        return found ? { ...p, imageUrl: found.url } : p;
-      })
-    );
+        if (found && p.imageUrl !== found.url) {
+          changed = true;
+          return { ...p, imageUrl: found.url };
+        }
+        return p;
+      });
+      return changed ? updated : prev;
+    });
   };
 
   loadImages();
 
   return () => { isMounted = false; };
 }, [products]);
+
 
 
   // Refs for DataTable and ContextMenu
@@ -220,6 +227,37 @@ const onCellEditComplete = async (e) => {
 
   const cellEditor = (options) => textEditor(options);
 
+const prevSelectionRef = useRef([]);
+
+const handleSelectionChange = useCallback((e) => {
+  const newSelection = e.value;
+  const oldSelection = prevSelectionRef.current;
+
+  // Confronta solo gli ID delle righe selezionate
+  const newIds = newSelection.map(s => s.rowData?.id ?? s.id ?? s.field);
+  const oldIds = oldSelection.map(s => s.rowData?.id ?? s.id ?? s.field);
+  if (JSON.stringify(newIds) === JSON.stringify(oldIds)) return;
+
+  prevSelectionRef.current = newSelection;
+  if (newSelection.length === 0) {
+    onSelectionChange([]);
+    setSelectedRows([]);
+    onSelectRow([]);
+  } else if (newSelection[newSelection.length - 1].field !== "Image") {
+    onSelectionChange(newSelection);
+  }
+
+  if (onSelectCell && newSelection.length > 0) {
+    const lastCell = newSelection[newSelection.length - 1];
+    onSelectCell(lastCell.rowData != null ? lastCell.rowData : lastCell);
+    if (lastCell.rowData == null) {
+      onSelectRow(newSelection);
+      setSelectedRows(newSelection);
+    }
+  }
+}, [onSelectCell, onSelectRow, onSelectionChange]);
+
+
 
   // Render molecule image cell
 const imageBodyTemplate = (product) => {
@@ -284,32 +322,11 @@ const imageBodyTemplate = (product) => {
         scrollHeight="100%"
         cellSelection={!sortMode}
         //selectionMode={'checkbox'}
-        selection={selectedCells}
         reorderableColumns
         reorderableRows={sortMode}
         onRowReorder={(e) => setProducts(e.value)}
-        onSelectionChange={e => {
-          // Don't allow selecting the image cell
-          //console.log("VALORE", e)
-          if (e.value.length === 0 ){
-            setSelectedCells(e.value);
-            setSelectedRows(e.value);
-          }
-          else if (e.value[e.value.length - 1].field !== "Image") {
-            
-            setSelectedCells(e.value);
-          }
-          // Notify parent of molecule selection
-          if (onSelectCell && e.value.length > 0) {
-            //const firstCell = e.value[0];
-            const lastCell = e.value[e.value.length - 1];
-            onSelectCell(lastCell.rowData != null ? lastCell.rowData : lastCell);
-            if (lastCell.rowData == null) { 
-              onSelectRow(e.value);
-              setSelectedRows(e.value);
-            };
-          }
-        }}
+        selection={selectedCells}
+        onSelectionChange={handleSelectionChange}
         metaKeySelection
         removableSort
         editMode="cell"
