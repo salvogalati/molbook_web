@@ -119,7 +119,7 @@ export default function ProjectsDashboard() {
     (name, backendId = null) => {
       setTabs((prev) => {
         // Check if project already open
-        if (backendId != null) {
+        if (backendId !== null && backendId !== undefined) {
           const existingIndex = prev.findIndex(
             (t) => t.backendId === backendId
           );
