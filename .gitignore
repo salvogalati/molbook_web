@@ -23,11 +23,11 @@ media/
 media/*
 
 # Static files
-/static
-/static/*
-staticfiles/
-static/
-static/*
+# /static
+# /static/*
+# staticfiles/
+# static/
+# static/*
 
 # Virtual environment
 env/

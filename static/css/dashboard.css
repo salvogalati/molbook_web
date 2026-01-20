@@ -1,0 +1,26 @@
+/* static/css/dashboard.css */
+
+#molecola-img {
+  max-height: 200px;
+  display: block;
+  margin: 0 auto 20px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+tr:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+tr.selected {
+  background-color: #cdeffd; /* Colore di selezione */
+}
