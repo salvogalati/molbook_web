@@ -295,7 +295,8 @@ const handleSave = async () => {
         )}
         <iframe
           ref={iframeRef}
-          src="../../ketcher/index.html"
+          //src="../../ketcher/index.html"
+          src={`${process.env.PUBLIC_URL}/ketcher/index.html`
           title="Ketcher Sketcher"
           style={{
             width: "100%",
