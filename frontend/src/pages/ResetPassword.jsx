@@ -5,8 +5,8 @@ import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { Image } from "primereact/image";
 import { Messages } from "primereact/messages";
-import { motion, AnimatePresence } from "framer-motion";
-import { API_URL } from "../api";
+import { motion as Motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../services/api";
 import "./styles/ResetPasswordPage.css";
 
 const variants = {
@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
         <Card className="rp-card">
           <AnimatePresence mode="wait">
             {step === "form" ? (
-              <motion.div
+              <Motion.div
                 key="form"
                 variants={variants}
                 initial="hidden"
@@ -127,9 +127,9 @@ export default function ResetPasswordPage() {
                     />
                   </div>
                 </div>
-              </motion.div>
+              </Motion.div>
             ) : (
-              <motion.div
+              <Motion.div
                 key="changed"
                 variants={variants}
                 initial="hidden"
@@ -146,7 +146,7 @@ export default function ResetPasswordPage() {
                   </Link>{' '}
                   and access your account.
                 </p>
-              </motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </Card>

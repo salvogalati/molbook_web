@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { getCurrentUser } from "../api";
+import { getCurrentUser, API_URL } from "../services/api";
 import { DataScroller } from "primereact/datascroller";
 import { Button } from "primereact/button";
 import { Chart } from "primereact/chart";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { formatDate } from "../utils/date";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../api";
 import "./styles/Home.css";
 import "../components/styles/Loader.css";
 

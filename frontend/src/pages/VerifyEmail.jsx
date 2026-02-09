@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Card } from "primereact/card";
 import { Image } from "primereact/image";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 
 import "./styles/VerifyEmail.css";
 

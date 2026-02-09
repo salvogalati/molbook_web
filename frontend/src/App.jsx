@@ -22,6 +22,8 @@ import ProjectsDashboard from "./pages/Molecules.jsx";
 import Login from "./pages/Login.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationProvider";
+import { ProjectsProvider } from "./context/ProjectsContext";
 import SignupPage from "./pages/SignUp.jsx";
 import RequireAuth from "./components/RequireAuth";
 import TempPage from "./pages/Temp";
@@ -33,29 +35,33 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/reset-password/:id/:token"
-            element={<ResetPasswordPage />}
-          />
-          <Route path="/verify-email/:key" element={<VerifyEmail />} />
-          <Route path="/temp" element={<TempPage />} />
+        <NotificationProvider>
+          <ProjectsProvider>
+            <Routes>
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route
+                path="/reset-password/:id/:token"
+                element={<ResetPasswordPage />}
+              />
+              <Route path="/verify-email/:key" element={<VerifyEmail />} />
+              <Route path="/temp" element={<TempPage />} />
 
-          <Route
-            element={
-              <RequireAuth>
-                <MainLayout />
-              </RequireAuth>
-            }
-          >
-            <Route path="/home" element={<Home />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/projects" element={<ProjectsDashboard />} />
-          </Route>
-        </Routes>
+              <Route
+                element={
+                  <RequireAuth>
+                    <MainLayout />
+                  </RequireAuth>
+                }
+              >
+                <Route path="/home" element={<Home />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/projects" element={<ProjectsDashboard />} />
+              </Route>
+            </Routes>
+          </ProjectsProvider>
+        </NotificationProvider>
       </AuthProvider>
     </Router>
   );

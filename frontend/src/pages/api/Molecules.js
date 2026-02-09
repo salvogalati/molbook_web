@@ -1,4 +1,4 @@
-import { API_URL } from "../../api";
+import { API_URL } from "../../services/api";
 
 export async function fetchUIState({ scope = "projects_dashboard"}) {
   const qs = new URLSearchParams({ scope }).toString();

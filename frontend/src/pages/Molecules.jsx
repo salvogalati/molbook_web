@@ -10,7 +10,7 @@ import { Image } from "primereact/image";
 import Project from "../components/Project";
 import { Toast } from "primereact/toast";
 import { useLocation } from "react-router-dom";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 import { fetchUIState, saveUIState, listProjectNames } from "./api/Molecules";
 import "./styles/Molecules.css";
 

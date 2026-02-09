@@ -6,7 +6,7 @@ import { Fieldset } from "primereact/fieldset";
 import { Message } from "primereact/message";
 import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 import "./styles/Loader.css";
 
 export default function AddMoleculeDialog({
