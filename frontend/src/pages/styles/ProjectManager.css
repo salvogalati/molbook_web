@@ -2,6 +2,19 @@
     padding: 0;
 }
 
+/* Prevent scroll - fit content within viewport */
+.card {
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.p-dataview {
+    overflow-y: auto;
+    flex: 1;
+}
+
 /* .project-card {
     min-height: 220px;
   max-height: 250px;

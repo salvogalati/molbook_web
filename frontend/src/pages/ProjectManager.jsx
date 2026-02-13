@@ -198,7 +198,15 @@ function ProjectsManager({ addNewTab, closeTabById }) {
   );
 
   return (
-    <div className="card xl:flex" style={{ flexDirection: "column" }}>
+    <div 
+      className="card xl:flex" 
+      style={{ 
+        flexDirection: "column",
+        maxHeight: "85vh",
+        overflow: "hidden",
+        display: "flex"
+      }}
+    >
       <Tooltip
         target=".createdAtDiv, .updateAtDiv"
         position="top"
@@ -212,14 +220,16 @@ function ProjectsManager({ addNewTab, closeTabById }) {
           <div className="loader" />
         </div>
       ) : (
-        <DataView
-          emptyMessage="No Project saved"
-          value={visibleProjects}
-          itemTemplate={itemTemplate}
-          layout="grid"
-          paginator
-          rows={6}
-        />
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          <DataView
+            emptyMessage="No Project saved"
+            value={visibleProjects}
+            itemTemplate={itemTemplate}
+            layout="grid"
+            paginator
+            rows={6}
+          />
+        </div>
       )}
     </div>
   );

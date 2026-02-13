@@ -403,7 +403,7 @@ useEffect(() => {
         onSave={handleAddRow}
       />
 
-      <div>
+      <div style={{display: "flex", flex: 1, flexDirection: "column", minHeight: "0"}}>
         <div className="molecules-layout-container">
           <div
             className="molecules-layout"

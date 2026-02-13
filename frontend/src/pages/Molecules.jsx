@@ -335,7 +335,7 @@ export default function ProjectsDashboard() {
     <div className="molecules-card">
       {/* Tabs area */}
       {tabs.length > 0 && (
-        <div className="tabbar-extended">
+        <div className="tabbar-extended" style={{flex: 1, flexDirection: "column", minHeight: "0"}}>
           <TabView
             activeIndex={activeIndex}
             scrollable
