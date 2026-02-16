@@ -7,7 +7,7 @@ import useIsMobile from "../hooks/useIsMobile";
 import { mockPredictFromImage } from "../utils/mockPredictFromImage";
 import "./styles/WebCamDialog.css";
 import "./styles/Loader.css";
-import { DECIMER_API_URL, API_URL } from "../api";
+import { DECIMER_API_URL, API_URL } from "../services/api";
 
 /**
  * A dialog for capturing a photo via webcam and sending it to a prediction service.

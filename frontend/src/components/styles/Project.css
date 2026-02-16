@@ -1,14 +1,29 @@
 .molecules-card {
   position: relative;
   width: 100%;
-  height: 86vh;
-  overflow: auto;
+  overflow: hidden;
   box-sizing: border-box;
   padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px #0001;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Ensure TabView takes full height */
+.p-tabview.p-component {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-tabview-panels {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
 }
 
 .p-tabview-nav-container{
@@ -24,6 +39,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   align-items: center;
+  flex-shrink: 0;
+  margin-bottom: 1rem;
 }
 
 .p-tabview.p-component.p-tabview-scrollable{
@@ -76,10 +93,13 @@
 
 .molecules-layout-container {
   position: relative;
-  height: calc(100vh - 180px);
+  display: flex;
+  flex: 1;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .molecules-layout {
@@ -87,7 +107,8 @@
   flex-direction: row;
   gap: 1rem;
   height: 100%;
-  margin-top: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
 #molecule-search{
@@ -104,6 +125,7 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   overflow: hidden;
+  min-height: 0;
 }
 .molecules-image {
   max-width: 100%;
@@ -114,9 +136,12 @@
 /* Table panel */
 .molecules-table-panel {
   flex: 1 1 60%;
-  overflow-y: auto;
+  overflow: hidden;
   border: 1px solid #ccc;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Multiselect, search, etc. */
@@ -179,6 +204,15 @@
 }
 .p-speeddial-action{
   color: white;
+}
+
+/* DataTable sizing */
+#molecule-table {
+  height: 100%;
+}
+
+.p-datatable-scrollable-body {
+  overflow-y: auto !important;
 }
 
 

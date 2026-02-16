@@ -10,7 +10,7 @@ import { Image } from "primereact/image";
 import Project from "../components/Project";
 import { Toast } from "primereact/toast";
 import { useLocation } from "react-router-dom";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 import { fetchUIState, saveUIState, listProjectNames } from "./api/Molecules";
 import "./styles/Molecules.css";
 
@@ -335,7 +335,7 @@ export default function ProjectsDashboard() {
     <div className="molecules-card">
       {/* Tabs area */}
       {tabs.length > 0 && (
-        <div className="tabbar-extended">
+        <div className="tabbar-extended" style={{flex: 1, flexDirection: "column", minHeight: "0"}}>
           <TabView
             activeIndex={activeIndex}
             scrollable

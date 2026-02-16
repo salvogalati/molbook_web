@@ -14,7 +14,7 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import useIsMobile from "../hooks/useIsMobile";
 import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from "primereact/tooltip";
-import { API_URL, FAILED_IMAGE_URL } from "../api";
+import { API_URL, FAILED_IMAGE_URL } from "../services/api";
 import { ExportDialog } from "../utils/export";
 import "./styles/Project.css";
 
@@ -403,7 +403,7 @@ useEffect(() => {
         onSave={handleAddRow}
       />
 
-      <div>
+      <div style={{display: "flex", flex: 1, flexDirection: "column", minHeight: "0"}}>
         <div className="molecules-layout-container">
           <div
             className="molecules-layout"

@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Message } from "primereact/message";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 
 import "./styles/Login.css";
 

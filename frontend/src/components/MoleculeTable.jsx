@@ -5,7 +5,7 @@ import { InputText } from "primereact/inputtext";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from 'primereact/image';
 import { ToggleButton } from 'primereact/togglebutton';
-import { API_URL, FAILED_IMAGE_URL } from "../api";
+import { API_URL, FAILED_IMAGE_URL } from "../services/api";
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
 

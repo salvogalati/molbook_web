@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Link } from "react-router-dom";
-import { API_URL } from "../api";
+import { API_URL } from "../services/api";
 
 import "primeicons/primeicons.css";
 import "./styles/SignUp.css"; // Dedicated stylesheet for this page
