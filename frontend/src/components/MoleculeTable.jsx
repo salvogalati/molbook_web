@@ -1,6 +1,7 @@
 import React, { useState, useEffect, forwardRef, useRef, useImperativeHandle, useCallback } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from 'primereact/image';
@@ -298,6 +299,19 @@ const imageBodyTemplate = (product) => {
         </div>
     );
 
+    const [addingColumn, setAddingColumn] = useState(false);
+  const [newColumnName, setNewColumnName] = useState("");
+  const [columns, setColumns] = useState(visibleColumns);
+
+
+  const handleAddColumn = () => {
+    if (newColumnName.trim() !== "") {
+      setColumns([...columns, { field: newColumnName, header: newColumnName }]);
+      setNewColumnName("");
+      setAddingColumn(false);
+    }
+  };
+
   // --- Render ---
   return (
     <div className="molecule-table-card card">
@@ -337,7 +351,7 @@ const imageBodyTemplate = (product) => {
          :
         (<Column rowReorder style={{ width: '3rem' }} />)
         }
-        {visibleColumns.some(col => col.field === "Image") && (
+        {columns.some(col => col.field === "Image") && (
           <Column
             header="Image"
             field="Image"
@@ -345,7 +359,7 @@ const imageBodyTemplate = (product) => {
           />
         )}
         {/* Other columns */}
-        {visibleColumns.map(({ field, header }) => (
+        {columns.map(({ field, header }) => (
           field !== "Image" && (
             <Column
               key={field}
@@ -360,6 +374,33 @@ const imageBodyTemplate = (product) => {
             />
           )
         ))}
+   {/* Colonna + */}
+      <Column
+        header={
+          addingColumn ? (
+            <div style={{ display: "flex", gap: "4px" }}>
+              <InputText
+                value={newColumnName}
+                onChange={(e) => setNewColumnName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddColumn();
+                  if (e.key === "Escape") setAddingColumn(false);
+                }}
+                autoFocus
+              />
+              <Button icon="pi pi-check" onClick={handleAddColumn} className="p-button-text p-button-sm" />
+            </div>
+          ) : (
+            <Button
+              icon="pi pi-plus"
+              className="p-button-text p-button-sm"
+              onClick={() => setAddingColumn(true)}
+            />
+          )
+        }
+        body={() => null}
+        style={{ width: "150px" }}
+      />
       </DataTable>
     </div>
   );
