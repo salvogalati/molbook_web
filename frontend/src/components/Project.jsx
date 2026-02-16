@@ -398,7 +398,7 @@ useEffect(() => {
       <AddMoleculeDialog
         showDialog={visibleAddMolecule}
         setShowDialog={setVisibleAddMolecule}
-        columns={columns}
+        //columns={columns}
         projectId={projectId}
         onSave={handleAddRow}
       />

@@ -8,20 +8,22 @@ import { Button } from "primereact/button";
 import { Tooltip } from "primereact/tooltip";
 import { API_URL } from "../services/api";
 import "./styles/Loader.css";
+import "./styles/AddMoleculeDialog.css";
 
 export default function AddMoleculeDialog({
   showDialog,
   setShowDialog,
-  columns,
+  //columns,
   projectId,
   onSave,
 }) {
   const [isLoadingSketcher, setIsLoadingSketcher] = useState(true);
-  const [fields, setFields] = useState([]);
+  const [fields, setFields] = useState([{"id": "code", "label": "Code", "value": "" },
+     { id: "Image", label: "Image", value: "" }]);
   const [showSketcher, setShowSketcher] = useState(false);
   const iframeRef = useRef(null);
   const [newColumnName, setNewColumnName] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (showDialog) {
@@ -29,18 +31,18 @@ export default function AddMoleculeDialog({
     }
   }, [showDialog]);
 
-  useEffect(() => {
-    setSubmitted(false);
-    if (showDialog && Array.isArray(columns)) {
-      setFields(
-        columns.map((col) => ({
-          id: col.field,
-          label: col.header,
-          value: "",
-        }))
-      );
-    }
-  }, [showDialog, columns]);
+  // useEffect(() => {
+  //   setSubmitted(false);
+  //   if (showDialog && Array.isArray(columns)) {
+  //     setFields(
+  //       columns.map((col) => ({
+  //         id: col.field,
+  //         label: col.header,
+  //         value: "",
+  //       }))
+  //     );
+  //   }
+  // }, [showDialog, columns]);
 
   const handleAddField = () => {
     const nextId = `new-${fields.length + 1}`;
@@ -164,7 +166,7 @@ const handleSave = async () => {
   return (
     <Dialog
       visible={showDialog}
-      style={{ height: "80%", width: "50vw" }}
+      style={{ height: "60%", width: "40vw" }}
       header="Add new molecule"
       onHide={() => {
         setShowDialog(false);
@@ -245,7 +247,7 @@ const handleSave = async () => {
           );
         })}
 
-        <Fieldset legend="Add new column">
+        {/* <Fieldset legend="Add new column">
           <div
             style={{
               width: "100%",
@@ -265,7 +267,7 @@ const handleSave = async () => {
               disabled={!newColumnName}
             />
           </div>
-        </Fieldset>
+        </Fieldset> */}
       </div>
       <Dialog
         visible={showSketcher}

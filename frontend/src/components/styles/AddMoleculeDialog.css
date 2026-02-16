@@ -1,0 +1,5 @@
+.p-dialog .p-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
