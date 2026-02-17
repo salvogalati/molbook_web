@@ -311,7 +311,6 @@ const imageBodyTemplate = (product) => {
       setAddingColumn(false);
     }
   };
-
   // --- Render ---
   return (
     <div className="molecule-table-card card">
@@ -351,7 +350,7 @@ const imageBodyTemplate = (product) => {
          :
         (<Column rowReorder style={{ width: '3rem' }} />)
         }
-        {columns.some(col => col.field === "Image") && (
+        {visibleColumns.some(col => col.field === "Image") && (
           <Column
             header="Image"
             field="Image"
