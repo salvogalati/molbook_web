@@ -161,6 +161,7 @@ class APIClient {
   }
 
   async updateMolecule(projectId, moleculeId, data, token) {
+    //console.log("Updating molecule", moleculeId, "with data", data);
     const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULE_DETAIL(
       projectId,
       moleculeId

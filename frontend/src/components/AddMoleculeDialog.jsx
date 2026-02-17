@@ -22,7 +22,7 @@ export default function AddMoleculeDialog({
      { id: "Image", label: "Image", value: "" }]);
   const [showSketcher, setShowSketcher] = useState(false);
   const iframeRef = useRef(null);
-  const [newColumnName, setNewColumnName] = useState("");
+  // const [newColumnName, setNewColumnName] = useState("");
   const [, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -44,14 +44,14 @@ export default function AddMoleculeDialog({
   //   }
   // }, [showDialog, columns]);
 
-  const handleAddField = () => {
-    const nextId = `new-${fields.length + 1}`;
-    setFields((prev) => [
-      ...prev,
-      { id: nextId, label: newColumnName, value: "" },
-    ]);
-    setNewColumnName("");
-  };
+  // const handleAddField = () => {
+  //   const nextId = `new-${fields.length + 1}`;
+  //   setFields((prev) => [
+  //     ...prev,
+  //     { id: nextId, label: newColumnName, value: "" },
+  //   ]);
+  //   setNewColumnName("");
+  // };
 
   const handleFieldChange = (id, newValue) => {
     //console.log(id, newValue)

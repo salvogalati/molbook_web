@@ -4,7 +4,7 @@
   /* height: 100%; */
   overflow: auto;
   box-sizing: border-box;
-  padding: 1rem;
+  /* padding: 1rem; */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px #0001;
@@ -87,4 +87,8 @@
   .molecules-layout{
     padding-bottom: 1rem;
   }
+}
+
+.p-button.p-button-outlined:hover {
+  background-color: #c5c6f0;
 }

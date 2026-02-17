@@ -16,6 +16,8 @@ import { SpeedDial } from "primereact/speeddial";
 import { Tooltip } from "primereact/tooltip";
 import { API_URL, FAILED_IMAGE_URL } from "../services/api";
 import { ExportDialog } from "../utils/export";
+import SketcherDialog from "./SketcherDialog";
+import { useMolecules } from "../hooks/useAPI";
 import "./styles/Project.css";
 
 export default function Project({
@@ -25,10 +27,10 @@ export default function Project({
 }) {
   // State for current selected molecule
   const [selectedMolecule, setSelectedMolecule] = useState(
-    selectionState?.selectedMolecule || null
+    selectionState?.selectedMolecule || null,
   );
   const [selectedRows, setSelectedRows] = useState(
-    selectionState?.selectedRows || []
+    selectionState?.selectedRows || [],
   );
   // State for layout
   const [isHorizontal, setIsHorizontal] = useState(true);
@@ -38,46 +40,46 @@ export default function Project({
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const { updateMolecule } = useMolecules(projectId);
+  const [showSketcher, setShowSketcher] = useState(false);
   const tableRef = useRef(null);
+  const iframeRef = useRef(null);
 
   // Ref per evitare cicli di update
-const updatingRef = useRef(false);
+  const updatingRef = useRef(false);
 
-// Quando cambia la selezione locale → notifica al padre
-useEffect(() => {
-  //console.log("OnselectionChange Project", selectedRows, selectedMolecule)
-  if (updatingRef.current) return; // se stiamo sincronizzando dal padre, non reinviare
-  onSelectionChange({
+  // Quando cambia la selezione locale → notifica al padre
+  useEffect(() => {
+    //console.log("OnselectionChange Project", selectedRows, selectedMolecule)
+    if (updatingRef.current) return; // se stiamo sincronizzando dal padre, non reinviare
+    onSelectionChange({
       selectedMolecule,
       selectedRows,
     });
-}, [selectedMolecule, selectedRows]);
+  }, [selectedMolecule, selectedRows]);
 
-//  useEffect(() => {
-//   if (!selectionState) return;
-// updatingRef.current = true; // blocca update inverso
+  //  useEffect(() => {
+  //   if (!selectionState) return;
+  // updatingRef.current = true; // blocca update inverso
 
-//   setSelectedMolecule(prev => {
-//     if (prev?.id === selectedMolecule?.id) return prev;
-//     return selectedMolecule || null;
-//   });
+  //   setSelectedMolecule(prev => {
+  //     if (prev?.id === selectedMolecule?.id) return prev;
+  //     return selectedMolecule || null;
+  //   });
 
-//   setSelectedRows(prev => {
-//     const newIds = (selectedRows || []).map(r => r.id);
-//     const oldIds = prev.map(r => r.id);
-//     if (JSON.stringify(newIds) === JSON.stringify(oldIds)) return prev;
-//     return selectedRows || [];
-//   });
-//   // dopo un breve delay, rimuovi il blocco per riabilitare update verso l’alto
-//   const timeout = setTimeout(() => {
-//     updatingRef.current = false;
-//   }, 0);
+  //   setSelectedRows(prev => {
+  //     const newIds = (selectedRows || []).map(r => r.id);
+  //     const oldIds = prev.map(r => r.id);
+  //     if (JSON.stringify(newIds) === JSON.stringify(oldIds)) return prev;
+  //     return selectedRows || [];
+  //   });
+  //   // dopo un breve delay, rimuovi il blocco per riabilitare update verso l’alto
+  //   const timeout = setTimeout(() => {
+  //     updatingRef.current = false;
+  //   }, 0);
 
-//   return () => clearTimeout(timeout);
-// }, [selectionState]);
-
-
-
+  //   return () => clearTimeout(timeout);
+  // }, [selectionState]);
 
   const handleDelete = async () => {
     if (!selectedRows || selectedRows.length === 0) return;
@@ -94,17 +96,17 @@ useEffect(() => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${localStorage.getItem("access_token")}`,
               },
-            }
+            },
           );
           if (!res.ok) {
             throw new Error(`Errore eliminazione molecola ${row.id}`);
           }
-        })
+        }),
       );
 
       // filtra lo stato removendo le molecole già cancellate
       setProducts((prev) =>
-        prev.filter((m) => !selectedRows.some((r) => r.id === m.id))
+        prev.filter((m) => !selectedRows.some((r) => r.id === m.id)),
       );
       // reset della selezione
       setSelectedRows([]);
@@ -122,7 +124,7 @@ useEffect(() => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           },
-        }
+        },
       );
       if (!res.ok) throw new Error("Fetch failed");
 
@@ -193,7 +195,7 @@ useEffect(() => {
   ];
 
   const [products, setProducts] = useState([]);
-  
+
   useEffect(() => {
     fetch(`${API_URL}api/projects/${projectId}/molecules/`, {
       headers: {
@@ -259,7 +261,7 @@ useEffect(() => {
 
   // Columns visibility for MultiSelect (code always shown)
   const [visibleColumns, setVisibleColumns] = useState(
-    columns.filter((col) => col.field !== "Image")
+    columns.filter((col) => col.field !== "Image"),
   );
 
   // Filters for the MoleculeTable
@@ -275,7 +277,7 @@ useEffect(() => {
   const onColumnToggle = (event) => {
     let selected = event.value;
     let ordered = columns.filter((col) =>
-      selected.some((sCol) => sCol.field === col.field)
+      selected.some((sCol) => sCol.field === col.field),
     );
     const codeCol = columns.find((col) => col.field === "code");
     ordered = [codeCol, ...ordered];
@@ -290,6 +292,35 @@ useEffect(() => {
       global: { ...filters.global, value },
     }));
   };
+
+// Handler per chiusura SketcherDialog, riceve lo SMILES disegnato e aggiorna la molecola selezionata
+const onSketcherClose = async (smiles) => {
+  if (!smiles || !selectedMolecule) {
+    setShowSketcher(false);
+    return;
+  }
+
+  try {
+    await updateMolecule(selectedMolecule.id, { smiles });
+    // Aggiorna lo stato locale per riflettere il nuovo SMILES e triggerare il re-render dell’immagine
+    setSelectedMolecule((prev) => ({
+      ...prev,
+      smiles, // nuovo SMILES
+    }));
+    console.log("Molecola aggiornata con nuovo SMILES:", smiles);
+
+    // Aggiorna anche l'array products se vuoi mantenere la coerenza nella tabella
+    setProducts((prev) =>
+      prev.map((m) =>
+        m.id === selectedMolecule.id ? { ...m, smiles } : m
+      )
+    );
+  } catch (err) {
+    console.error("Errore aggiornamento molecola:", err);
+  } finally {
+    setShowSketcher(false);
+  }
+};
 
   // Layout for the molecule image panel
   const imagePanelStyle = isHorizontal
@@ -340,7 +371,7 @@ useEffect(() => {
                     setIsHorizontal(false);
                     setShowImage(true);
                     setVisibleColumns((prev) =>
-                      prev.filter((col) => col.field !== "Image")
+                      prev.filter((col) => col.field !== "Image"),
                     );
                   }}
                   tooltip="Vertical layout"
@@ -352,7 +383,7 @@ useEffect(() => {
                     setIsHorizontal(true);
                     setShowImage(true);
                     setVisibleColumns((prev) =>
-                      prev.filter((col) => col.field !== "Image")
+                      prev.filter((col) => col.field !== "Image"),
                     );
                   }}
                   tooltip="Horizontal layout"
@@ -402,21 +433,47 @@ useEffect(() => {
         projectId={projectId}
         onSave={handleAddRow}
       />
+      <SketcherDialog
+        visible={showSketcher}
+        onSmilesChange={onSketcherClose}
+        smilesToLoad={selectedMolecule?.smiles || ""}
+        iframeRef={iframeRef}
+      />
 
-      <div style={{display: "flex", flex: 1, flexDirection: "column", minHeight: "0"}}>
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          flexDirection: "column",
+          minHeight: "0",
+        }}
+      >
         <div className="molecules-layout-container">
           <div
             className="molecules-layout"
             style={{ flexDirection: isHorizontal ? "row" : "column" }}
           >
             {/* Molecule image panel */}
-            <div
-              className="molecules-image-panel"
-              style={{
-                ...imagePanelStyle,
-                display: showImage ? undefined : "none",
-              }}
-            >
+            <div style={{ width: "25%" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  icon="pi pi-pencil"
+                  outlined
+                  tooltip="Edit Structure"
+                  size="small"
+                  onClick={() => setShowSketcher(true)}
+                ></Button>
+              </div>
+
+              <div
+                className="molecules-image-panel"
+                style={{
+                  ...imagePanelStyle,
+                  display: showImage ? undefined : "none",
+                }}
+              >
+                {" "}
+              </div>
               {selectedMolecule && (
                 <img
                   src={moleculeImageUrl}

@@ -33,6 +33,10 @@ class MoleculeViewSet(viewsets.ModelViewSet):
         # 3) assegno al salvataggio sempre il project corretto
         serializer.save(project=self.get_project())
 
+    # def partial_update(self, request, *args, **kwargs):
+    # INTERCETTA LE PATCH E STAMPA I DATI INVIATI (per debug)
+    #     print("Partial update called with data:", request.data)
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
