@@ -200,6 +200,25 @@ export function useMolecules(projectId) {
     [projectId, token]
   );
 
+const addColumn = useCallback(
+  async (columnName) => {
+    if (!projectId) throw new Error("Project ID is required");
+    try {
+      const response = await apiClient.addMoleculeColumn(projectId, { new_columns: [columnName] }, token);
+      // opzionale: puoi aggiornare localmente molecules aggiungendo la nuova chiave vuota
+      setMolecules((prev) =>
+        prev.map((m) => ({ ...m, extra_data: { ...m.extra_data, [columnName]: "" } }))
+      );
+      return response;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  },
+  [projectId, token]
+);
+
+
   return {
     molecules,
     loading,
@@ -208,6 +227,7 @@ export function useMolecules(projectId) {
     createMolecule,
     updateMolecule,
     deleteMolecule,
+    addColumn,
   };
 }
 

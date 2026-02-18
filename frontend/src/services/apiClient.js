@@ -169,6 +169,11 @@ class APIClient {
     return this.patch(url, data, { token });
   }
 
+  async addMoleculeColumn(projectId, payload, token) {
+    const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULES_COLUMNS(projectId)}`;
+    return this.post(url, payload, { token });
+  }
+
   async deleteMolecule(projectId, moleculeId, token) {
     const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULE_DETAIL(
       projectId,
