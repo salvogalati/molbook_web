@@ -40,7 +40,7 @@ export default function Project({
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const { updateMolecule } = useMolecules(projectId);
+  const { updateMolecule, addColumn, removeColumn } = useMolecules(projectId);
   const [showSketcher, setShowSketcher] = useState(false);
   const tableRef = useRef(null);
   const iframeRef = useRef(null);
@@ -261,14 +261,11 @@ export default function Project({
     columns.filter((col) => col.field !== "Image"),
   );
 
-  // Filters for the MoleculeTable
-  const [filters, setFilters] = useState({
-    global: { value: null, matchMode: "contains" },
-    code: { value: null, matchMode: "startsWith" },
-    name: { value: null, matchMode: "contains" },
-    category: { value: null, matchMode: "contains" },
-    quantity: { value: null, matchMode: "equals" },
-  });
+  // Global filter handler
+  const [globalfilter, setGlobalFilter] = useState("");
+  const onGlobalFilterChange = (e) => {
+    setGlobalFilter(e.target.value);
+  };
 
   // Toggle which columns are visible
   const onColumnToggle = (event) => {
@@ -279,15 +276,6 @@ export default function Project({
     const codeCol = columns.find((col) => col.field === "code");
     ordered = [codeCol, ...ordered];
     setVisibleColumns(ordered);
-  };
-
-  // Global filter handler
-  const onGlobalFilterChange = (e) => {
-    const value = e.target.value;
-    setFilters((filters) => ({
-      ...filters,
-      global: { ...filters.global, value },
-    }));
   };
 
 // Handler per chiusura SketcherDialog, riceve lo SMILES disegnato e aggiorna la molecola selezionata
@@ -494,8 +482,10 @@ const onSketcherClose = async (smiles) => {
                 //onSelectCell={(rowData) => console.log("cell", rowData)}
                 onSelectRow={setSelectedRows}
                 //onSelectRow={(rowData) => console.log("row", rowData)}
-                filters={filters}
+                addColumn={addColumn}
+                removeColumn={removeColumn}
                 products={products}
+                globalfilter={globalfilter}
                 setProducts={setProducts}
                 visibleColumns={visibleColumns}
                 projectId={projectId}
