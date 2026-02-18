@@ -174,6 +174,16 @@ class APIClient {
     return this.post(url, payload, { token });
   }
 
+  async removeMoleculeColumn(projectId, columnName, token) {
+  const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULES_REMOVE_COLUMN(projectId)}`;
+  return this.post(
+    url,
+    { column_name: columnName },
+    { token }
+  );
+}
+
+
   async deleteMolecule(projectId, moleculeId, token) {
     const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULE_DETAIL(
       projectId,

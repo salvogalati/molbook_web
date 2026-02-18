@@ -218,6 +218,30 @@ const addColumn = useCallback(
   [projectId, token]
 );
 
+const removeColumn = useCallback(
+  async (columnName) => {
+    if (!projectId) throw new Error("Project ID is required");
+
+    try {
+      await apiClient.removeMoleculeColumn(projectId, columnName, token);
+
+      // Aggiorna stato locale
+      setMolecules((prev) =>
+        prev.map((m) => {
+          const newExtraData = { ...m.extra_data };
+          delete newExtraData[columnName];
+          return { ...m, extra_data: newExtraData };
+        })
+      );
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  },
+  [projectId, token]
+);
+
+
 
   return {
     molecules,
@@ -228,6 +252,7 @@ const addColumn = useCallback(
     updateMolecule,
     deleteMolecule,
     addColumn,
+    removeColumn,
   };
 }
 

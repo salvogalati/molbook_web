@@ -2,7 +2,7 @@
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError, transaction
 from rest_framework.exceptions import ValidationError
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import Project
 from .serializers import MoleculeSerializer, ProjectSerializer
 from .permissions import IsProjectOwnerOrReadOnly
@@ -45,6 +45,24 @@ class MoleculeViewSet(viewsets.ModelViewSet):
                     mol.extra_data[col] = ""  # valore default
             mol.save()
         return Response({"status": "columns added"})
+
+    @action(detail=False, methods=['post'])
+    def remove_column(self, request, project_pk=None):
+        """
+        Rimuove una colonna dinamica da tutte le molecole del progetto
+        """
+        project = self.get_project()
+        column_to_remove = request.data.get("column_name")
+        if not column_to_remove:
+            return Response({"error": "column_name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Cicla tutte le molecole e rimuove la chiave da extra_data
+        for mol in project.molecules.all():
+            if column_to_remove in mol.extra_data:
+                del mol.extra_data[column_to_remove]
+                mol.save()
+
+        return Response({"status": f"Column '{column_to_remove}' removed"})
 
 
     # def partial_update(self, request, *args, **kwargs):
