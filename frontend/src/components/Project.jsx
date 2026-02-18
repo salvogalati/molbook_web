@@ -189,9 +189,6 @@ export default function Project({
   const columns = [
     { field: "Image", header: "Image" },
     { field: "code", header: "Code" },
-    { field: "name", header: "Name" },
-    { field: "quantity", header: "Quantity" },
-    { field: "category", header: "Category" },
   ];
 
   const [products, setProducts] = useState([]);
