@@ -7,6 +7,8 @@ from .models import Project
 from .serializers import MoleculeSerializer, ProjectSerializer
 from .permissions import IsProjectOwnerOrReadOnly
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class MoleculeViewSet(viewsets.ModelViewSet):
     """
@@ -32,6 +34,18 @@ class MoleculeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # 3) assegno al salvataggio sempre il project corretto
         serializer.save(project=self.get_project())
+
+    @action(detail=False, methods=['post'])
+    def columns(self, request, project_pk=None):
+        project = self.get_project()
+        new_columns = request.data.get("new_columns", [])
+        for mol in project.molecules.all():
+            for col in new_columns:
+                if col not in mol.extra_data:
+                    mol.extra_data[col] = ""  # valore default
+            mol.save()
+        return Response({"status": "columns added"})
+
 
     # def partial_update(self, request, *args, **kwargs):
     # INTERCETTA LE PATCH E STAMPA I DATI INVIATI (per debug)
