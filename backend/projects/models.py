@@ -26,11 +26,12 @@ class Molecule(models.Model):
                                 on_delete=models.CASCADE, 
                                 related_name='molecules')
     code = models.CharField(max_length=50)
-    name = models.CharField(max_length=50,blank=True, null=True)
-    category = models.CharField(max_length=50,blank=True, null=True)
-    quantity = models.CharField(blank=True, null=True)
+    #name = models.CharField(max_length=50,blank=True, null=True)
+    #category = models.CharField(max_length=50,blank=True, null=True)
+    #quantity = models.CharField(blank=True, null=True)
     smiles = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    extra_data = models.JSONField(default=dict, blank=True)  # dynamic fields for additional properties
 
     def __str__(self):
         return f"{self.code} {self.smiles}"
