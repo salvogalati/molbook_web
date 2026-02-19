@@ -32,6 +32,10 @@ class Molecule(models.Model):
     smiles = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     extra_data = models.JSONField(default=dict, blank=True)  # dynamic fields for additional properties
+    order = models.PositiveIntegerField(default=0)  # nuovo campo per ordinamento
 
+    class Meta:
+        ordering = ['order']  # default ordering
+        
     def __str__(self):
         return f"{self.code} {self.smiles}"

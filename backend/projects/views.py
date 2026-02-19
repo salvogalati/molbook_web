@@ -64,6 +64,23 @@ class MoleculeViewSet(viewsets.ModelViewSet):
 
         return Response({"status": f"Column '{column_to_remove}' removed"})
 
+    @action(detail=False, methods=['post'])
+    def reorder(self, request, project_pk=None):
+        """
+        Riceve: { "molecule_ids": [3,1,2,...] } e aggiorna il campo order
+        """
+        project = self.get_project()
+        ids = request.data.get("molecule_ids", [])
+        if not isinstance(ids, list):
+            return Response({"error": "molecule_ids must be a list"}, status=400)
+
+        for idx, mol_id in enumerate(ids):
+            mol = project.molecules.filter(pk=mol_id).first()
+            if mol:
+                mol.order = idx
+                mol.save(update_fields=["order"])
+
+        return Response({"status": "order updated"})
 
     # def partial_update(self, request, *args, **kwargs):
     # INTERCETTA LE PATCH E STAMPA I DATI INVIATI (per debug)
