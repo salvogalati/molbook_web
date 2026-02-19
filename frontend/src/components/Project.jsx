@@ -47,7 +47,6 @@ export default function Project({
 
   // Ref per evitare cicli di update
   const updatingRef = useRef(false);
-
   // Quando cambia la selezione locale → notifica al padre
   useEffect(() => {
     //console.log("OnselectionChange Project", selectedRows, selectedMolecule)
@@ -439,15 +438,18 @@ const onSketcherClose = async (smiles) => {
             style={{ flexDirection: isHorizontal ? "row" : "column" }}
           >
             {/* Molecule image panel */}
-            <div style={{ width: "25%" }}>
+            {showImage && (
+            <div style={{ display: "flex", flexDirection: "column"  ,   alignItems: "flex-start",
+    justifyContent: "flex-start"}}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                {selectedMolecule && (
                 <Button
                   icon="pi pi-pencil"
                   outlined
                   tooltip="Edit Structure"
                   size="small"
                   onClick={() => setShowSketcher(true)}
-                ></Button>
+                ></Button>)}
               </div>
 
               <div
@@ -457,8 +459,8 @@ const onSketcherClose = async (smiles) => {
                   display: showImage ? undefined : "none",
                 }}
               >
-                {" "}
-              </div>
+              
+              
               {selectedMolecule && (
                 <img
                   src={moleculeImageUrl}
@@ -471,6 +473,7 @@ const onSketcherClose = async (smiles) => {
                 />
               )}
             </div>
+            </div> )}
             {/* Molecule table */}
             <div
               className="molecules-table-panel"
