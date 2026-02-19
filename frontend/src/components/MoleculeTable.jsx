@@ -15,6 +15,7 @@ import { InputText } from "primereact/inputtext";
 import { ContextMenu } from "primereact/contextmenu";
 import { Image } from "primereact/image";
 import { ToggleButton } from "primereact/togglebutton";
+import { Toast } from 'primereact/toast';
 import { API_URL, FAILED_IMAGE_URL } from "../services/api";
 import "./styles/MoleculeTable.css";
 import "./styles/Loader.css";
@@ -46,6 +47,7 @@ export default forwardRef(function MoleculeTable(
   const dt = useRef(null);
   const cm = useRef(null);
   const prevSelectionRef = useRef([]);
+  const toast = useRef(null);
 
   // Define columns based states
   const [addingColumn, setAddingColumn] = useState(false);
@@ -230,9 +232,9 @@ export default forwardRef(function MoleculeTable(
   }, [sortMode]);
 
   const onCellEditComplete = async (e) => {
-    const { rowData, newValue, field, originalEvent: event } = e;
+    const { rowData, newValue, field, originalEvent: event, } = e;
     // Check if the new value is a non-empty string
-    if (typeof newValue === "string" && newValue.trim().length > 0) {
+    if (typeof newValue === "string") {
       try {
         const moleculeId = rowData.id;
         // Update UI immediately for responsiveness, backend will confirm or rollback
@@ -290,8 +292,9 @@ export default forwardRef(function MoleculeTable(
         );
       } catch (err) {
         // On error, log and rollback to original value
+        toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update cell value, error during saving. ', life: 3000})
+        console.log(e)
         console.error(err);
-        event.preventDefault();
       }
     } else {
       event.preventDefault(); // valore non valido, rollback
@@ -415,6 +418,8 @@ export default forwardRef(function MoleculeTable(
       setAddingColumn(false);
     } catch (err) {
       console.error(err);
+      toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update value, error during saving. ', life: 3000})
+        
     }
 
     // Update the products state to add the new column with an empty value for all products
@@ -443,6 +448,7 @@ export default forwardRef(function MoleculeTable(
       await removeColumn(columnName); // aspetta backend
     } catch (err) {
       console.error(err);
+      toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update value, error during saving. ', life: 3000})
     }
 
     // Aggiorna i filtri per rimuovere quello della colonna cancellata
@@ -491,6 +497,7 @@ export default forwardRef(function MoleculeTable(
   // --- Render ---
   return (
     <div className="molecule-table-card card">
+      <Toast ref={toast} />
       {/* Context menù (right click) */}
       <ContextMenu
         model={menuModel}
