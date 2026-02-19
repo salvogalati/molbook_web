@@ -34,13 +34,14 @@ export default forwardRef(function MoleculeTable(
     onSelectionChange,
     addColumn,
     removeColumn,
+    reorderMolecules
   },
   ref,
 ) {
   // Track cell and row selection
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [sortMode, setSortMode] = useState(false);
+  //const [sortMode, setSortMode] = useState(false);
   const staticFields = ["code", "smiles"];
 
   // Refs for DataTable and ContextMenu and selection tracking
@@ -171,7 +172,7 @@ export default forwardRef(function MoleculeTable(
 
   // Fort automatic scroll when drag row
   useEffect(() => {
-    if (!sortMode) return; // only for row reordering
+    //if (!sortMode) return; // only for row reordering
 
     const tableElem = dt.current?.getElement();
     if (!tableElem) return; // check if table element is available
@@ -229,7 +230,8 @@ export default forwardRef(function MoleculeTable(
       document.removeEventListener("dragend", stopAutoScroll);
       document.removeEventListener("drop", stopAutoScroll);
     };
-  }, [sortMode]);
+  }, []);
+  //}, [sortMode]);
 
   const onCellEditComplete = async (e) => {
     const { rowData, newValue, field, originalEvent: event, } = e;
@@ -392,19 +394,31 @@ export default forwardRef(function MoleculeTable(
   //     setSelectedCells(prev => [...prev, cellData]);
   // };
 
-  const header = (
-    <div className="flex align-items-center justify-content-end gap-2">
-      <ToggleButton
-        onIcon="pi pi-sort"
-        offIcon="pi pi-sort"
-        id="sort_button"
-        onLabel=""
-        offLabel=""
-        checked={sortMode}
-        onChange={() => setSortMode(!sortMode)}
-      />
-    </div>
-  );
+  // const header = (
+  //   <div className="flex align-items-center justify-content-end gap-2">
+  //     <ToggleButton
+  //       onIcon="pi pi-sort"
+  //       offIcon="pi pi-sort"
+  //       id="sort_button"
+  //       onLabel=""
+  //       offLabel=""
+  //       checked={sortMode}
+  //       onChange={() => setSortMode(!sortMode)}
+  //     />
+  //   </div>
+  // );
+
+  // Handle row reorder.
+  const handleRowReorder = async (e) => {
+    try {
+      await reorderMolecules(e.value)
+    } catch (err) {
+      console.error(err);
+      toast.current.show({severity:'error', summary: 'Error', detail:'Failed to update value, error during saving. ', life: 3000})
+        
+    }
+    setProducts(e.value);
+  };
 
   // Handle adding a new column.
   const handleAddColumn = async () => {
@@ -510,7 +524,7 @@ export default forwardRef(function MoleculeTable(
         value={products}
         dataKey="code"
         id="molecule-table"
-        header={header}
+        //header={header}
         emptyMessage="No molecules present"
         onContextMenu={(e) =>
           cm.current.show(e.originalEvent)
@@ -521,10 +535,13 @@ export default forwardRef(function MoleculeTable(
         globalFilterFields={columns.map((col) => col.field)}
         scrollable
         scrollHeight="100%"
-        cellSelection={!sortMode}
+        //cellSelection={!sortMode}
+        cellSelection={true}
         //selectionMode={'checkbox'}
         //reorderableColumns // Problems with column reordering and dynamic columns, each time it generates new check box column 
-        onRowReorder={(e) => setProducts(e.value)}
+        reorderableRows
+        //onRowReorder={(e) => setProducts(e.value)}
+        onRowReorder={handleRowReorder}
         selection={selectedCells}
         onSelectionChange={handleSelectionChange}
         metaKeySelection
@@ -532,7 +549,7 @@ export default forwardRef(function MoleculeTable(
         columnResizeMode="expand"
         resizableColumns
         editMode="cell"
-        dragSelection={!sortMode}
+        //dragSelection={!sortMode}
       >
         {/* <Column
           rowReorder={sortMode}
@@ -574,6 +591,7 @@ export default forwardRef(function MoleculeTable(
                         icon="pi pi-trash"
                         rounded
                         text
+                        tooltip="Remove Column"
                         className="p-button-text p-button-sm"
                         onClick={() => handleRemoveColumn(cleanField)}
                       />
@@ -622,6 +640,8 @@ export default forwardRef(function MoleculeTable(
             ) : (
               <Button
                 icon="pi pi-plus"
+                tooltip="Add new column"
+                rounded
                 className="p-button-text p-button-sm"
                 onClick={() => setAddingColumn(true)}
               />

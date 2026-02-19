@@ -40,7 +40,7 @@ export default function Project({
   const [visibleAddMolecule, setVisibleAddMolecule] = useState(false);
   const [moleculeImageUrl, setMoleculeImageUrl] = useState(null);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const { updateMolecule, addColumn, removeColumn } = useMolecules(projectId);
+  const { updateMolecule, reorderMolecules, addColumn, removeColumn } = useMolecules(projectId);
   const [showSketcher, setShowSketcher] = useState(false);
   const tableRef = useRef(null);
   const iframeRef = useRef(null);
@@ -487,6 +487,7 @@ const onSketcherClose = async (smiles) => {
                 //onSelectRow={(rowData) => console.log("row", rowData)}
                 addColumn={addColumn}
                 removeColumn={removeColumn}
+                reorderMolecules={reorderMolecules}
                 products={products}
                 globalfilter={globalfilter}
                 setProducts={setProducts}
