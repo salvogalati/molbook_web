@@ -168,6 +168,12 @@ class APIClient {
     )}`;
     return this.patch(url, data, { token });
   }
+  
+  async reorderMolecules(projectId, payload, token) {
+    const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULES_REORDER(projectId)}`;
+    return this.post(url, payload, { token });
+  }
+
 
   async addMoleculeColumn(projectId, payload, token) {
     const url = `${this.baseURL}${ENDPOINTS.PROJECTS.MOLECULES_COLUMNS(projectId)}`;

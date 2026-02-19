@@ -186,6 +186,29 @@ export function useMolecules(projectId) {
     [projectId, token]
   );
 
+const reorderMolecules = useCallback(
+  async (newOrder) => {
+    if (!projectId) throw new Error("Project ID is required");
+
+    // Aggiorna subito lo stato per UI reattiva
+    setMolecules(newOrder);
+
+    try {
+      await apiClient.reorderMolecules(
+        projectId,
+        { molecule_ids: newOrder.map(m => m.id) },
+        token
+      );
+    } catch (err) {
+      console.error("Failed to save row order", err);
+      setError(err);
+      throw err;
+    }
+  },
+  [projectId, token]
+);
+
+
   const deleteMolecule = useCallback(
     async (moleculeId) => {
       if (!projectId) throw new Error("Project ID is required");
@@ -250,6 +273,7 @@ const removeColumn = useCallback(
     fetchMolecules,
     createMolecule,
     updateMolecule,
+    reorderMolecules,
     deleteMolecule,
     addColumn,
     removeColumn,

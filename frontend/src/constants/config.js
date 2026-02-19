@@ -27,6 +27,7 @@ export const ENDPOINTS = {
     `/api/projects/${projectId}/molecules/columns/`,
     MOLECULES_REMOVE_COLUMN: (projectId) =>
   `/api/projects/${projectId}/molecules/remove_column/`,
+    MOLECULES_REORDER: (projectId) => `/api/projects/${projectId}/molecules/reorder/`
   },
   USERS: {
     DETAIL: (id) => `/api/users/${id}/`,
